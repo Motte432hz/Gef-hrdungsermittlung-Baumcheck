@@ -191,6 +191,8 @@ export interface Signature extends BaseRecord {
   image: StoredFile
   signedAt: ISODate
   position?: GeoPosition
+  /** Content hash of the assessment at signing time; a later change invalidates the signature. */
+  contentHash: string
 }
 
 export type AttachmentKind = 'tree_photo' | 'order_confirmation' | 'invoice' | 'other'

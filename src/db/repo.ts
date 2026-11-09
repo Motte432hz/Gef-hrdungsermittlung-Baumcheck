@@ -1,6 +1,7 @@
 import type { BaumCheckDB } from './db'
 import { LockedError } from './db'
 import type {
+  Signature,
   Attachment,
   StoredFile,
   Answer,
@@ -396,4 +397,40 @@ export async function getTreePhotos(db: BaumCheckDB, treeId: ID): Promise<Attach
   return list
     .filter((a) => a.kind === 'tree_photo')
     .sort((a, b) => a.capturedAt.localeCompare(b.capturedAt))
+}
+
+export type SignatureInput = Omit<Signature, keyof BaseRecord | 'assessmentId'>
+
+/** Stores a signature for a draft (several per member are allowed; the newest counts). */
+export async function addSignature(
+  db: BaumCheckDB,
+  assessmentId: ID,
+  input: SignatureInput,
+): Promise<Signature> {
+  return db.transaction('rw', db.assessments, db.signatures, async () => {
+    const a = await requireDraft(db, assessmentId)
+    const sig: Signature = { ...baseRecord(a.organizationId), assessmentId, ...input }
+    await db.signatures.add(sig)
+    return sig
+  })
+}
+
+/** Removes all signatures of a member for a statement (re-sign). */
+export async function removeSignatures(
+  db: BaumCheckDB,
+  assessmentId: ID,
+  memberId: ID,
+  statement: Signature['statement'],
+): Promise<void> {
+  await db.transaction('rw', db.assessments, db.signatures, async () => {
+    await requireDraft(db, assessmentId)
+    const list = await db.signatures.where('assessmentId').equals(assessmentId).toArray()
+    await db.signatures.bulkDelete(
+      list.filter((x) => x.memberId === memberId && x.statement === statement).map((x) => x.id),
+    )
+  })
+}
+
+export async function getSignatures(db: BaumCheckDB, assessmentId: ID): Promise<Signature[]> {
+  return db.signatures.where('assessmentId').equals(assessmentId).toArray()
 }

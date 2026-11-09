@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { BaumCheckDB, LockedError } from './db'
 import {
   addTree,
+  addSignature,
+  getSignatures,
+  removeSignatures,
   addTreePhoto,
   getTreePhotos,
   removeAttachment,
@@ -278,5 +281,33 @@ describe('tree photos', () => {
     await complete(a.id)
     await expect(addTreePhoto(db, t.id, photo, 'b.jpg')).rejects.toBeInstanceOf(LockedError)
     await expect(removeAttachment(db, p.id)).rejects.toBeInstanceOf(LockedError)
+  })
+})
+
+describe('signatures', () => {
+  const input = (memberId: string) => ({
+    memberId,
+    name: 'Anna Ast',
+    roles: ['supervisor' as const],
+    statement: 'supervisor' as const,
+    method: 'drawn' as const,
+    image: { type: 'image/png', data: new Uint8Array([1]).buffer },
+    signedAt: '2026-11-09T08:00:00Z',
+    contentHash: 'h',
+  })
+
+  it('stores and removes signatures of a draft', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    await addSignature(db, a.id, input('m1'))
+    await addSignature(db, a.id, input('m2'))
+    expect((await getSignatures(db, a.id)).map((s) => s.memberId).sort()).toEqual(['m1', 'm2'])
+    await removeSignatures(db, a.id, 'm1', 'supervisor')
+    expect((await getSignatures(db, a.id)).map((s) => s.memberId)).toEqual(['m2'])
+  })
+
+  it('no signing after completion', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    await complete(a.id)
+    await expect(addSignature(db, a.id, input('m1'))).rejects.toBeInstanceOf(LockedError)
   })
 })

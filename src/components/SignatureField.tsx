@@ -56,7 +56,7 @@ export function SignatureField({
   )
 }
 
-function SignatureCanvas({
+export function SignatureCanvas({
   label,
   onDone,
   onCancel,
@@ -113,9 +113,11 @@ function SignatureCanvas({
 
   return (
     <div className="space-y-2">
-      <p className="font-semibold" id="sig-label">
-        {label}
-      </p>
+      {label && (
+        <p className="font-semibold" id="sig-label">
+          {label}
+        </p>
+      )}
       <canvas
         ref={canvasRef}
         aria-label={`${label}: Unterschriftenfeld`}
