@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { BaumCheckDB, LockedError } from './db'
+import { BaumCheckDB, LockedError, resolvePath } from './db'
 import {
   addTree,
+  getProtocolPdf,
+  NumberConflictError,
+  peekProtocolNumber,
   addSignature,
   getSignatures,
   removeSignatures,
@@ -171,6 +174,17 @@ describe('immutability after completion', () => {
     expect((await db.assessments.get(a.id))!.status).toBe('completed')
   })
 
+  it('unchanged nested values reported as key paths are not treated as changes', async () => {
+    const { a } = await completedWithTree()
+    // Browsers' Dexie reports array fields inside answers as nested key paths.
+    await expect(
+      db.assessments.update(a.id, { 'answers.job.types.value': undefined } as never),
+    ).resolves.toBe(1)
+    await expect(
+      db.assessments.update(a.id, { 'answers.job.types.value': ['crane'] } as never),
+    ).rejects.toBeInstanceOf(LockedError)
+  })
+
   it('still allows marking as sent', async () => {
     const { a } = await completedWithTree()
     await markSent(db, a.id)
@@ -309,5 +323,52 @@ describe('signatures', () => {
     const a = await createAssessment(db, org.id, '1.0')
     await complete(a.id)
     await expect(addSignature(db, a.id, input('m1'))).rejects.toBeInstanceOf(LockedError)
+  })
+})
+
+describe('completion with PDF', () => {
+  it('peeks the next number, stores the PDF and verifies the number', async () => {
+    const a = await createAssessment(db, org.id, '1.0', { date: '2026-11-09' })
+    const n = await peekProtocolNumber(db, a.id)
+    expect(n).toBe('ZW-2026-0001')
+    // Peeking reserves nothing.
+    expect(await peekProtocolNumber(db, a.id)).toBe(n)
+    const pdf = { type: 'application/pdf', data: new Uint8Array([37, 80, 68, 70]).buffer }
+    const done = await completeAssessment(db, a.id, {
+      contentHash: 'c',
+      pdfHash: 'p',
+      expectedNumber: n,
+      completedAt: '2026-11-09T10:00:00.000Z',
+      pdf,
+    })
+    expect(done).toMatchObject({
+      protocolNumber: n,
+      completedAt: '2026-11-09T10:00:00.000Z',
+      pdfHash: 'p',
+    })
+    const stored = await getProtocolPdf(db, a.id)
+    expect(stored!.fileName).toBe('Gefaehrdungsermittlung_ZW-2026-0001.pdf')
+    expect(new Uint8Array(stored!.file.data)).toEqual(new Uint8Array([37, 80, 68, 70]))
+  })
+
+  it('refuses when the number was taken in the meantime (nothing is changed)', async () => {
+    const a = await createAssessment(db, org.id, '1.0', { date: '2026-11-09' })
+    const b = await createAssessment(db, org.id, '1.0', { date: '2026-11-09' })
+    const n = await peekProtocolNumber(db, a.id)
+    await complete(b.id)
+    await expect(
+      completeAssessment(db, a.id, { contentHash: 'c', expectedNumber: n }),
+    ).rejects.toBeInstanceOf(NumberConflictError)
+    expect((await db.assessments.get(a.id))!.status).toBe('draft')
+    expect(await peekProtocolNumber(db, a.id)).toBe('ZW-2026-0002')
+  })
+})
+
+describe('resolvePath', () => {
+  it('handles property names containing dots', () => {
+    const obj = { answers: { 'job.types': { value: ['a'] }, job: { x: 1 } } }
+    expect(resolvePath(obj, 'answers.job.types.value'.split('.'))).toEqual(['a'])
+    expect(resolvePath(obj, 'answers.job.x'.split('.'))).toBe(1)
+    expect(resolvePath(obj, 'answers.nope'.split('.'))).toBeUndefined()
   })
 })

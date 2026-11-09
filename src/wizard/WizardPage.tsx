@@ -23,7 +23,8 @@ export function WizardPage() {
 
   if (data === undefined) return <p className="p-4">Lädt …</p>
   if (data === null) return <Navigate to="/" replace />
-  if (data.assessment.status !== 'draft') return <Navigate to="/archiv" replace />
+  if (data.assessment.status !== 'draft')
+    return <Navigate to={`/protokoll/${data.assessment.id}`} replace />
   return <Wizard assessment={data.assessment} trees={data.trees} stepId={stepId} />
 }
 

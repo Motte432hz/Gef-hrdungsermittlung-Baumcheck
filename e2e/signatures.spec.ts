@@ -31,7 +31,7 @@ test('summary shows all answers; everyone signs; changes invalidate signatures',
     await expect(card).toContainText('vor Ort unterschrieben')
   }
   await expect(sigs.getByRole('heading')).toHaveText('Unterschriften (2 von 2)')
-  await expect(page.getByText(/Alles bereit/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Abschließen & PDF erstellen' })).toBeEnabled()
 
   // Survives reload.
   await page.reload()

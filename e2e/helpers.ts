@@ -109,3 +109,26 @@ export async function fillCompleteAssessment(
   await next(page)
   await expect(page.getByText('Schritt 9 von 9')).toBeVisible()
 }
+
+/** Signs for every person on the summary step. */
+export async function signEveryone(page: Page) {
+  const cards = page.getByRole('listitem', { name: /^Unterschrift / })
+  const n = await cards.count()
+  for (let i = 0; i < n; i++) {
+    const card = cards.nth(i)
+    await card.getByRole('button', { name: /Jetzt unterschreiben/ }).click()
+    await drawSignature(page, card)
+    await card.getByRole('button', { name: 'Unterschrift übernehmen' }).click()
+    await expect(card.getByRole('button', { name: 'Neu unterschreiben' })).toBeVisible()
+  }
+}
+
+/** Waits until the service worker controls the page (needed before going offline). */
+export async function waitForServiceWorker(page: Page) {
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready
+    if (!navigator.serviceWorker.controller) {
+      await new Promise((r) => navigator.serviceWorker.addEventListener('controllerchange', r))
+    }
+  })
+}

@@ -220,13 +220,40 @@ async function allocateProtocolNumber(
   return formatProtocolNumber({ prefix, year, seq, deviceCode })
 }
 
+/**
+ * The number the assessment will get on completion (nothing is reserved). The PDF is built
+ * with it before completing; completeAssessment verifies it is still the next number.
+ */
+export async function peekProtocolNumber(db: BaumCheckDB, id: ID): Promise<string> {
+  const a = await requireDraft(db, id)
+  const org = await db.organizations.get(a.organizationId)
+  const deviceCode = await getDeviceCode(db)
+  const prefix = org?.numberPrefix ?? 'BC'
+  const year = Number(a.date.slice(0, 4))
+  const current =
+    ((await db.meta.get(counterKey(prefix, year, deviceCode)))?.value as number | undefined) ?? 0
+  return formatProtocolNumber({ prefix, year, seq: current + 1, deviceCode })
+}
+
+export class NumberConflictError extends Error {
+  constructor() {
+    super('Protocol number was taken in the meantime')
+    this.name = 'NumberConflictError'
+  }
+}
+
 export interface CompletionData {
   contentHash: string
   pdfHash?: string
   deviceInfo?: string
+  /** Number printed in the PDF; must still be the next free number. */
+  expectedNumber?: string
+  completedAt?: string
+  /** The final PDF; stored as attachment 'protocol_pdf'. */
+  pdf?: StoredFile
 }
 
-/** Locks the assessment and assigns the final protocol number. */
+/** Locks the assessment, assigns the final protocol number and stores the PDF – atomically. */
 export async function completeAssessment(
   db: BaumCheckDB,
   id: ID,
@@ -234,7 +261,7 @@ export async function completeAssessment(
 ): Promise<Assessment> {
   return db.transaction(
     'rw',
-    [db.assessments, db.organizations, db.meta, db.auditLog],
+    [db.assessments, db.organizations, db.meta, db.auditLog, db.attachments],
     async () => {
       const a = await requireDraft(db, id)
       const org = await db.organizations.get(a.organizationId)
@@ -246,20 +273,42 @@ export async function completeAssessment(
         year,
         deviceCode,
       )
-      const ts = nowIso()
+      if (data.expectedNumber && data.expectedNumber !== protocolNumber)
+        throw new NumberConflictError()
+      const ts = data.completedAt ?? nowIso()
       const changes = {
         status: 'completed' as const,
         protocolNumber,
         completedAt: ts,
         updatedAt: ts,
         syncState: 'pending' as const,
-        ...data,
+        contentHash: data.contentHash,
+        pdfHash: data.pdfHash,
+        deviceInfo: data.deviceInfo,
       }
       await db.assessments.update(id, changes)
+      if (data.pdf) {
+        await db.attachments.add({
+          ...baseRecord(a.organizationId),
+          assessmentId: id,
+          kind: 'protocol_pdf',
+          fileName: `Gefaehrdungsermittlung_${protocolNumber}.pdf`,
+          file: data.pdf,
+          capturedAt: ts,
+        })
+      }
       await audit(db, a.organizationId, 'completed', 'assessment', id, protocolNumber)
       return { ...a, ...changes }
     },
   )
+}
+
+export async function getProtocolPdf(
+  db: BaumCheckDB,
+  assessmentId: ID,
+): Promise<Attachment | undefined> {
+  const list = await db.attachments.where('assessmentId').equals(assessmentId).toArray()
+  return list.find((x) => x.kind === 'protocol_pdf')
 }
 
 export async function markSent(db: BaumCheckDB, id: ID): Promise<void> {

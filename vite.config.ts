@@ -43,7 +43,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,ttf,webmanifest}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         // Take control on first install, so the app works offline right after the first visit.

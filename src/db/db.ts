@@ -16,6 +16,24 @@ import { canonicalJson } from '../lib/hash'
 /** Fields that may still change after an assessment has been completed. */
 const LOCKED_MUTABLE_FIELDS = new Set(['status', 'sentAt', 'syncState', 'updatedAt'])
 
+/**
+ * Resolves a dotted key path where property names may themselves contain dots
+ * (answer keys like "job.types"): tries the longest matching key first.
+ */
+export function resolvePath(obj: unknown, parts: string[]): unknown {
+  if (parts.length === 0) return obj
+  if (obj === null || typeof obj !== 'object') return undefined
+  const rec = obj as Record<string, unknown>
+  for (let i = parts.length; i >= 1; i--) {
+    const key = parts.slice(0, i).join('.')
+    if (key in rec) {
+      const found = resolvePath(rec[key], parts.slice(i))
+      if (found !== undefined || i === parts.length) return found
+    }
+  }
+  return undefined
+}
+
 export class LockedError extends Error {
   constructor(message = 'Das Protokoll ist abgeschlossen und kann nicht mehr geändert werden.') {
     super(message)
@@ -55,10 +73,12 @@ export class BaumCheckDB extends Dexie {
     // and the status can never go back to draft.
     this.assessments.hook('updating', (mods, _key, obj) => {
       if (obj.status === 'draft') return
-      // Dexie may report unchanged fields (e.g. arrays) as modifications, so compare values.
-      const current = obj as unknown as Record<string, unknown>
+      // Dexie may report unchanged fields as modifications – also as nested key paths like
+      // "answers.job.types.value" – so resolve the path and compare values.
       const forbidden = Object.entries(mods).filter(
-        ([k, v]) => !LOCKED_MUTABLE_FIELDS.has(k) && canonicalJson(v) !== canonicalJson(current[k]),
+        ([k, v]) =>
+          !LOCKED_MUTABLE_FIELDS.has(k.split('.')[0]!) &&
+          canonicalJson(v) !== canonicalJson(resolvePath(obj, k.split('.'))),
       )
       if (forbidden.length > 0 || (mods as Partial<Assessment>).status === 'draft') {
         throw new LockedError()

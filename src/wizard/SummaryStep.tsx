@@ -5,7 +5,6 @@ import { useWizard } from './WizardContext'
 import { wizardSteps } from './steps'
 import { itemAnchor } from './anchors'
 import { Card } from '../components/Card'
-import { Button } from '../components/Button'
 import { Notice } from './inputs/Notice'
 import { db } from '../db/db'
 import { getSignatures } from '../db/repo'
@@ -19,6 +18,7 @@ import {
 } from '../report/summary'
 import { formatDateDe } from './draftInfo'
 import { SignCard } from './summary/SignCard'
+import { CompleteCard } from './summary/CompleteCard'
 
 const levelOrder: IssueLevel[] = ['danger', 'blocking', 'warning', 'info']
 const levelTitle: Record<IssueLevel, string> = {
@@ -226,16 +226,7 @@ export function SummaryStep() {
       </section>
 
       {/* 5. Completion */}
-      <Card>
-        <Button className="min-h-16 w-full text-lg" disabled>
-          Abschließen & PDF erstellen
-        </Button>
-        <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
-          {ready && allSigned(req)
-            ? 'Alles bereit. Das PDF und der Abschluss folgen im nächsten Ausbauschritt.'
-            : 'Möglich, sobald alle Punkte erledigt sind und alle unterschrieben haben.'}
-        </p>
-      </Card>
+      <CompleteCard ready={ready && allSigned(req)} assessmentId={assessment.id} />
     </div>
   )
 }

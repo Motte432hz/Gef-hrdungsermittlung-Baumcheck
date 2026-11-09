@@ -195,7 +195,8 @@ export interface Signature extends BaseRecord {
   contentHash: string
 }
 
-export type AttachmentKind = 'tree_photo' | 'order_confirmation' | 'invoice' | 'other'
+export type AttachmentKind =
+  'tree_photo' | 'protocol_pdf' | 'order_confirmation' | 'invoice' | 'other'
 
 export interface Attachment extends BaseRecord {
   assessmentId: ID

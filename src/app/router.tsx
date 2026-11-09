@@ -13,6 +13,7 @@ import { WorkerEditPage } from '../pages/profiles/WorkerEditPage'
 import { CustomerListPage } from '../pages/profiles/CustomerListPage'
 import { CustomerEditPage } from '../pages/profiles/CustomerEditPage'
 import { EquipmentPage } from '../pages/profiles/EquipmentPage'
+import { ProtocolPage } from '../pages/ProtocolPage'
 
 export const routes = [
   {
@@ -25,6 +26,7 @@ export const routes = [
         children: [
           { index: true, element: <HomePage /> },
           { path: 'archiv', element: <ArchivePage /> },
+          { path: 'protokoll/:id', element: <ProtocolPage /> },
           { path: 'profile', element: <ProfilesPage /> },
           { path: 'profile/firma', element: <CompanyPage /> },
           { path: 'profile/mitarbeiter', element: <WorkerListPage kind="employee" /> },
