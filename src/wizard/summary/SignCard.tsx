@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../db/db'
 import { addSignature, removeSignatures } from '../../db/repo'
-import type { Signature } from '../../domain/types'
+import type { GeoPosition, Signature } from '../../domain/types'
 import { signatureMethodText, type RequiredSignature } from '../../report/signatures'
 import { ROLE_LABELS } from '../../domain/roles'
 import { SignatureCanvas } from '../../components/SignatureField'
@@ -47,13 +47,22 @@ export function SignCard({
   const imageUrl = useObjectUrl(signature?.image)
   const storedUrl = useObjectUrl(mode === 'stored' ? stored : undefined)
   const valid = signature && !outdated
+  // GPS is requested when signing starts, so saving never waits long for it.
+  const position = useRef<Promise<GeoPosition | undefined> | undefined>(undefined)
+  const begin = (m: 'draw' | 'stored') => {
+    position.current = quickPosition()
+    setMode(m)
+  }
 
   const save = async (image: Blob | undefined, method: Signature['method']) => {
     setSaving(true)
     setError(undefined)
     try {
       const file = image ? await toStoredFile(image, 'image/png') : stored!
-      const position = await quickPosition()
+      const pos = await Promise.race([
+        position.current ?? Promise.resolve(undefined),
+        new Promise<undefined>((r) => setTimeout(() => r(undefined), 800)),
+      ])
       await addSignature(db, assessmentId, {
         memberId: member.id,
         name: member.name,
@@ -63,7 +72,7 @@ export function SignCard({
         confirmedBy: method === 'stored' ? supervisorName : undefined,
         image: file,
         signedAt: new Date().toISOString(),
-        position,
+        position: pos,
         contentHash,
       })
       setMode('idle')
@@ -120,7 +129,7 @@ export function SignCard({
             variant="secondary"
             onClick={() =>
               void removeSignatures(db, assessmentId, member.id, statement).then(() =>
-                setMode('draw'),
+                begin('draw'),
               )
             }
           >
@@ -131,9 +140,9 @@ export function SignCard({
 
       {!signature && mode === 'idle' && (
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setMode('draw')}>✍ Jetzt unterschreiben</Button>
+          <Button onClick={() => begin('draw')}>✍ Jetzt unterschreiben</Button>
           {stored && (
-            <Button variant="secondary" onClick={() => setMode('stored')}>
+            <Button variant="secondary" onClick={() => begin('stored')}>
               Hinterlegte Unterschrift verwenden
             </Button>
           )}
