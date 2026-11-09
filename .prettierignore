@@ -6,3 +6,5 @@ test-results
 package-lock.json
 public
 CLAUDE.md
+scripts
+docs/BAUMARTEN.md

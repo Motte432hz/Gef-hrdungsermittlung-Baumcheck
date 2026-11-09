@@ -9,6 +9,8 @@ import { DateField } from './special/DateField'
 import { SupervisorField } from './special/SupervisorField'
 import { TeamField } from './special/TeamField'
 import { AddressField, GpsField } from './special/LocationFields'
+import { SpeciesField } from './trees/SpeciesField'
+import { PhotosField } from './trees/PhotosField'
 
 export function ItemField({ item, treeId }: { item: FormItem; treeId?: string }) {
   const { definition, assessment, trees, setAnswer } = useWizard()
@@ -58,8 +60,9 @@ export function ItemField({ item, treeId }: { item: FormItem; treeId?: string })
       case 'gps':
         return <GpsField item={item} />
       case 'photos':
+        return treeId ? <PhotosField item={item} treeId={treeId} /> : null
       case 'treeSpecies':
-        return null
+        return treeId ? <SpeciesField item={item} treeId={treeId} /> : null
     }
   })()
 

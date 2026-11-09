@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test --trace off",
-    "icons": "pwa-assets-generator"
+    "icons": "pwa-assets-generator",
+    "species": "python3 scripts/build-species.py"
   },
   "dependencies": {
     "dexie": "^4.4.7",

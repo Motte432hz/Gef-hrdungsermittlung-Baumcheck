@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useNavigate, useParams } from 'react-router'
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { getTrees, setAnswer, setTreeAnswer, updateAssessment } from '../db/repo'
@@ -11,6 +11,7 @@ import { stepState, SUMMARY_STEP_ID, wizardSteps, type StepState, type WizardSte
 import { StepView } from './StepView'
 import { SummaryStep } from './SummaryStep'
 import { OnlineBadge } from '../components/OnlineBadge'
+import { neighbour } from './navigation'
 
 export function WizardPage() {
   const { id, stepId } = useParams()
@@ -102,6 +103,8 @@ function Wizard({
   )
   const step = steps[index]!
   const [menuOpen, setMenuOpen] = useState(false)
+  const [params] = useSearchParams()
+  const treeParam = params.get('baum') ?? undefined
   const [saveError, setSaveError] = useState(false)
 
   /** Autosave wrapper: a failed write must never go unnoticed. */
@@ -150,7 +153,19 @@ function Wizard({
 
   if (stepId !== step.id) return <Navigate to={`/einsatz/${assessment.id}/${step.id}`} replace />
 
-  const go = (i: number) => navigate(`/einsatz/${assessment.id}/${steps[i]!.id}`)
+  const go = (direction: 1 | -1) => {
+    const target = neighbour(
+      steps,
+      { stepId: step.id, treeId: treeParam ?? trees[0]?.id },
+      trees.map((t) => t.id),
+      direction,
+    )
+    if (target) {
+      navigate(
+        `/einsatz/${assessment.id}/${target.stepId}${target.treeId ? `?baum=${target.treeId}` : ''}`,
+      )
+    }
+  }
 
   return (
     <WizardContext.Provider value={ctx}>
@@ -238,7 +253,7 @@ function Wizard({
             <div className="mx-auto flex max-w-3xl gap-3 p-3">
               <button
                 type="button"
-                onClick={() => go(index - 1)}
+                onClick={() => go(-1)}
                 disabled={index === 0}
                 className="min-h-14 flex-1 rounded-xl border-2 border-stone-300 font-semibold disabled:opacity-40 dark:border-stone-600"
               >
@@ -247,7 +262,7 @@ function Wizard({
               {index < steps.length - 1 && (
                 <button
                   type="button"
-                  onClick={() => go(index + 1)}
+                  onClick={() => go(1)}
                   className="min-h-14 flex-[2] rounded-xl bg-brand-700 font-semibold text-white hover:bg-brand-500"
                 >
                   Weiter ›

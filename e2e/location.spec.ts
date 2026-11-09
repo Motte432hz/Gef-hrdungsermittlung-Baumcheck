@@ -6,12 +6,19 @@ const PNG = readFileSync('public/pwa-64x64.png')
 test.beforeEach(async ({ page }) => {
   // Never hit real OSM servers from tests.
   await page.route('https://tile.openstreetmap.org/**', (r) =>
-    r.fulfill({ status: 200, contentType: 'image/png', body: PNG }),
+    r.fulfill({
+      status: 200,
+      contentType: 'image/png',
+      headers: { 'Access-Control-Allow-Origin': '*' },
+      body: PNG,
+    }),
   )
   await page.route('https://nominatim.openstreetmap.org/**', (r) =>
     r.fulfill({
       status: 200,
       contentType: 'application/json',
+      // Like the real server; WebKit enforces CORS even for mocked responses.
+      headers: { 'Access-Control-Allow-Origin': '*' },
       body: JSON.stringify({
         address: {
           road: 'Lindenstraße',

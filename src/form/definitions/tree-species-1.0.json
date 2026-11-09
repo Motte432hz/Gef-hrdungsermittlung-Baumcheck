@@ -1,0 +1,1451 @@
+{
+  "version": "1.0",
+  "hazards": [
+    {
+      "id": "sooty_bark",
+      "title": "Rußrindenkrankheit",
+      "text": "Erreger Cryptostroma corticale, vor allem am Berg-Ahorn. Unter abplatzender Rinde liegen schwarze, staubende Sporenlager. Eingeatmete Sporen können eine schwere Lungenentzündung (Alveolitis) auslösen. Befallene Bäume sterben ab, das Holz wird schnell brüchig.",
+      "advice": {
+        "general": "Bei Verdacht: Atemschutz mindestens FFP2, besser FFP3, Einweg-Schutzanzug und Schutzbrille. Möglichst bei feuchtem Wetter arbeiten, Unbeteiligte fernhalten.",
+        "climbing": "Absterbende, befallene Kronen nicht ungeprüft besteigen – Bruchgefahr. Hubarbeitsbühne bevorzugen.",
+        "felling": "Staubentwicklung vermeiden, befallene Stammteile nicht unnötig zersägen.",
+        "chipping": "Befallenes Material nicht in Wohnnähe hacken; beim Transport abdecken und nach örtlichen Vorgaben entsorgen."
+      }
+    },
+    {
+      "id": "oak_processionary",
+      "title": "Eichenprozessionsspinner",
+      "text": "Die Brennhaare der Raupen (etwa Mai bis Juli) und alte Gespinstnester lösen Hautausschlag sowie Augen- und Atemwegsreizungen aus – auch noch Monate bis Jahre später.",
+      "advice": {
+        "general": "Krone vor Arbeitsbeginn auf Nester und Raupen absuchen. Bei Befall nur mit Schutzausrüstung (Schutzanzug, Atemschutz FFP2/FFP3, Schutzbrille, Handschuhe) arbeiten oder die Bekämpfung durch eine Fachfirma abwarten.",
+        "climbing": "Nester nicht berühren; Seile und Ausrüstung nach dem Einsatz reinigen, Kleidung getrennt waschen.",
+        "chipping": "Nester und befallenes Material nicht hacken, sondern gesondert entsorgen."
+      }
+    },
+    {
+      "id": "ash_dieback",
+      "title": "Eschentriebsterben",
+      "text": "Pilz Hymenoscyphus fraxineus. Kronen sterben ab, oft mit Stammfußnekrosen und Wurzelfäule (häufig Hallimasch). Befallene Eschen können ohne äußere Vorwarnung umstürzen oder abbrechen; totes Eschenholz wird schnell spröde.",
+      "advice": {
+        "climbing": "Stammfuß und Wurzelanlauf vor dem Aufstieg genau prüfen (Rindennekrosen, Pilze, Klopfprobe). Bei deutlichem Befall nicht besteigen – Hubarbeitsbühne oder Kran verwenden.",
+        "felling": "Die Bruchleiste kann versagen, die Fällrichtung ist unsicher: Seilzug oder Seilwinde einsetzen und den Sicherheitsabstand vergrößern.",
+        "rigging": "Anschlag- und Umlenkpunkte in geschädigten Kronen nicht belasten."
+      }
+    },
+    {
+      "id": "barber_chair",
+      "title": "Aufreißgefahr beim Fällen",
+      "text": "Das Holz neigt beim Fällen dazu, längs aufzureißen und nach oben herauszuschlagen – besonders bei Vorhängern.",
+      "advice": {
+        "felling": "Bei Vorhang eine geeignete Fälltechnik mit Halteband und Stechschnitt verwenden, den Stamm bei Bedarf vorher mit Kette oder Gurt umschlingen. Rückweiche frei halten und sofort nutzen."
+      }
+    },
+    {
+      "id": "massaria",
+      "title": "Massaria-Krankheit",
+      "text": "Pilz Splanchnonema platani an Platanen. Befällt meist die Oberseite von Ästen: Rinde rötlich bis violett verfärbt, darunter stirbt ein Holzstreifen ab. Befallene Äste können innerhalb weniger Monate plötzlich abbrechen und sind von unten oft kaum zu erkennen.",
+      "advice": {
+        "climbing": "Äste von oben bzw. aus der Hubarbeitsbühne kontrollieren, bevor sie als Anschlag- oder Standpunkt dienen.",
+        "pruning": "Befallene Äste vorrangig entfernen; Fallbereich großzügig absperren."
+      }
+    },
+    {
+      "id": "irritant_hairs",
+      "title": "Reizende Haare und Staub",
+      "text": "Feine Sternhaare an jungen Blättern und Fruchtständen lösen Husten sowie Augen- und Hautreizungen aus, besonders im Frühjahr und beim Zerfall der Fruchtkugeln.",
+      "advice": {
+        "general": "Schutzbrille und Staubmaske (FFP2) tragen.",
+        "chipping": "Beim Hacken auf Staubentwicklung achten, Windrichtung berücksichtigen."
+      }
+    },
+    {
+      "id": "summer_drop",
+      "title": "Grünastbruch (Sommerbruch)",
+      "text": "An heißen, meist windstillen Sommertagen können gesund aussehende, waagerechte Starkäste ohne Vorwarnung abbrechen.",
+      "advice": {
+        "general": "Fallbereich im Sommer auch während Pausen abgesperrt lassen.",
+        "climbing": "Lange, waagerechte Starkäste nicht als Anschlagpunkt nutzen; nicht unter langen Seitenästen aufhalten.",
+        "pruning": "Lange Hebel durch Einkürzen entlasten."
+      }
+    },
+    {
+      "id": "brittle_wood",
+      "title": "Bruchanfälliges Holz",
+      "text": "Das Holz ist weich oder spröde. Äste und Zwiesel brechen leichter als bei anderen Arten, oft ohne Vorwarnung.",
+      "advice": {
+        "climbing": "Anschlagpunkt besonders tragfähig wählen (möglichst am Stamm oder starken Stämmling) und Redundanz einplanen.",
+        "rigging": "Nur kleine Stücke abseilen, Umlenkpunkte nicht überlasten, Fallstrecke kurz halten."
+      }
+    },
+    {
+      "id": "heavy_deadwood",
+      "title": "Schweres Totholz",
+      "text": "Abgestorbene Starkäste sind schwer und bleiben lange in der Krone. Sie brechen bei Erschütterungen durch Seilarbeit oder Fällung.",
+      "advice": {
+        "climbing": "Totholz im Kletterweg zuerst entfernen oder umgehen.",
+        "felling": "Beim Fällschnitt nach oben sehen und die Rückweiche sofort nutzen."
+      }
+    },
+    {
+      "id": "heavy_wood",
+      "title": "Hohes Holzgewicht",
+      "text": "Das Holz ist sehr schwer; Äste und Stammteile wiegen deutlich mehr als geschätzt.",
+      "advice": {
+        "rigging": "Gewicht vorher abschätzen (Frischholz bis etwa 1 t pro m³), Abseilsystem und Anschlagpunkt entsprechend auslegen, kürzere Stücke schneiden."
+      }
+    },
+    {
+      "id": "beech_fungi",
+      "title": "Stammfuß- und Wurzelpilze",
+      "text": "Brandkrustenpilz (Kretzschmaria deusta) und Riesenporling (Meripilus giganteus) zersetzen Stammfuß und Wurzeln. Bäume können trotz voller Belaubung plötzlich umbrechen (Sprödbruch).",
+      "advice": {
+        "climbing": "Stammfuß rundum prüfen (schwarze Krusten, Fruchtkörper, Klopfprobe). Bei Befund nicht besteigen.",
+        "felling": "Bei Fäule am Stammfuß versagt die Bruchleiste: Fällrichtung mit Seilzug sichern, Fällung gegebenenfalls maschinell."
+      }
+    },
+    {
+      "id": "slippery_bark",
+      "title": "Glatte Rinde",
+      "text": "Die glatte Rinde ist bei Nässe sehr rutschig.",
+      "advice": {
+        "climbing": "Bei Nässe besonders auf sicheren Halt achten und durchgehend am Seil gesichert bleiben."
+      }
+    },
+    {
+      "id": "rapid_decay",
+      "title": "Schnelle Zersetzung nach dem Absterben",
+      "text": "Abgestorbenes Holz wird innerhalb kurzer Zeit morsch. Tote oder stark geschwächte Bäume sind sehr bruchgefährdet.",
+      "advice": {
+        "climbing": "Abgestorbene Bäume nicht besteigen – Hubarbeitsbühne einsetzen oder vom Boden fällen.",
+        "felling": "Tote Bäume brechen beim Fällen unkontrolliert, die Krone kann abbrechen: Seilzug einsetzen, nach oben sichern."
+      }
+    },
+    {
+      "id": "shallow_roots",
+      "title": "Flachwurzler – Windwurfgefahr",
+      "text": "Flaches Wurzelsystem: Bei Wind, nassem Boden oder Wurzelschäden ist die Umsturzgefahr hoch.",
+      "advice": {
+        "general": "Nicht bei starkem Wind arbeiten; Wurzelteller auf Risse und Anheben prüfen."
+      }
+    },
+    {
+      "id": "bark_beetle",
+      "title": "Borkenkäfer",
+      "text": "Befallene Fichten (Bohrmehl, abfallende Rinde, verfärbte Nadeln) sterben schnell ab; Wipfel und Äste werden brüchig.",
+      "advice": {
+        "climbing": "Abgestorbene oder stark befallene Fichten nicht besteigen.",
+        "general": "Befallenes Holz zügig aus dem Bestand bringen."
+      }
+    },
+    {
+      "id": "conifer_root_rot",
+      "title": "Wurzel- und Stammfußfäule",
+      "text": "Hallimasch und Wurzelschwamm (Heterobasidion) verursachen Fäule im Wurzel- und Stammfußbereich – von außen oft nicht zu sehen.",
+      "advice": {
+        "climbing": "Stammfuß prüfen, auf Harzfluss und Fruchtkörper am Stammfuß achten.",
+        "felling": "Fäule im Fällschnitt kann die Bruchleiste schwächen; Fällrichtung zusätzlich sichern."
+      }
+    },
+    {
+      "id": "resin",
+      "title": "Harz",
+      "text": "Starker Harzfluss verklebt Seile, Handschuhe und Werkzeug und macht Griffe rutschig.",
+      "advice": {
+        "general": "Ausrüstung nach dem Einsatz reinigen, Seile auf Verklebungen prüfen."
+      }
+    },
+    {
+      "id": "toxic",
+      "title": "Giftige Pflanzenteile",
+      "text": "Teile des Baumes sind giftig (siehe Hinweis zur Art). Gefahr vor allem beim Verschlucken; Säge- und Hackstaub kann Haut und Atemwege reizen.",
+      "advice": {
+        "general": "Handschuhe tragen, während der Arbeit nicht essen oder rauchen, danach Hände waschen. Schnittgut nicht auf Weiden liegen lassen und nicht an Tiere verfüttern (Pferde, Rinder, Schafe).",
+        "chipping": "Hackgut nicht als Einstreu oder Futter abgeben."
+      }
+    },
+    {
+      "id": "thorns",
+      "title": "Dornen und stechende Blätter",
+      "text": "Dornen oder stechende Blätter verletzen Haut und Augen und können Seile, Gurte und Kleidung beschädigen.",
+      "advice": {
+        "general": "Visier bzw. Schutzbrille geschlossen halten, feste Handschuhe tragen.",
+        "climbing": "Seile und Gurte nicht über Dornen führen, Seile nach dem Einsatz prüfen."
+      }
+    },
+    {
+      "id": "skin_sap",
+      "title": "Hautreizender Pflanzensaft",
+      "text": "Saft oder Pflanzenteile können Haut und Augen reizen oder Allergien auslösen.",
+      "advice": {
+        "general": "Hautkontakt vermeiden: lange Ärmel, Handschuhe, Schutzbrille."
+      }
+    },
+    {
+      "id": "bleeding_canker",
+      "title": "Rindenkrankheit mit Schleimfluss",
+      "text": "Bakterielle Rindenkrankheit (Pseudomonas syringae pv. aesculi) mit dunklen, blutenden Rindenstellen. Darunter folgen rasch Holzfäule und Astbrüche.",
+      "advice": {
+        "climbing": "Befallene Stämme und Äste nicht als Anschlagpunkt nutzen.",
+        "pruning": "Abgestorbene Kronenteile vorrangig entfernen."
+      }
+    },
+    {
+      "id": "hollows",
+      "title": "Neigung zu Höhlungen",
+      "text": "Die Art bildet häufig Stamm- und Asthöhlungen (Kernfäule). Viele Bäume bleiben lange stabil – entscheidend ist die verbleibende Restwand.",
+      "advice": {
+        "climbing": "Anschlagpunkt und Stämmlinge auf Höhlungen prüfen (Klopfprobe, Löcher, Spechthöhlen).",
+        "felling": "Höhlungen schwächen die Bruchleiste – Fälltechnik anpassen, das Halteband kann versagen."
+      }
+    },
+    {
+      "id": "included_bark",
+      "title": "Neigung zu Druckzwieseln",
+      "text": "Die Art bildet häufig Zwiesel mit eingewachsener Rinde, die unter Last aufreißen können.",
+      "advice": {
+        "climbing": "Anschlagpunkt nicht über einem Druckzwiesel wählen; Zwiesel bei Bedarf mit Rundschlinge sichern.",
+        "pruning": "Druckzwiesel bei Einkürzung und Kronensicherung berücksichtigen."
+      }
+    },
+    {
+      "id": "honeydew",
+      "title": "Honigtau",
+      "text": "Blattläuse scheiden klebrigen Honigtau aus. Rinde, Ausrüstung und Boden werden klebrig und rutschig.",
+      "advice": {
+        "general": "Rutschgefahr auf Wegen und Leitern beachten, Ausrüstung reinigen."
+      }
+    },
+    {
+      "id": "elm_disease",
+      "title": "Ulmensterben",
+      "text": "Pilzkrankheit (Holländische Ulmenkrankheit). Abgestorbene Ulmen und Kronenteile werden spröde und brechen leicht.",
+      "advice": {
+        "climbing": "Abgestorbene Kronenteile nicht belasten."
+      }
+    },
+    {
+      "id": "chestnut_blight",
+      "title": "Kastanienrindenkrebs",
+      "text": "Pilz Cryphonectria parasitica. Rindenkrebs lässt Äste und Kronenteile absterben, die dann brechen können.",
+      "advice": {
+        "climbing": "Abgestorbene Kronenteile nicht als Anschlag- oder Standpunkt nutzen."
+      }
+    },
+    {
+      "id": "very_tall",
+      "title": "Sehr große Bäume",
+      "text": "Die Art erreicht große Höhen; Fallbereich und Rettungswege sind entsprechend groß.",
+      "advice": {
+        "climbing": "Das Rettungsseil muss von der höchsten Arbeitsposition bis zum Boden reichen. Verständigung über große Höhe per Funk sicherstellen.",
+        "felling": "Fallbereich mindestens doppelte Baumlänge; oft ist stückweise Abtragung nötig."
+      }
+    },
+    {
+      "id": "heavy_limbs",
+      "title": "Schwere, weit ausladende Äste",
+      "text": "Lange, schwere Seitenäste mit großer Hebelwirkung.",
+      "advice": {
+        "rigging": "Äste in Stücken abseilen und Pendelbewegungen einplanen.",
+        "pruning": "Lange Hebel schrittweise einkürzen statt am Stamm abzusetzen."
+      }
+    }
+  ],
+  "species": [
+    {
+      "id": "thuja-occidentalis",
+      "de": "Abendländischer Lebensbaum",
+      "la": "Thuja occidentalis",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["toxic", "skin_sap"],
+      "note": "Alle Teile giftig (Thujon); Kontakt kann Hautreizungen auslösen.",
+      "aliases": ["Thuja", "Lebensbaum"]
+    },
+    {
+      "id": "platanus-hispanica",
+      "de": "Ahornblättrige Platane",
+      "la": "Platanus × hispanica",
+      "group": "laub",
+      "native": false,
+      "hazards": ["massaria", "irritant_hairs", "summer_drop"],
+      "aliases": ["Platane", "Gewöhnliche Platane"]
+    },
+    {
+      "id": "liquidambar-styraciflua",
+      "de": "Amberbaum",
+      "la": "Liquidambar styraciflua",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "gleditsia-triacanthos",
+      "de": "Amerikanische Gleditschie",
+      "la": "Gleditsia triacanthos",
+      "group": "laub",
+      "native": false,
+      "hazards": ["thorns"],
+      "note": "Wildform mit sehr langen, verzweigten Dornen am Stamm; Sorten wie 'Skyline' sind dornenlos.",
+      "aliases": ["Lederhülsenbaum", "Gleditschie"]
+    },
+    {
+      "id": "cedrus-atlantica",
+      "de": "Atlas-Zeder",
+      "la": "Cedrus atlantica",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["heavy_limbs", "summer_drop", "resin"],
+      "aliases": ["Zeder"]
+    },
+    {
+      "id": "populus-balsamifera",
+      "de": "Balsam-Pappel",
+      "la": "Populus balsamifera",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "summer_drop"]
+    },
+    {
+      "id": "corylus-colurna",
+      "de": "Baum-Hasel",
+      "la": "Corylus colurna",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Türkische Hasel"]
+    },
+    {
+      "id": "acer-pseudoplatanus",
+      "de": "Berg-Ahorn",
+      "la": "Acer pseudoplatanus",
+      "group": "laub",
+      "native": true,
+      "hazards": ["sooty_bark", "honeydew"],
+      "note": "Hauptwirt der Rußrindenkrankheit – bei abplatzender Rinde und schwarzem Belag sofort Schutzmaßnahmen."
+    },
+    {
+      "id": "pinus-mugo",
+      "de": "Berg-Kiefer",
+      "la": "Pinus mugo",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["resin"],
+      "aliases": ["Latsche", "Latschenkiefer"]
+    },
+    {
+      "id": "ulmus-glabra",
+      "de": "Berg-Ulme",
+      "la": "Ulmus glabra",
+      "group": "laub",
+      "native": true,
+      "hazards": ["elm_disease"]
+    },
+    {
+      "id": "paulownia-tomentosa",
+      "de": "Blauglockenbaum",
+      "la": "Paulownia tomentosa",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"],
+      "note": "Sehr leichtes, weiches Holz; schnellwüchsig.",
+      "aliases": ["Kaiserbaum"]
+    },
+    {
+      "id": "fraxinus-ornus",
+      "de": "Blumen-Esche",
+      "la": "Fraxinus ornus",
+      "group": "laub",
+      "native": false,
+      "hazards": ["ash_dieback"],
+      "note": "Weniger anfällig für Eschentriebsterben als die Gemeine Esche.",
+      "aliases": ["Manna-Esche"]
+    },
+    {
+      "id": "salix-fragilis",
+      "de": "Bruch-Weide",
+      "la": "Salix fragilis",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "summer_drop", "hollows"],
+      "note": "Name ist Programm: Zweige und Äste brechen sehr leicht.",
+      "aliases": ["Knack-Weide"]
+    },
+    {
+      "id": "araucaria-araucana",
+      "de": "Chilenische Araukarie",
+      "la": "Araucaria araucana",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["thorns"],
+      "note": "Harte, sehr spitze Schuppenblätter.",
+      "aliases": ["Andentanne", "Affenschwanzbaum"]
+    },
+    {
+      "id": "pyrus-calleryana",
+      "de": "Chinesische Wildbirne",
+      "la": "Pyrus calleryana",
+      "group": "laub",
+      "native": false,
+      "hazards": ["included_bark", "brittle_wood"],
+      "note": "Sorten wie 'Chanticleer' neigen zu steilen, schwachen Zwieseln, die aufreißen.",
+      "aliases": ["Stadtbirne"]
+    },
+    {
+      "id": "pseudotsuga-menziesii",
+      "de": "Douglasie",
+      "la": "Pseudotsuga menziesii",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["very_tall", "resin", "conifer_root_rot"],
+      "aliases": ["Douglas-Fichte", "Douglas-Tanne"]
+    },
+    {
+      "id": "sorbus-aucuparia",
+      "de": "Eberesche",
+      "la": "Sorbus aucuparia",
+      "group": "laub",
+      "native": true,
+      "hazards": [],
+      "aliases": ["Vogelbeere"]
+    },
+    {
+      "id": "sorbus-aria",
+      "de": "Echte Mehlbeere",
+      "la": "Sorbus aria",
+      "group": "laub",
+      "native": true,
+      "hazards": []
+    },
+    {
+      "id": "castanea-sativa",
+      "de": "Edelkastanie",
+      "la": "Castanea sativa",
+      "group": "laub",
+      "native": true,
+      "hazards": ["chestnut_blight", "hollows", "heavy_wood"],
+      "note": "Seit der Römerzeit eingebürgert.",
+      "aliases": ["Esskastanie", "Marone"]
+    },
+    {
+      "id": "crataegus-monogyna",
+      "de": "Eingriffliger Weißdorn",
+      "la": "Crataegus monogyna",
+      "group": "laub",
+      "native": true,
+      "hazards": ["thorns"]
+    },
+    {
+      "id": "sorbus-torminalis",
+      "de": "Elsbeere",
+      "la": "Sorbus torminalis",
+      "group": "laub",
+      "native": true,
+      "hazards": []
+    },
+    {
+      "id": "acer-negundo",
+      "de": "Eschen-Ahorn",
+      "la": "Acer negundo",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"],
+      "aliases": ["Eschenblättriger Ahorn"]
+    },
+    {
+      "id": "rhus-typhina",
+      "de": "Essigbaum",
+      "la": "Rhus typhina",
+      "group": "laub",
+      "native": false,
+      "hazards": ["skin_sap", "brittle_wood"],
+      "note": "Milchsaft reizt Haut und Augen.",
+      "aliases": ["Hirschkolbensumach"]
+    },
+    {
+      "id": "taxus-baccata",
+      "de": "Europäische Eibe",
+      "la": "Taxus baccata",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["toxic"],
+      "note": "Nadeln, Holz, Rinde und Samen sind stark giftig (Taxine) – schon kleine Mengen können für Menschen und Tiere, besonders Pferde, tödlich sein. Nur der rote Samenmantel ist ungiftig. Sägestaub nicht einatmen.",
+      "aliases": ["Eibe"]
+    },
+    {
+      "id": "larix-decidua",
+      "de": "Europäische Lärche",
+      "la": "Larix decidua",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["resin", "conifer_root_rot"],
+      "aliases": ["Lärche"]
+    },
+    {
+      "id": "ilex-aquifolium",
+      "de": "Europäische Stechpalme",
+      "la": "Ilex aquifolium",
+      "group": "laub",
+      "native": true,
+      "hazards": ["toxic", "thorns"],
+      "note": "Beeren und Blätter sind giftig, Blätter stechend.",
+      "aliases": ["Ilex"]
+    },
+    {
+      "id": "acer-campestre",
+      "de": "Feld-Ahorn",
+      "la": "Acer campestre",
+      "group": "laub",
+      "native": true,
+      "hazards": ["sooty_bark"],
+      "note": "Rußrindenkrankheit kommt auch am Feld-Ahorn vor, seltener als am Berg-Ahorn.",
+      "aliases": ["Maßholder"]
+    },
+    {
+      "id": "ulmus-minor",
+      "de": "Feld-Ulme",
+      "la": "Ulmus minor",
+      "group": "laub",
+      "native": true,
+      "hazards": ["elm_disease"]
+    },
+    {
+      "id": "ulmus-laevis",
+      "de": "Flatter-Ulme",
+      "la": "Ulmus laevis",
+      "group": "laub",
+      "native": true,
+      "hazards": ["elm_disease"]
+    },
+    {
+      "id": "quercus-pubescens",
+      "de": "Flaum-Eiche",
+      "la": "Quercus pubescens",
+      "group": "laub",
+      "native": true,
+      "hazards": ["oak_processionary", "heavy_wood"]
+    },
+    {
+      "id": "acer-palmatum",
+      "de": "Fächer-Ahorn",
+      "la": "Acer palmatum",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Japanischer Ahorn"]
+    },
+    {
+      "id": "fraxinus-excelsior",
+      "de": "Gemeine Esche",
+      "la": "Fraxinus excelsior",
+      "group": "laub",
+      "native": true,
+      "hazards": ["ash_dieback", "barber_chair"],
+      "aliases": ["Esche"]
+    },
+    {
+      "id": "picea-abies",
+      "de": "Gemeine Fichte",
+      "la": "Picea abies",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["shallow_roots", "bark_beetle", "conifer_root_rot", "resin"],
+      "note": "Häufig Wipfel- und Kronenbruch nach Trockenjahren.",
+      "aliases": ["Fichte", "Rot-Fichte", "Rottanne"]
+    },
+    {
+      "id": "corylus-avellana",
+      "de": "Gemeine Hasel",
+      "la": "Corylus avellana",
+      "group": "laub",
+      "native": true,
+      "hazards": [],
+      "aliases": ["Haselnuss"]
+    },
+    {
+      "id": "juniperus-communis",
+      "de": "Gemeiner Wacholder",
+      "la": "Juniperus communis",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["thorns"],
+      "aliases": ["Wacholder"]
+    },
+    {
+      "id": "robinia-pseudoacacia",
+      "de": "Gewöhnliche Robinie",
+      "la": "Robinia pseudoacacia",
+      "group": "laub",
+      "native": false,
+      "hazards": ["toxic", "thorns", "heavy_wood"],
+      "note": "Rinde, Samen und Blätter sind giftig. Junge Triebe tragen kräftige Dornen.",
+      "aliases": ["Robinie", "Scheinakazie", "Akazie"]
+    },
+    {
+      "id": "aesculus-hippocastanum",
+      "de": "Gewöhnliche Rosskastanie",
+      "la": "Aesculus hippocastanum",
+      "group": "laub",
+      "native": false,
+      "hazards": ["summer_drop", "bleeding_canker", "hollows", "included_bark"],
+      "aliases": ["Rosskastanie", "Kastanie"]
+    },
+    {
+      "id": "prunus-padus",
+      "de": "Gewöhnliche Traubenkirsche",
+      "la": "Prunus padus",
+      "group": "laub",
+      "native": true,
+      "hazards": ["toxic"],
+      "note": "Blätter, Rinde und Samen enthalten Blausäureglykoside."
+    },
+    {
+      "id": "laburnum-anagyroides",
+      "de": "Gewöhnlicher Goldregen",
+      "la": "Laburnum anagyroides",
+      "group": "laub",
+      "native": false,
+      "hazards": ["toxic"],
+      "note": "Alle Teile, besonders die Samen, sind stark giftig (Cytisin).",
+      "aliases": ["Goldregen"]
+    },
+    {
+      "id": "catalpa-bignonioides",
+      "de": "Gewöhnlicher Trompetenbaum",
+      "la": "Catalpa bignonioides",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"],
+      "aliases": ["Trompetenbaum"]
+    },
+    {
+      "id": "ginkgo-biloba",
+      "de": "Ginkgo",
+      "la": "Ginkgo biloba",
+      "group": "laub",
+      "native": false,
+      "hazards": ["skin_sap"],
+      "note": "Fächerblattbaum (eigene Pflanzengruppe). Samenschale weiblicher Bäume ist hautreizend und riecht stark.",
+      "aliases": ["Fächerblattbaum"]
+    },
+    {
+      "id": "alnus-incana",
+      "de": "Grau-Erle",
+      "la": "Alnus incana",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "rapid_decay"]
+    },
+    {
+      "id": "ailanthus-altissima",
+      "de": "Götterbaum",
+      "la": "Ailanthus altissima",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "skin_sap"],
+      "note": "Invasiv. Pflanzensaft und Blütenstaub können Haut, Augen und Atemwege reizen."
+    },
+    {
+      "id": "carpinus-betulus",
+      "de": "Hainbuche",
+      "la": "Carpinus betulus",
+      "group": "laub",
+      "native": true,
+      "hazards": ["heavy_wood", "slippery_bark", "included_bark"],
+      "aliases": ["Weißbuche"]
+    },
+    {
+      "id": "betula-utilis",
+      "de": "Himalaya-Birke",
+      "la": "Betula utilis",
+      "group": "laub",
+      "native": false,
+      "hazards": ["rapid_decay"]
+    },
+    {
+      "id": "cedrus-deodara",
+      "de": "Himalaya-Zeder",
+      "la": "Cedrus deodara",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["heavy_limbs", "resin"]
+    },
+    {
+      "id": "tilia-europaea",
+      "de": "Holländische Linde",
+      "la": "Tilia × europaea",
+      "group": "laub",
+      "native": true,
+      "hazards": ["hollows", "included_bark", "honeydew"],
+      "note": "Bildet viele Stammaustriebe (Stockausschläge), die den Stammfuß verdecken.",
+      "aliases": ["Kaiser-Linde"]
+    },
+    {
+      "id": "malus-sylvestris",
+      "de": "Holz-Apfel",
+      "la": "Malus sylvestris",
+      "group": "laub",
+      "native": true,
+      "hazards": [],
+      "aliases": ["Wild-Apfel"]
+    },
+    {
+      "id": "ostrya-carpinifolia",
+      "de": "Hopfenbuche",
+      "la": "Ostrya carpinifolia",
+      "group": "laub",
+      "native": false,
+      "hazards": ["heavy_wood"]
+    },
+    {
+      "id": "populus-canadensis",
+      "de": "Hybrid-Pappel",
+      "la": "Populus × canadensis",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "summer_drop", "barber_chair"],
+      "note": "Oft große, schnell gewachsene Bäume mit weichem Holz.",
+      "aliases": ["Kanadische Pappel", "Bastard-Pappel"]
+    },
+    {
+      "id": "betula-pendula",
+      "de": "Hänge-Birke",
+      "la": "Betula pendula",
+      "group": "laub",
+      "native": true,
+      "hazards": ["rapid_decay"],
+      "note": "Abgestorbene Birken werden durch Birkenporling sehr schnell morsch.",
+      "aliases": ["Sand-Birke", "Weiß-Birke"]
+    },
+    {
+      "id": "alnus-cordata",
+      "de": "Italienische Erle",
+      "la": "Alnus cordata",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"],
+      "aliases": ["Herzblättrige Erle"]
+    },
+    {
+      "id": "prunus-serrulata",
+      "de": "Japanische Blütenkirsche",
+      "la": "Prunus serrulata",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Zierkirsche"]
+    },
+    {
+      "id": "larix-kaempferi",
+      "de": "Japanische Lärche",
+      "la": "Larix kaempferi",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["resin"]
+    },
+    {
+      "id": "zelkova-serrata",
+      "de": "Japanische Zelkove",
+      "la": "Zelkova serrata",
+      "group": "laub",
+      "native": false,
+      "hazards": ["included_bark"]
+    },
+    {
+      "id": "styphnolobium-japonicum",
+      "de": "Japanischer Schnurbaum",
+      "la": "Styphnolobium japonicum",
+      "group": "laub",
+      "native": false,
+      "hazards": ["toxic"],
+      "note": "Samen und Hülsen sind giftig.",
+      "aliases": ["Sophora japonica", "Schnurbaum"]
+    },
+    {
+      "id": "cercis-siliquastrum",
+      "de": "Judasbaum",
+      "la": "Cercis siliquastrum",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "tsuga-canadensis",
+      "de": "Kanadische Hemlocktanne",
+      "la": "Tsuga canadensis",
+      "group": "nadel",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Hemlocktanne"]
+    },
+    {
+      "id": "pterocarya-fraxinifolia",
+      "de": "Kaukasische Flügelnuss",
+      "la": "Pterocarya fraxinifolia",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"]
+    },
+    {
+      "id": "prunus-laurocerasus",
+      "de": "Kirschlorbeer",
+      "la": "Prunus laurocerasus",
+      "group": "laub",
+      "native": false,
+      "hazards": ["toxic"],
+      "note": "Blätter und Samen enthalten Blausäureglykoside; beim Hacken kann Blausäuregeruch entstehen.",
+      "aliases": ["Lorbeerkirsche"]
+    },
+    {
+      "id": "prunus-cerasifera",
+      "de": "Kirschpflaume",
+      "la": "Prunus cerasifera",
+      "group": "laub",
+      "native": false,
+      "hazards": ["thorns"],
+      "note": "Blutpflaume ist die rotlaubige Sorte.",
+      "aliases": ["Blutpflaume"]
+    },
+    {
+      "id": "abies-concolor",
+      "de": "Kolorado-Tanne",
+      "la": "Abies concolor",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["resin"],
+      "aliases": ["Grau-Tanne"]
+    },
+    {
+      "id": "salix-matsudana-tortuosa",
+      "de": "Korkenzieher-Weide",
+      "la": "Salix matsudana 'Tortuosa'",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"]
+    },
+    {
+      "id": "cornus-mas",
+      "de": "Kornelkirsche",
+      "la": "Cornus mas",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "tilia-euchlora",
+      "de": "Krim-Linde",
+      "la": "Tilia × euchlora",
+      "group": "laub",
+      "native": false,
+      "hazards": ["included_bark", "honeydew"]
+    },
+    {
+      "id": "cercidiphyllum-japonicum",
+      "de": "Kuchenbaum",
+      "la": "Cercidiphyllum japonicum",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Katsurabaum"]
+    },
+    {
+      "id": "pyrus-communis",
+      "de": "Kultur-Birne",
+      "la": "Pyrus communis",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Birne", "Birnbaum"]
+    },
+    {
+      "id": "malus-domestica",
+      "de": "Kulturapfel",
+      "la": "Malus domestica",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Apfel", "Apfelbaum"]
+    },
+    {
+      "id": "amelanchier-lamarckii",
+      "de": "Kupfer-Felsenbirne",
+      "la": "Amelanchier lamarckii",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Felsenbirne"]
+    },
+    {
+      "id": "abies-grandis",
+      "de": "Küsten-Tanne",
+      "la": "Abies grandis",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["very_tall", "brittle_wood", "conifer_root_rot"],
+      "note": "Wipfelbruch häufig.",
+      "aliases": ["Große Küsten-Tanne"]
+    },
+    {
+      "id": "chamaecyparis-lawsoniana",
+      "de": "Lawsons Scheinzypresse",
+      "la": "Chamaecyparis lawsoniana",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["skin_sap"],
+      "aliases": ["Scheinzypresse"]
+    },
+    {
+      "id": "cuprocyparis-leylandii",
+      "de": "Leyland-Zypresse",
+      "la": "× Cuprocyparis leylandii",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["shallow_roots"],
+      "note": "Sehr schnellwüchsig; hohe, dichte Hecken werden oft kopflastig.",
+      "aliases": ["Bastardzypresse"]
+    },
+    {
+      "id": "cedrus-libani",
+      "de": "Libanon-Zeder",
+      "la": "Cedrus libani",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["heavy_limbs", "summer_drop", "resin"]
+    },
+    {
+      "id": "betula-pubescens",
+      "de": "Moor-Birke",
+      "la": "Betula pubescens",
+      "group": "laub",
+      "native": true,
+      "hazards": ["rapid_decay"]
+    },
+    {
+      "id": "platanus-orientalis",
+      "de": "Morgenländische Platane",
+      "la": "Platanus orientalis",
+      "group": "laub",
+      "native": false,
+      "hazards": ["massaria", "irritant_hairs"]
+    },
+    {
+      "id": "abies-nordmanniana",
+      "de": "Nordmann-Tanne",
+      "la": "Abies nordmanniana",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["resin"]
+    },
+    {
+      "id": "parrotia-persica",
+      "de": "Persisches Eisenholz",
+      "la": "Parrotia persica",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "prunus-domestica",
+      "de": "Pflaume, Zwetschge",
+      "la": "Prunus domestica",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"],
+      "aliases": ["Zwetschge", "Zwetsche", "Pflaume"]
+    },
+    {
+      "id": "alnus-spaethii",
+      "de": "Purpur-Erle",
+      "la": "Alnus × spaethii",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"]
+    },
+    {
+      "id": "cydonia-oblonga",
+      "de": "Quitte",
+      "la": "Cydonia oblonga",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "thuja-plicata",
+      "de": "Riesen-Lebensbaum",
+      "la": "Thuja plicata",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["toxic", "skin_sap"],
+      "note": "Alle Teile giftig (Thujon); Holzstaub kann Asthma auslösen."
+    },
+    {
+      "id": "sequoiadendron-giganteum",
+      "de": "Riesen-Mammutbaum",
+      "la": "Sequoiadendron giganteum",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["very_tall"],
+      "note": "Häufig Blitzschäden im Kronenbereich.",
+      "aliases": ["Mammutbaum", "Wellingtonie"]
+    },
+    {
+      "id": "acer-rubrum",
+      "de": "Rot-Ahorn",
+      "la": "Acer rubrum",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "fagus-sylvatica",
+      "de": "Rot-Buche",
+      "la": "Fagus sylvatica",
+      "group": "laub",
+      "native": true,
+      "hazards": ["beech_fungi", "slippery_bark", "heavy_wood"],
+      "note": "Nach plötzlicher Freistellung Rindenbrand möglich, danach rasche Holzfäule.",
+      "aliases": ["Buche"]
+    },
+    {
+      "id": "quercus-rubra",
+      "de": "Rot-Eiche",
+      "la": "Quercus rubra",
+      "group": "laub",
+      "native": false,
+      "hazards": ["heavy_wood", "oak_processionary"],
+      "note": "Eichenprozessionsspinner seltener als an heimischen Eichen.",
+      "aliases": ["Amerikanische Eiche"]
+    },
+    {
+      "id": "fraxinus-pennsylvanica",
+      "de": "Rot-Esche",
+      "la": "Fraxinus pennsylvanica",
+      "group": "laub",
+      "native": false,
+      "hazards": ["ash_dieback"],
+      "aliases": ["Pennsylvanische Esche"]
+    },
+    {
+      "id": "aesculus-carnea",
+      "de": "Rotblühende Rosskastanie",
+      "la": "Aesculus × carnea",
+      "group": "laub",
+      "native": false,
+      "hazards": ["bleeding_canker", "included_bark"]
+    },
+    {
+      "id": "crataegus-laevigata-paul-s-scarlet",
+      "de": "Rotdorn",
+      "la": "Crataegus laevigata 'Paul's Scarlet'",
+      "group": "laub",
+      "native": false,
+      "hazards": ["thorns"],
+      "note": "Gefüllt rot blühende Sorte des Weißdorns, häufiger Straßenbaum."
+    },
+    {
+      "id": "salix-caprea",
+      "de": "Sal-Weide",
+      "la": "Salix caprea",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "rapid_decay"]
+    },
+    {
+      "id": "prunus-cerasus",
+      "de": "Sauer-Kirsche",
+      "la": "Prunus cerasus",
+      "group": "laub",
+      "native": false,
+      "hazards": [],
+      "aliases": ["Weichsel"]
+    },
+    {
+      "id": "prunus-spinosa",
+      "de": "Schlehe",
+      "la": "Prunus spinosa",
+      "group": "laub",
+      "native": true,
+      "hazards": ["thorns"],
+      "aliases": ["Schwarzdorn"]
+    },
+    {
+      "id": "elaeagnus-angustifolia",
+      "de": "Schmalblättrige Ölweide",
+      "la": "Elaeagnus angustifolia",
+      "group": "laub",
+      "native": false,
+      "hazards": ["thorns"]
+    },
+    {
+      "id": "alnus-glutinosa",
+      "de": "Schwarz-Erle",
+      "la": "Alnus glutinosa",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "rapid_decay"],
+      "note": "Phytophthora-Erlensterben: Teerflecken am Stammfuß, Kronen lichten aus.",
+      "aliases": ["Rot-Erle"]
+    },
+    {
+      "id": "pinus-nigra",
+      "de": "Schwarz-Kiefer",
+      "la": "Pinus nigra",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["resin", "brittle_wood"],
+      "aliases": ["Österreichische Schwarzkiefer"]
+    },
+    {
+      "id": "populus-nigra",
+      "de": "Schwarz-Pappel",
+      "la": "Populus nigra",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "summer_drop", "barber_chair"]
+    },
+    {
+      "id": "sambucus-nigra",
+      "de": "Schwarzer Holunder",
+      "la": "Sambucus nigra",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "toxic"],
+      "note": "Rinde, Blätter, Samen und unreife Beeren sind roh giftig."
+    },
+    {
+      "id": "juglans-nigra",
+      "de": "Schwarznuss",
+      "la": "Juglans nigra",
+      "group": "laub",
+      "native": false,
+      "hazards": ["heavy_limbs", "heavy_wood"],
+      "aliases": ["Schwarze Walnuss"]
+    },
+    {
+      "id": "sorbus-intermedia",
+      "de": "Schwedische Mehlbeere",
+      "la": "Sorbus intermedia",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "picea-omorika",
+      "de": "Serbische Fichte",
+      "la": "Picea omorika",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["resin", "shallow_roots"],
+      "aliases": ["Omorika"]
+    },
+    {
+      "id": "ulmus-pumila",
+      "de": "Sibirische Ulme",
+      "la": "Ulmus pumila",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"]
+    },
+    {
+      "id": "acer-saccharinum",
+      "de": "Silber-Ahorn",
+      "la": "Acer saccharinum",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "included_bark", "summer_drop"],
+      "note": "Sehr bruchanfällig; neigt zu großen, schwachen Zwieseln."
+    },
+    {
+      "id": "tilia-tomentosa",
+      "de": "Silber-Linde",
+      "la": "Tilia tomentosa",
+      "group": "laub",
+      "native": false,
+      "hazards": ["hollows", "included_bark"]
+    },
+    {
+      "id": "populus-alba",
+      "de": "Silber-Pappel",
+      "la": "Populus alba",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "summer_drop", "hollows"]
+    },
+    {
+      "id": "salix-alba",
+      "de": "Silber-Weide",
+      "la": "Salix alba",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "summer_drop", "hollows"],
+      "note": "Kopfweiden sind fast immer hohl; Austriebe am Kopf sind schwach verankert."
+    },
+    {
+      "id": "picea-sitchensis",
+      "de": "Sitka-Fichte",
+      "la": "Picea sitchensis",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["thorns", "resin", "shallow_roots"]
+    },
+    {
+      "id": "tilia-platyphyllos",
+      "de": "Sommer-Linde",
+      "la": "Tilia platyphyllos",
+      "group": "laub",
+      "native": true,
+      "hazards": ["hollows", "included_bark", "honeydew"]
+    },
+    {
+      "id": "sorbus-domestica",
+      "de": "Speierling",
+      "la": "Sorbus domestica",
+      "group": "laub",
+      "native": true,
+      "hazards": []
+    },
+    {
+      "id": "acer-platanoides",
+      "de": "Spitz-Ahorn",
+      "la": "Acer platanoides",
+      "group": "laub",
+      "native": true,
+      "hazards": ["sooty_bark", "honeydew"],
+      "note": "Rußrindenkrankheit seltener als am Berg-Ahorn, aber möglich."
+    },
+    {
+      "id": "prunus-serotina",
+      "de": "Spätblühende Traubenkirsche",
+      "la": "Prunus serotina",
+      "group": "laub",
+      "native": false,
+      "hazards": ["toxic"],
+      "note": "Invasiv. Blätter, Rinde und Samen enthalten Blausäureglykoside.",
+      "aliases": ["Amerikanische Traubenkirsche"]
+    },
+    {
+      "id": "picea-pungens",
+      "de": "Stech-Fichte",
+      "la": "Picea pungens",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["thorns", "resin"],
+      "note": "Sehr spitze, stechende Nadeln.",
+      "aliases": ["Blau-Fichte", "Blaufichte"]
+    },
+    {
+      "id": "quercus-robur",
+      "de": "Stiel-Eiche",
+      "la": "Quercus robur",
+      "group": "laub",
+      "native": true,
+      "hazards": ["oak_processionary", "heavy_deadwood", "heavy_wood", "summer_drop"],
+      "aliases": ["Eiche", "Sommer-Eiche"]
+    },
+    {
+      "id": "quercus-palustris",
+      "de": "Sumpf-Eiche",
+      "la": "Quercus palustris",
+      "group": "laub",
+      "native": false,
+      "hazards": ["heavy_wood"]
+    },
+    {
+      "id": "taxodium-distichum",
+      "de": "Sumpfzypresse",
+      "la": "Taxodium distichum",
+      "group": "nadel",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "populus-nigra-italica",
+      "de": "Säulen-Pappel",
+      "la": "Populus nigra 'Italica'",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "summer_drop"],
+      "aliases": ["Pyramiden-Pappel"]
+    },
+    {
+      "id": "celtis-australis",
+      "de": "Südlicher Zürgelbaum",
+      "la": "Celtis australis",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "davidia-involucrata",
+      "de": "Taschentuchbaum",
+      "la": "Davidia involucrata",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "quercus-petraea",
+      "de": "Trauben-Eiche",
+      "la": "Quercus petraea",
+      "group": "laub",
+      "native": true,
+      "hazards": ["oak_processionary", "heavy_deadwood", "heavy_wood"],
+      "aliases": ["Winter-Eiche"]
+    },
+    {
+      "id": "salix-sepulcralis",
+      "de": "Trauer-Weide",
+      "la": "Salix × sepulcralis",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "summer_drop", "hollows"],
+      "aliases": ["Hänge-Weide"]
+    },
+    {
+      "id": "pinus-wallichiana",
+      "de": "Tränen-Kiefer",
+      "la": "Pinus wallichiana",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["brittle_wood", "resin"]
+    },
+    {
+      "id": "magnolia-soulangeana",
+      "de": "Tulpen-Magnolie",
+      "la": "Magnolia × soulangeana",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood"],
+      "aliases": ["Magnolie"]
+    },
+    {
+      "id": "liriodendron-tulipifera",
+      "de": "Tulpenbaum",
+      "la": "Liriodendron tulipifera",
+      "group": "laub",
+      "native": false,
+      "hazards": ["brittle_wood", "very_tall"]
+    },
+    {
+      "id": "metasequoia-glyptostroboides",
+      "de": "Urweltmammutbaum",
+      "la": "Metasequoia glyptostroboides",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["very_tall"]
+    },
+    {
+      "id": "prunus-avium",
+      "de": "Vogel-Kirsche",
+      "la": "Prunus avium",
+      "group": "laub",
+      "native": true,
+      "hazards": [],
+      "aliases": ["Wild-Kirsche", "Süß-Kirsche"]
+    },
+    {
+      "id": "pinus-sylvestris",
+      "de": "Wald-Kiefer",
+      "la": "Pinus sylvestris",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["brittle_wood", "conifer_root_rot", "resin"],
+      "note": "Äste sind spröde; Schneebruch häufig.",
+      "aliases": ["Kiefer", "Föhre"]
+    },
+    {
+      "id": "juglans-regia",
+      "de": "Walnuss",
+      "la": "Juglans regia",
+      "group": "laub",
+      "native": true,
+      "hazards": ["heavy_limbs"],
+      "note": "Seit der Römerzeit eingebürgert.",
+      "aliases": ["Echte Walnuss"]
+    },
+    {
+      "id": "abies-alba",
+      "de": "Weiß-Tanne",
+      "la": "Abies alba",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["resin"],
+      "aliases": ["Tanne", "Edel-Tanne"]
+    },
+    {
+      "id": "morus-alba",
+      "de": "Weiße Maulbeere",
+      "la": "Morus alba",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "pinus-strobus",
+      "de": "Weymouth-Kiefer",
+      "la": "Pinus strobus",
+      "group": "nadel",
+      "native": false,
+      "hazards": ["brittle_wood", "resin"],
+      "note": "Blasenrost kann Stämme und Äste absterben lassen.",
+      "aliases": ["Strobe"]
+    },
+    {
+      "id": "pyrus-pyraster",
+      "de": "Wild-Birne",
+      "la": "Pyrus pyraster",
+      "group": "laub",
+      "native": true,
+      "hazards": ["thorns"]
+    },
+    {
+      "id": "tilia-cordata",
+      "de": "Winter-Linde",
+      "la": "Tilia cordata",
+      "group": "laub",
+      "native": true,
+      "hazards": ["hollows", "included_bark", "honeydew"]
+    },
+    {
+      "id": "quercus-cerris",
+      "de": "Zerr-Eiche",
+      "la": "Quercus cerris",
+      "group": "laub",
+      "native": false,
+      "hazards": ["heavy_wood", "oak_processionary"]
+    },
+    {
+      "id": "pinus-cembra",
+      "de": "Zirbel-Kiefer",
+      "la": "Pinus cembra",
+      "group": "nadel",
+      "native": true,
+      "hazards": ["resin"],
+      "aliases": ["Zirbe", "Arve"]
+    },
+    {
+      "id": "populus-tremula",
+      "de": "Zitter-Pappel",
+      "la": "Populus tremula",
+      "group": "laub",
+      "native": true,
+      "hazards": ["brittle_wood", "rapid_decay"],
+      "aliases": ["Espe", "Aspe"]
+    },
+    {
+      "id": "acer-saccharum",
+      "de": "Zucker-Ahorn",
+      "la": "Acer saccharum",
+      "group": "laub",
+      "native": false,
+      "hazards": []
+    },
+    {
+      "id": "crataegus-laevigata",
+      "de": "Zweigriffliger Weißdorn",
+      "la": "Crataegus laevigata",
+      "group": "laub",
+      "native": true,
+      "hazards": ["thorns"]
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 import type { BaumCheckDB } from './db'
 import { LockedError } from './db'
 import type {
+  Attachment,
+  StoredFile,
   Answer,
   Assessment,
   AuditAction,
@@ -351,4 +353,47 @@ export async function confirmPrefilled(db: BaumCheckDB, assessmentId: ID, itemId
       syncState: 'pending',
     })
   })
+}
+
+/** Adds a photo to a tree of a draft. */
+export async function addTreePhoto(
+  db: BaumCheckDB,
+  treeId: ID,
+  file: StoredFile,
+  fileName: string,
+  capturedAt = nowIso(),
+): Promise<Attachment> {
+  return db.transaction('rw', db.assessments, db.trees, db.attachments, async () => {
+    const tree = await db.trees.get(treeId)
+    if (!tree) throw new Error(`Tree ${treeId} not found`)
+    await requireDraft(db, tree.assessmentId)
+    const att: Attachment = {
+      ...baseRecord(tree.organizationId),
+      assessmentId: tree.assessmentId,
+      treeId,
+      kind: 'tree_photo',
+      fileName,
+      file,
+      capturedAt,
+    }
+    await db.attachments.add(att)
+    return att
+  })
+}
+
+/** Removes an attachment of a draft. */
+export async function removeAttachment(db: BaumCheckDB, id: ID): Promise<void> {
+  await db.transaction('rw', db.assessments, db.attachments, async () => {
+    const att = await db.attachments.get(id)
+    if (!att) return
+    await requireDraft(db, att.assessmentId)
+    await db.attachments.delete(id)
+  })
+}
+
+export async function getTreePhotos(db: BaumCheckDB, treeId: ID): Promise<Attachment[]> {
+  const list = await db.attachments.where('treeId').equals(treeId).toArray()
+  return list
+    .filter((a) => a.kind === 'tree_photo')
+    .sort((a, b) => a.capturedAt.localeCompare(b.capturedAt))
 }

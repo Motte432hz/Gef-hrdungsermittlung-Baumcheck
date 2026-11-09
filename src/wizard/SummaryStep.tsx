@@ -21,7 +21,7 @@ export function SummaryStep() {
   const ready = canComplete(issues)
 
   const link = (i: Issue) =>
-    `/einsatz/${assessment.id}/${i.stepId}${i.itemId ? `#${itemAnchor(i.itemId, i.treeId)}` : ''}`
+    `/einsatz/${assessment.id}/${i.stepId}${i.treeId ? `?baum=${i.treeId}` : ''}${i.itemId ? `#${itemAnchor(i.itemId, i.treeId)}` : ''}`
 
   return (
     <div className="space-y-4">

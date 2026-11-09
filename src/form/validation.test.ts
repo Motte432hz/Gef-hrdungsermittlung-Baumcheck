@@ -173,6 +173,17 @@ describe('validateAssessment', () => {
     expect(issues[0]!.message).toContain('± 120 m')
   })
 
+  it('"other" tree species needs a name', () => {
+    const input = validInput(def)
+    input.trees[0]!.answers['tree.species'] = { value: 'other' }
+    expect(validateAssessment(input)[0]).toMatchObject({
+      level: 'blocking',
+      itemId: 'tree.species',
+    })
+    input.trees[0]!.answers['tree.species'] = { value: 'other', otherText: 'Mispel' }
+    expect(validateAssessment(input)).toEqual([])
+  })
+
   it('missing GPS position is a hint', () => {
     const input = validInput(def)
     input.assessment.position = undefined

@@ -1,0 +1,164 @@
+import { expect, test, type Page } from '@playwright/test'
+
+async function start(page: Page) {
+  await page.goto('/')
+  await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
+  await expect(page).toHaveURL(/\/job$/)
+  return page.url().replace(/job$/, '')
+}
+
+async function check(page: Page, label: string) {
+  await page.getByText(label, { exact: true }).click()
+  await expect(page.getByRole('checkbox', { name: label, exact: true })).toBeChecked()
+}
+
+async function addFirstTree(page: Page, base: string) {
+  await page.goto(base + 'tree')
+  await page.getByRole('button', { name: '+ Ersten Baum erfassen' }).click()
+  await expect(page).toHaveURL(/\/tree\?baum=/)
+}
+
+async function pickSpecies(page: Page, query: string, name: string) {
+  await page.getByRole('combobox').fill(query)
+  await page
+    .getByRole('option', { name: new RegExp(name) })
+    .first()
+    .click()
+  await expect(page.getByRole('button', { name: 'Ändern' })).toBeVisible()
+}
+
+test('species search shows typical hazards with advice for the planned work', async ({ page }) => {
+  const base = await start(page)
+  await check(page, 'Seilklettertechnik (SKT)')
+  await page.goto(base + 'work')
+  await check(page, 'Kroneneinkürzung')
+  await addFirstTree(page, base)
+
+  await pickSpecies(page, 'bergahorn', 'Berg-Ahorn')
+  await expect(page.getByText('Acer pseudoplatanus')).toBeVisible()
+  const panel = page.getByRole('region', { name: 'Typische Gefahren: Berg-Ahorn' })
+  await expect(panel.getByText('Rußrindenkrankheit', { exact: true })).toBeVisible()
+  await expect(panel.getByText(/Atemschutz mindestens FFP2/)).toBeVisible()
+  await expect(panel.getByText('Beim Klettern:')).toBeVisible()
+  await expect(panel.getByText('Beim Hacken:')).toBeVisible()
+  // No felling planned → no felling advice.
+  await expect(panel.getByText('Bei der Fällung:')).toHaveCount(0)
+
+  // Tree tab shows the species.
+  await expect(page.getByRole('navigation', { name: 'Bäume' })).toContainText('Baum 1 · Berg-Ahorn')
+
+  // Compact reminder on the assessment step.
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page).toHaveURL(/\/treeAssessment\?baum=/)
+  const compact = page.getByRole('region', { name: 'Typische Gefahren: Berg-Ahorn' })
+  await expect(compact).toContainText('Rußrindenkrankheit · Honigtau')
+  await expect(compact.getByText(/Atemschutz mindestens FFP2/)).toHaveCount(0)
+  await compact.getByRole('button', { name: /Anzeigen/ }).click()
+  await expect(compact.getByText(/Atemschutz mindestens FFP2/)).toBeVisible()
+})
+
+test('felling plan shows felling advice (ash)', async ({ page }) => {
+  const base = await start(page)
+  await page.goto(base + 'work')
+  await check(page, 'Fällung')
+  await addFirstTree(page, base)
+  await pickSpecies(page, 'Fraxinus excelsior', 'Gemeine Esche')
+  const panel = page.getByRole('region', { name: 'Typische Gefahren: Gemeine Esche' })
+  await expect(panel.getByText('Aufreißgefahr beim Fällen')).toBeVisible()
+  await expect(panel.getByText('Bei der Fällung:').first()).toBeVisible()
+})
+
+test('species not in the list can be entered as free text', async ({ page }) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await page.getByRole('combobox').fill('Mispel')
+  await page.getByRole('option', { name: /„Mispel“ als andere Baumart/ }).click()
+  await expect(page.getByText('Andere Baumart (nicht in der Liste)')).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Bäume' })).toContainText('Baum 1 · Mispel')
+})
+
+test('photos can be added and deleted', async ({ page }) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await page
+    .locator('input[type=file][multiple]')
+    .setInputFiles(['public/pwa-512x512.png', 'public/pwa-192x192.png'])
+  const photos = page.getByRole('list', { name: 'Fotos' }).getByRole('img')
+  await expect(photos).toHaveCount(2)
+  expect(
+    await photos.first().evaluate((img: HTMLImageElement) => img.naturalWidth),
+  ).toBeGreaterThan(0)
+
+  await page.reload()
+  await expect(page.getByRole('list', { name: 'Fotos' }).getByRole('img')).toHaveCount(2)
+  page.once('dialog', (d) => void d.accept())
+  await page.getByRole('button', { name: 'Foto 1 löschen' }).click()
+  await expect(page.getByRole('list', { name: 'Fotos' }).getByRole('img')).toHaveCount(1)
+})
+
+test('several trees: next walks tree by tree; trees can be removed', async ({ page }) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await pickSpecies(page, 'Linde', 'Winter-Linde')
+  await page.getByRole('button', { name: '+ Baum' }).click()
+  await expect(page.getByRole('heading', { name: 'Baum 2' })).toBeVisible()
+  await pickSpecies(page, 'Platane', 'Ahornblättrige Platane')
+
+  await page
+    .getByRole('navigation', { name: 'Bäume' })
+    .getByRole('button', { name: /Baum 1/ })
+    .click()
+  await expect(page.getByRole('heading', { name: 'Baum 1 · Winter-Linde' })).toBeVisible()
+
+  const next = page.getByRole('button', { name: 'Weiter ›' })
+  await next.click()
+  await expect(page.getByText('Schritt 6 von 9')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Baum 1 · Winter-Linde' })).toBeVisible()
+  await next.click()
+  await expect(page.getByText('Schritt 5 von 9')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Baum 2 · Ahornblättrige Platane' })).toBeVisible()
+  await next.click()
+  await expect(page.getByRole('heading', { name: 'Baum 2 · Ahornblättrige Platane' })).toBeVisible()
+  await expect(page.getByText('Schritt 6 von 9')).toBeVisible()
+  await next.click()
+  await expect(page.getByText('Schritt 7 von 9')).toBeVisible()
+
+  await page.goto(base + 'tree')
+  page.once('dialog', (d) => void d.accept())
+  await page.getByRole('button', { name: 'Baum 1 · Winter-Linde entfernen' }).click()
+  await expect(
+    page.getByRole('navigation', { name: 'Bäume' }).getByRole('button', { name: /^Baum/ }),
+  ).toHaveCount(1)
+  await expect(page.getByRole('heading', { name: 'Baum 1 · Ahornblättrige Platane' })).toBeVisible()
+})
+
+test('tree result "Nein" is a danger and jumps from the summary to the right tree', async ({
+  page,
+}) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await page.getByRole('button', { name: '+ Baum' }).click()
+  await expect(page.getByRole('heading', { name: 'Baum 2' })).toBeVisible()
+  const tree2 = new URL(page.url()).searchParams.get('baum')!
+
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByText('Schritt 6 von 9')).toBeVisible()
+  const result = page.locator('[id$="tree-result"]')
+  await result.getByText('Nein', { exact: true }).click()
+  await expect(
+    result.getByText(/darf mit dem geplanten Verfahren nicht bearbeitet werden/),
+  ).toBeVisible()
+  await expect(result.getByLabel('Begründung / geändertes Vorgehen')).toBeVisible()
+
+  await page.goto(base + 'summary')
+  const link = page.getByRole('link', { name: /Baum 2.*Begründung \/ geändertes Vorgehen fehlt/ })
+  await expect(link).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: /Baum 2.*darf mit dem geplanten Verfahren/ }),
+  ).toBeVisible()
+  await link.click()
+  await expect(page).toHaveURL(
+    new RegExp(`/treeAssessment\\?baum=${tree2}#item-${tree2}-tree-result$`),
+  )
+  await expect(page.getByRole('heading', { name: 'Baum 2' })).toBeVisible()
+})

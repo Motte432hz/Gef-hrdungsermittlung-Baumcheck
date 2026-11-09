@@ -9,6 +9,7 @@ import { ItemField } from './ItemField'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { EmergencyCard } from './special/EmergencyCard'
+import { TreeStepView } from './trees/TreeStepView'
 
 export function StepView({ step }: { step: FormStep }) {
   const { assessment } = useWizard()
@@ -24,15 +25,7 @@ export function StepView({ step }: { step: FormStep }) {
     })
   }, [hash, step.id])
 
-  if (step.repeat === 'tree') {
-    return (
-      <Card>
-        <p className="text-stone-700 dark:text-stone-300">
-          Die Erfassung der Bäume mit Fotos und Beurteilung kommt im nächsten Ausbauschritt.
-        </p>
-      </Card>
-    )
-  }
+  if (step.repeat === 'tree') return <TreeStepView step={step} />
 
   const lookup = makeLookup(assessment.answers)
   const visible = step.sections.map((s) => ({

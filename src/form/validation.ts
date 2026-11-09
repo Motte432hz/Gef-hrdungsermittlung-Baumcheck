@@ -201,9 +201,14 @@ function validateItem(def: FormDefinition, item: FormItem, scope: ItemScope): Is
     }
     case 'text':
     case 'time':
-    case 'address':
-    case 'treeSpecies': {
+    case 'address': {
       if (item.required && isEmpty(answer?.value)) missing()
+      break
+    }
+    case 'treeSpecies': {
+      // "other" needs the free-text name.
+      const v = answer?.value === 'other' ? answer.otherText : answer?.value
+      if (item.required && isEmpty(v)) missing()
       break
     }
     case 'date': {

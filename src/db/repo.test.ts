@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { BaumCheckDB, LockedError } from './db'
 import {
   addTree,
+  addTreePhoto,
+  getTreePhotos,
+  removeAttachment,
   confirmPrefilled,
   deleteDraft,
   completeAssessment,
@@ -249,5 +252,31 @@ describe('draft helpers', () => {
     const answers = (await db.assessments.get(a.id))!.answers
     expect(answers['equip.ppeAvailable']).toEqual({ value: 'yes' })
     expect(answers['equip.ppeChecked']!.prefilled).toBe(true)
+  })
+})
+
+describe('tree photos', () => {
+  const photo = { type: 'image/jpeg', data: new Uint8Array([255, 216, 255]).buffer }
+
+  it('adds and removes photos of a tree', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    const t = await addTree(db, a.id)
+    const p1 = await addTreePhoto(db, t.id, photo, 'a.jpg', '2026-11-09T08:00:00Z')
+    await addTreePhoto(db, t.id, photo, 'b.jpg', '2026-11-09T09:00:00Z')
+    expect((await getTreePhotos(db, t.id)).map((p) => p.fileName)).toEqual(['a.jpg', 'b.jpg'])
+    expect(new Uint8Array((await getTreePhotos(db, t.id))[0]!.file.data)).toEqual(
+      new Uint8Array([255, 216, 255]),
+    )
+    await removeAttachment(db, p1.id)
+    expect((await getTreePhotos(db, t.id)).map((p) => p.fileName)).toEqual(['b.jpg'])
+  })
+
+  it('photos are locked with the protocol', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    const t = await addTree(db, a.id)
+    const p = await addTreePhoto(db, t.id, photo, 'a.jpg')
+    await complete(a.id)
+    await expect(addTreePhoto(db, t.id, photo, 'b.jpg')).rejects.toBeInstanceOf(LockedError)
+    await expect(removeAttachment(db, p.id)).rejects.toBeInstanceOf(LockedError)
   })
 })
