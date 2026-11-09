@@ -65,19 +65,19 @@ Format: `<Firmenkürzel>-<Jahr>-<laufende Nr.>`, z. B. `ZW-2026-0042`.
 
 ## Meilensteine
 
-| # | Inhalt | Ergebnis zum Anschauen |
-|---|---|---|
-| 0 | **Formulartexte abstimmen** (`docs/FORMULARTEXTE.md`) | deine Korrekturen eingearbeitet |
-| 1 | Grundgerüst: Vite/React/TS, Tailwind, PWA, Router, Lint, Vitest, Playwright, GitHub Actions | leere App installierbar, offline startbar |
-| 2 | Datenbank, Formulardefinition (JSON), Prüflogik (Pflicht-Maßnahmen, Warnungen, Plausibilität) | Unit-Tests |
-| 3 | Profile: Firma (Logo), Mitarbeiter, Subunternehmer, Ausrüstung, Kunden/Objekte | Profile pflegen |
-| 4 | Assistent-Gerüst und Bausteine; Schritte 1, 3, 4, 7, 8 | Durchklicken am Handy |
-| 5 | Standort: GPS mit Genauigkeit, Adresse (online Nominatim, offline von Hand), Karte nur online, Zufahrt | Standort erfassen |
-| 6 | Bäume: mehrere je Einsatz, Fotos (verkleinert), Beurteilung, Ergebnis mit Warnlogik | Bäume erfassen |
-| 7 | Zusammenfassung, offene Warnungen, Unterschriften (Profil oder frisch) | Unterschreiben |
-| 8 | PDF, Abschluss, Sperre, Hashes, Protokollnummer, Teilen | fertiges PDF |
-| 9 | Archiv mit Suche, „als Vorlage kopieren“, Backup-Export/-Import, neue Version | Archiv |
-| 10 | Feinschliff, Capacitor-Builds (Android, iOS vorbereiten), Feldtest | Test auf euren Geräten |
+| #   | Inhalt                                                                                                 | Ergebnis zum Anschauen                    |
+| --- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------- |
+| 0   | **Formulartexte abstimmen** (`docs/FORMULARTEXTE.md`)                                                  | deine Korrekturen eingearbeitet           |
+| 1   | Grundgerüst: Vite/React/TS, Tailwind, PWA, Router, Lint, Vitest, Playwright, GitHub Actions            | leere App installierbar, offline startbar |
+| 2   | Datenbank, Formulardefinition (JSON), Prüflogik (Pflicht-Maßnahmen, Warnungen, Plausibilität)          | Unit-Tests                                |
+| 3   | Profile: Firma (Logo), Mitarbeiter, Subunternehmer, Ausrüstung, Kunden/Objekte                         | Profile pflegen                           |
+| 4   | Assistent-Gerüst und Bausteine; Schritte 1, 3, 4, 7, 8                                                 | Durchklicken am Handy                     |
+| 5   | Standort: GPS mit Genauigkeit, Adresse (online Nominatim, offline von Hand), Karte nur online, Zufahrt | Standort erfassen                         |
+| 6   | Bäume: mehrere je Einsatz, Fotos (verkleinert), Beurteilung, Ergebnis mit Warnlogik                    | Bäume erfassen                            |
+| 7   | Zusammenfassung, offene Warnungen, Unterschriften (Profil oder frisch)                                 | Unterschreiben                            |
+| 8   | PDF, Abschluss, Sperre, Hashes, Protokollnummer, Teilen                                                | fertiges PDF                              |
+| 9   | Archiv mit Suche, „als Vorlage kopieren“, Backup-Export/-Import, neue Version                          | Archiv                                    |
+| 10  | Feinschliff, Capacitor-Builds (Android, iOS vorbereiten), Feldtest                                     | Test auf euren Geräten                    |
 
 ## Tests
 

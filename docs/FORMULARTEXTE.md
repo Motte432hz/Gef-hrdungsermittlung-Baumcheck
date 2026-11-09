@@ -24,6 +24,7 @@ Bitte korrigiere direkt in dieser Datei oder schreib mir die Änderungen, z. B. 
 ## 1. Einsatz
 
 **1.1 Einsatzart** · Mehrfachauswahl · `job.types`
+
 - Baumarbeiten (allgemein)
 - Arbeiten mit Hubarbeitsbühne
 - Seilklettertechnik (SKT)
@@ -78,6 +79,7 @@ Info: Prüfe den Empfang direkt am Baum, nicht nur an der Straße. Ohne Empfang 
 Bei einer neuen Person werden Name, Firma, Qualifikationen und optional Telefon erfasst. Sie kann als Subunternehmer-Profil gespeichert werden.
 
 **3.2 Rolle je Person** · Mehrfachauswahl · `team.roles`
+
 - Aufsicht
 - Kletterer/in
 - Bodenperson
@@ -108,6 +110,7 @@ Info: Keine akute Erkrankung, keine Medikamente oder Alkohol, die die Arbeit bee
 Info: Die nötigen Nachweise (z. B. AS-Baum, SKT A/B) liegen vor, und die Personen haben die Arbeiten in dieser Schwierigkeit schon ausgeführt.
 
 **Automatische Hinweise** (blockieren nicht):
+
 - Bei SKT: „Für Seilklettertechnik müssen mindestens 2 Personen mit SKT-Qualifikation und eine Bodenperson eingeteilt sein.“
   - ❓ Bitte bestätigen oder korrigieren. Nach meinem Verständnis müssen mindestens 2 SKT-qualifizierte Personen anwesend sein, von denen eine am Boden bleibt und retten kann. Ist eine **zusätzliche** Bodenperson Pflicht oder nur empfohlen?
 - Ist ein Qualifikationsnachweis im Profil abgelaufen: „Nachweis [SKT B] von [Name] ist seit [Datum] abgelaufen.“
@@ -118,6 +121,7 @@ Info: Die nötigen Nachweise (z. B. AS-Baum, SKT A/B) liegen vor, und die Person
 ## 4. Geplante Arbeiten
 
 Mehrfachauswahl · `work.types`
+
 - Totholzentnahme
 - Kronenpflege
 - Kroneneinkürzung
@@ -147,6 +151,7 @@ Info: Zum Beispiel die Nummer aus dem Baumkataster oder auf der Plakette.
 **5.4 Stammdurchmesser (cm)** · gemessen in 1,30 m Höhe · `tree.diameter`
 
 **5.5 Wuchsform** · Einfachauswahl · `tree.growthForm`
+
 - **Normalbaum**: gerader Wuchs, Schwerpunkt mittig über dem Stammfuß.
 - **Vorhänger**: Baum oder Krone neigt sich in die geplante Fällrichtung. Erhöhte Gefahr, dass der Stamm aufreißt (Herausschlagen).
 - **Rückhänger**: Baum oder Krone neigt sich gegen die Fällrichtung. Fällhilfen wie Keil oder Seilwinde sind nötig.
@@ -254,6 +259,7 @@ Info: Der Anschlagpunkt muss gesund, ausreichend stark und frei von Defekten sei
 Info: Bei einseitiger Krone zieht der Baum beim Fällen zur schweren Seite. Bei Pflegearbeiten verlagert sich das Gewicht beim Entnehmen von Ästen.
 
 **6.25 Ergebnis: Ist der Baum für die geplanten Arbeiten sicher?** · `tree.result`
+
 - **Ja**: Die Arbeiten können wie geplant ausgeführt werden.
 - **Nein**: Rote Warnung: „Der Baum darf mit dem geplanten Verfahren nicht bearbeitet werden. Wähle ein sicheres Verfahren (z. B. Hubarbeitsbühne, Kran, Seilwinde) oder brich die Arbeiten ab.“ Pflichtfeld: **Begründung / geändertes Vorgehen**.
 - **Eingehende Untersuchung erforderlich**: Orange Warnung: „Die Sicherheit kann vor Ort nicht ausreichend beurteilt werden. Vor Beginn der Arbeiten ist eine eingehende Untersuchung nötig.“ Pflichtfeld: **Begründung / weiteres Vorgehen**.
@@ -283,6 +289,7 @@ Info: Ruf- und Sichtverbindung oder Funk zwischen Kletterer, Bodenperson und Sic
 **7.5 GM: Stromleitungen in der Nähe** · `site.powerLines`
 
 Info: Schutzabstände für Nicht-Elektrofachkräfte (❓ bitte prüfen):
+
 - bis 1 kV: 1 m
 - bis 110 kV: 3 m
 - bis 220 kV: 4 m
@@ -361,14 +368,17 @@ Info: Wer rettet? Wer setzt den Notruf ab (112)? Wo ist der Treffpunkt für den 
 ## 9. Zusammenfassung & Unterschriften
 
 **Erklärung der aufsichtsführenden Person** · `sign.supervisorStatement`
+
 > „Auf Grundlage der von mir durchgeführten Gefährdungsermittlung und Baumsicherheitsbeurteilung können die geplanten Arbeiten durchgeführt werden.“
 
 **Bestätigung je Teammitglied** · `sign.memberStatement`
+
 > „Ich wurde über die Gefährdungen und Maßnahmen unterwiesen und habe sie verstanden.“
 
 Zu jeder Unterschrift werden automatisch Name, Rolle, Firma (bei Subunternehmern), Datum, Uhrzeit, Ort/GPS und die Art der Unterschrift („vor Ort unterschrieben“ oder „hinterlegte Unterschrift übernommen“) festgehalten.
 
 **Hinweis bei offenen Warnungen:**
+
 > „Es gibt [n] offene Warnungen. Bitte prüfe sie, bevor unterschrieben wird.“
 
 Mit Tippen springt die App zum jeweiligen Punkt. Fehlt bei einer Warnung die Maßnahme, kann nicht abgeschlossen werden.

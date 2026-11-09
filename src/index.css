@@ -1,0 +1,38 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-brand-50: #e8f3ea;
+  --color-brand-100: #cfe6d4;
+  --color-brand-300: #7fbf8f;
+  --color-brand-500: #2f7a47;
+  --color-brand-700: #1f5130;
+  --color-brand-900: #0f2a18;
+  --color-warn: #b45309;
+  --color-danger: #b91c1c;
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply min-h-dvh bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+    font-size: 1.0625rem;
+  }
+  /* Clearly visible focus ring for keyboard and switch users. */
+  :focus-visible {
+    @apply outline-3 outline-offset-2 outline-brand-500;
+  }
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
