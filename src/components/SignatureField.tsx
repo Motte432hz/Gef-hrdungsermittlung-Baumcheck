@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import SignaturePad from 'signature_pad'
 import { Button } from './Button'
 import { useObjectUrl } from '../lib/useObjectUrl'
+import { toStoredFile } from '../lib/storedFile'
+import type { StoredFile } from '../domain/types'
 
 /**
  * Signature capture. The canvas is always white with black ink, so the image looks the same
@@ -13,8 +15,8 @@ export function SignatureField({
   onChange,
 }: {
   label: string
-  value: Blob | undefined
-  onChange: (blob: Blob | undefined) => void
+  value: StoredFile | undefined
+  onChange: (file: StoredFile | undefined) => void
 }) {
   const [editing, setEditing] = useState(!value)
   const url = useObjectUrl(value)
@@ -44,8 +46,10 @@ export function SignatureField({
     <SignatureCanvas
       label={label}
       onDone={(blob) => {
-        onChange(blob)
-        setEditing(false)
+        void toStoredFile(blob, 'image/png').then((file) => {
+          onChange(file)
+          setEditing(false)
+        })
       }}
       onCancel={value ? () => setEditing(false) : undefined}
     />

@@ -9,7 +9,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { TextArea, TextField } from '../../components/form/Field'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
-import { SaveBar } from '../../components/SaveBar'
+import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
 import type { CustomerSite } from '../../domain/types'
 import { email, postalCode, required } from '../../domain/validate'
 
@@ -62,6 +62,7 @@ function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) 
   const location = useLocation()
   // After creating, we navigate to the new URL; carry the confirmation over.
   const [saved, setSaved] = useState(!!(location.state as { saved?: boolean } | null)?.saved)
+  const [saveError, setSaveError] = useState<string>()
 
   if (!org) return <p>Lädt …</p>
 
@@ -119,7 +120,14 @@ function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) 
         notes: trimOrUndef(s.notes),
       })),
     }
-    const savedId = await saveCustomer(db, org.id, input, id)
+    setSaveError(undefined)
+    let savedId: string
+    try {
+      savedId = await saveCustomer(db, org.id, input, id)
+    } catch (err) {
+      console.error(err)
+      return setSaveError(SAVE_ERROR)
+    }
     setSaved(true)
     if (isNew) navigate(`/profile/kunden/${savedId}`, { replace: true, state: { saved: true } })
   }
@@ -229,7 +237,7 @@ function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) 
           </Button>
         )}
       </div>
-      <SaveBar saved={saved} />
+      <SaveBar saved={saved} error={saveError} />
     </form>
   )
 }

@@ -318,3 +318,37 @@ export async function createNewVersion(db: BaumCheckDB, id: ID): Promise<Assessm
     return copy
   })
 }
+
+/** Deletes a draft with its trees, signatures and attachments. Completed protocols cannot be deleted. */
+export async function deleteDraft(db: BaumCheckDB, id: ID): Promise<void> {
+  await db.transaction(
+    'rw',
+    [db.assessments, db.trees, db.signatures, db.attachments, db.auditLog],
+    async () => {
+      const a = await requireDraft(db, id)
+      await db.trees.where('assessmentId').equals(id).delete()
+      await db.signatures.where('assessmentId').equals(id).delete()
+      await db.attachments.where('assessmentId').equals(id).delete()
+      await db.assessments.delete(id)
+      await audit(db, a.organizationId, 'deleted', 'assessment', id)
+    },
+  )
+}
+
+/** Confirms all prefilled answers (e.g. after checking the equipment on site). */
+export async function confirmPrefilled(db: BaumCheckDB, assessmentId: ID, itemIds: string[]) {
+  await db.transaction('rw', db.assessments, async () => {
+    const a = await requireDraft(db, assessmentId)
+    const answers = { ...a.answers }
+    for (const id of itemIds) {
+      const ans = answers[id]
+      if (ans?.prefilled)
+        answers[id] = { value: ans.value, note: ans.note, otherText: ans.otherText }
+    }
+    await db.assessments.update(assessmentId, {
+      answers,
+      updatedAt: nowIso(),
+      syncState: 'pending',
+    })
+  })
+}

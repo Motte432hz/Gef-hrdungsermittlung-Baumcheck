@@ -6,7 +6,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { TextArea, TextField } from '../../components/form/Field'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
-import { SaveBar } from '../../components/SaveBar'
+import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
 import {
   email,
   emailList,
@@ -17,7 +17,8 @@ import {
 } from '../../domain/validate'
 import { resizeImage } from '../../lib/image'
 import { useObjectUrl } from '../../lib/useObjectUrl'
-import type { Organization } from '../../domain/types'
+import type { Organization, StoredFile } from '../../domain/types'
+import { toStoredFile } from '../../lib/storedFile'
 
 type FormState = {
   name: string
@@ -29,7 +30,7 @@ type FormState = {
   email: string
   reportEmails: string
   taxNumber: string
-  logo?: Blob
+  logo?: StoredFile
 }
 
 const fromOrg = (o: Organization): FormState => ({
@@ -55,6 +56,7 @@ function CompanyForm({ org }: { org: Organization }) {
   const [form, setForm] = useState<FormState>(() => fromOrg(org))
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string>()
   const [logoError, setLogoError] = useState<string>()
   const logoUrl = useObjectUrl(form.logo)
 
@@ -67,7 +69,7 @@ function CompanyForm({ org }: { org: Organization }) {
     setLogoError(undefined)
     if (!file) return
     try {
-      const logo = await resizeImage(file, 800, 'image/png')
+      const logo = await toStoredFile(await resizeImage(file, 800, 'image/png'), 'image/png')
       setForm({ ...form, logo })
       setSaved(false)
     } catch {
@@ -86,18 +88,24 @@ function CompanyForm({ org }: { org: Organization }) {
     }
     setErrors(next)
     if (Object.values(next).some(Boolean)) return
-    await saveOrganization(db, org.id, {
-      name: form.name.trim(),
-      numberPrefix: form.numberPrefix.trim().toUpperCase(),
-      street: form.street.trim() || undefined,
-      postalCode: form.postalCode.trim() || undefined,
-      city: form.city.trim() || undefined,
-      phone: form.phone.trim() || undefined,
-      email: form.email.trim() || undefined,
-      reportEmails: parseEmailList(form.reportEmails),
-      taxNumber: form.taxNumber.trim() || undefined,
-      logo: form.logo,
-    })
+    setSaveError(undefined)
+    try {
+      await saveOrganization(db, org.id, {
+        name: form.name.trim(),
+        numberPrefix: form.numberPrefix.trim().toUpperCase(),
+        street: form.street.trim() || undefined,
+        postalCode: form.postalCode.trim() || undefined,
+        city: form.city.trim() || undefined,
+        phone: form.phone.trim() || undefined,
+        email: form.email.trim() || undefined,
+        reportEmails: parseEmailList(form.reportEmails),
+        taxNumber: form.taxNumber.trim() || undefined,
+        logo: form.logo,
+      })
+    } catch (err) {
+      console.error(err)
+      return setSaveError(SAVE_ERROR)
+    }
     setSaved(true)
   }
 
@@ -216,7 +224,7 @@ function CompanyForm({ org }: { org: Organization }) {
           />
         </Card>
       </div>
-      <SaveBar saved={saved} />
+      <SaveBar saved={saved} error={saveError} />
     </form>
   )
 }

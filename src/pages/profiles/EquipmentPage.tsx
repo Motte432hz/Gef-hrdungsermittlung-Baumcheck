@@ -5,7 +5,7 @@ import { useOrganization } from '../../app/useOrganization'
 import { PageHeader } from '../../components/PageHeader'
 import { Card } from '../../components/Card'
 import { Segmented } from '../../components/form/Segmented'
-import { SaveBar } from '../../components/SaveBar'
+import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
 import { equipmentItems } from './equipmentItems'
 import type { Condition } from '../../form/schema'
 
@@ -27,6 +27,7 @@ export function EquipmentPage() {
   const org = useOrganization()
   const [values, setValues] = useState<Record<string, PresetValue>>()
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string>()
 
   useEffect(() => {
     if (!org || values) return
@@ -43,7 +44,13 @@ export function EquipmentPage() {
     e.preventDefault()
     const answers: Record<string, string> = {}
     for (const [id, v] of Object.entries(values)) if (v !== 'none') answers[id] = v
-    await saveDefaultEquipmentPreset(db, org.id, answers)
+    setSaveError(undefined)
+    try {
+      await saveDefaultEquipmentPreset(db, org.id, answers)
+    } catch (err) {
+      console.error(err)
+      return setSaveError(SAVE_ERROR)
+    }
     setSaved(true)
   }
 
@@ -109,7 +116,7 @@ export function EquipmentPage() {
           </ul>
         </Card>
       </div>
-      <SaveBar saved={saved} />
+      <SaveBar saved={saved} error={saveError} />
     </form>
   )
 }

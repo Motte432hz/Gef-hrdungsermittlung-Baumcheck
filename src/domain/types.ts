@@ -9,6 +9,12 @@ export type ISODate = string
 
 export type SyncState = 'local' | 'pending' | 'synced'
 
+/** Binary file content (image, PDF). ArrayBuffer instead of Blob for IndexedDB compatibility. */
+export interface StoredFile {
+  type: string
+  data: ArrayBuffer
+}
+
 export interface BaseRecord {
   id: ID
   organizationId: ID
@@ -23,7 +29,7 @@ export interface Organization extends BaseRecord {
   name: string
   /** Short code for protocol numbers, e.g. "ZW". */
   numberPrefix: string
-  logo?: Blob
+  logo?: StoredFile
   street?: string
   postalCode?: string
   city?: string
@@ -61,7 +67,7 @@ export interface Worker extends BaseRecord {
   phone?: string
   qualifications: Qualification[]
   /** Optional stored signature (PNG). */
-  signature?: Blob
+  signature?: StoredFile
   active: boolean
 }
 
@@ -102,6 +108,8 @@ export interface Answer {
   note?: string
   /** Free text for an "other" option. */
   otherText?: string
+  /** Pre-filled from the equipment preset and not yet confirmed on site. */
+  prefilled?: boolean
 }
 
 export type Answers = Record<string, Answer>
@@ -180,7 +188,7 @@ export interface Signature extends BaseRecord {
   method: SignatureMethod
   /** For stored signatures: who confirmed the use of the stored image. */
   confirmedBy?: string
-  image: Blob
+  image: StoredFile
   signedAt: ISODate
   position?: GeoPosition
 }
@@ -192,8 +200,7 @@ export interface Attachment extends BaseRecord {
   treeId?: ID
   kind: AttachmentKind
   fileName: string
-  mimeType: string
-  blob: Blob
+  file: StoredFile
   capturedAt: ISODate
 }
 

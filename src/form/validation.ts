@@ -89,6 +89,18 @@ function validateItem(def: FormDefinition, item: FormItem, scope: ItemScope): Is
   const missing = (msg = `„${item.label}“ ist noch nicht ausgefüllt.`) =>
     out.push(issue(scope, item, 'blocking', 'missing', msg))
 
+  if (answer?.prefilled) {
+    out.push(
+      issue(
+        scope,
+        item,
+        'blocking',
+        'prefilled',
+        `Vorbelegt, noch nicht vor Ort bestätigt: ${item.label}`,
+      ),
+    )
+  }
+
   switch (item.type) {
     case 'checkpoint': {
       const v = answer?.value
@@ -355,11 +367,11 @@ export function collectFindings({ definition, assessment, trees }: ValidationInp
   return out
 }
 
-/** Fills unanswered items from an equipment preset; existing answers are kept. */
+/** Fills unanswered items from an equipment preset (marked as prefilled); existing answers are kept. */
 export function applyPreset(answers: Answers, preset: Record<string, string>): Answers {
   const out = { ...answers }
   for (const [id, value] of Object.entries(preset)) {
-    if (out[id] === undefined) out[id] = { value }
+    if (out[id] === undefined) out[id] = { value, prefilled: true }
   }
   return out
 }

@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { BaumCheckDB, LockedError } from './db'
 import {
   addTree,
+  confirmPrefilled,
+  deleteDraft,
   completeAssessment,
   createAssessment,
   createNewVersion,
@@ -188,8 +190,7 @@ describe('new version (correction)', () => {
       treeId: tree.id,
       kind: 'tree_photo',
       fileName: 'baum.jpg',
-      mimeType: 'image/jpeg',
-      blob: new Blob(['x']),
+      file: { type: 'image/jpeg', data: new Uint8Array([1, 2, 3]).buffer },
       capturedAt: '2026-11-09T08:00:00Z',
     })
     await complete(a.id)
@@ -219,5 +220,34 @@ describe('new version (correction)', () => {
   it('is not available for drafts', async () => {
     const a = await createAssessment(db, org.id, '1.0')
     await expect(createNewVersion(db, a.id)).rejects.toThrow()
+  })
+})
+
+describe('draft helpers', () => {
+  it('deletes a draft with its trees', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    await addTree(db, a.id)
+    await deleteDraft(db, a.id)
+    expect(await db.assessments.get(a.id)).toBeUndefined()
+    expect(await db.trees.count()).toBe(0)
+  })
+
+  it('refuses to delete a completed protocol', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    await complete(a.id)
+    await expect(deleteDraft(db, a.id)).rejects.toBeInstanceOf(LockedError)
+  })
+
+  it('confirms prefilled answers', async () => {
+    const a = await createAssessment(db, org.id, '1.0', {
+      answers: {
+        'equip.ppeAvailable': { value: 'yes', prefilled: true },
+        'equip.ppeChecked': { value: 'yes', prefilled: true },
+      },
+    })
+    await confirmPrefilled(db, a.id, ['equip.ppeAvailable'])
+    const answers = (await db.assessments.get(a.id))!.answers
+    expect(answers['equip.ppeAvailable']).toEqual({ value: 'yes' })
+    expect(answers['equip.ppeChecked']!.prefilled).toBe(true)
   })
 })

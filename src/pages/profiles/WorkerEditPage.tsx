@@ -8,7 +8,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { TextField, Toggle } from '../../components/form/Field'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
-import { SaveBar } from '../../components/SaveBar'
+import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
 import { SignatureField } from '../../components/SignatureField'
 import {
   QUALIFICATION_LABELS,
@@ -73,6 +73,7 @@ function WorkerForm({
   const location = useLocation()
   // After creating, we navigate to the new URL; carry the confirmation over.
   const [saved, setSaved] = useState(!!(location.state as { saved?: boolean } | null)?.saved)
+  const [saveError, setSaveError] = useState<string>()
 
   if (!org) return <p>Lädt …</p>
 
@@ -110,7 +111,14 @@ function WorkerForm({
         form.qualifications.filter((q) => q.type === t),
       ),
     }
-    const savedId = await saveWorker(db, org.id, input, id)
+    setSaveError(undefined)
+    let savedId: string
+    try {
+      savedId = await saveWorker(db, org.id, input, id)
+    } catch (err) {
+      console.error(err)
+      return setSaveError(SAVE_ERROR)
+    }
     setSaved(true)
     if (isNew) navigate(`${k.path}/${savedId}`, { replace: true, state: { saved: true } })
   }
@@ -224,7 +232,7 @@ function WorkerForm({
           </Button>
         )}
       </div>
-      <SaveBar saved={saved} />
+      <SaveBar saved={saved} error={saveError} />
     </form>
   )
 }

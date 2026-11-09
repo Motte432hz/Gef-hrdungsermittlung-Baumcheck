@@ -2,15 +2,11 @@ import { NavLink, Outlet } from 'react-router'
 import { navItems } from './nav'
 import { Icon } from '../components/Icon'
 import { OnlineBadge } from '../components/OnlineBadge'
-import { UpdatePrompt } from '../components/UpdatePrompt'
-import { useThemeSync } from '../lib/theme'
 
 const linkBase =
   'flex items-center gap-3 rounded-xl font-semibold transition-colors min-h-14 focus-visible:outline-3'
 
 export function AppLayout() {
-  useThemeSync()
-
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       {/* Side navigation: tablet and desktop */}
@@ -80,8 +76,6 @@ export function AppLayout() {
           </NavLink>
         ))}
       </nav>
-
-      <UpdatePrompt />
     </div>
   )
 }

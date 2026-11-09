@@ -215,7 +215,19 @@ describe('applyPreset', () => {
     )
     expect(result).toEqual({
       'equip.ppeAvailable': { value: 'no', note: 'Helm defekt' },
-      'equip.ppeChecked': { value: 'yes' },
+      'equip.ppeChecked': { value: 'yes', prefilled: true },
     })
+  })
+
+  it('prefilled answers must be confirmed on site', () => {
+    const input = validInput(def)
+    input.assessment.answers['equip.ppeChecked'] = { value: 'yes', prefilled: true }
+    expect(validateAssessment(input)).toEqual([
+      expect.objectContaining({
+        level: 'blocking',
+        itemId: 'equip.ppeChecked',
+        key: 'equip.ppeChecked:prefilled',
+      }),
+    ])
   })
 })

@@ -142,6 +142,7 @@ test('device code in settings', async ({ page }) => {
   await page.getByLabel('Gerätekürzel (optional)').fill('t-2')
   await page.getByRole('button', { name: 'Kürzel speichern' }).click()
   await expect(page.getByLabel('Gerätekürzel (optional)')).toHaveValue('T2')
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
   await page.reload()
   await expect(page.getByLabel('Gerätekürzel (optional)')).toHaveValue('T2')
 })

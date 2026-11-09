@@ -36,7 +36,7 @@ const worker = (over: Partial<WorkerInput> = {}): WorkerInput => ({
 
 describe('organization profile', () => {
   it('saves company data and logo', async () => {
-    const logo = new Blob(['png'], { type: 'image/png' })
+    const logo = { type: 'image/png', data: new Uint8Array([137, 80, 78, 71]).buffer }
     await saveOrganization(db, org.id, {
       name: 'Zwieselwiesel Baumpflege',
       numberPrefix: 'ZW',
@@ -49,8 +49,8 @@ describe('organization profile', () => {
       numberPrefix: 'ZW',
       syncState: 'pending',
     })
-    // Blob round-trips are not supported by jsdom + fake-indexeddb; covered by the e2e test.
-    expect(stored.logo).toBeDefined()
+    expect(stored.logo!.type).toBe('image/png')
+    expect(new Uint8Array(stored.logo!.data)).toEqual(new Uint8Array([137, 80, 78, 71]))
     expect(stored.reportEmails).toEqual(['buero@example.de'])
   })
 })
@@ -77,8 +77,12 @@ describe('workers', () => {
   })
 
   it('soft-deletes and removes the stored signature', async () => {
-    const id = await saveWorker(db, org.id, worker({ signature: new Blob(['sig']) }))
-    expect((await db.workers.get(id))!.signature).toBeDefined()
+    const id = await saveWorker(
+      db,
+      org.id,
+      worker({ signature: { type: 'image/png', data: new Uint8Array([1]).buffer } }),
+    )
+    expect((await db.workers.get(id))!.signature!.data.byteLength).toBe(1)
     await deleteWorker(db, id)
     expect(await listWorkers(db, org.id)).toEqual([])
     const stored = (await db.workers.get(id))!
