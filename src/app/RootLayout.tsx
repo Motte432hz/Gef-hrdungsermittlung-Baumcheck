@@ -7,8 +7,8 @@ export function RootLayout() {
   useThemeSync()
   return (
     <>
-      <Outlet />
       <UpdatePrompt />
+      <Outlet />
     </>
   )
 }

@@ -3,6 +3,9 @@ import { readFileSync } from 'node:fs'
 
 const PNG = readFileSync('public/pwa-64x64.png')
 
+// With an active service worker, WebKit bypasses page.route for fetches → block it here.
+test.use({ serviceWorkers: 'block' })
+
 test.beforeEach(async ({ page }) => {
   // Never hit real OSM servers from tests.
   await page.route('https://tile.openstreetmap.org/**', (r) =>
