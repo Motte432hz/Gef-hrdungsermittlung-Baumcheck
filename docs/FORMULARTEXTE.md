@@ -270,7 +270,7 @@ Info: Bei einseitiger Krone zieht der Baum beim Fällen zur schweren Seite. Bei 
 
 ## 7. Einsatzort
 
-**7.1 KP: Die Witterung ist für die Arbeiten geeignet** · `site.weatherOk`
+**7.1 KP: Die Witterung ist für die Arbeiten geeignet** · ohne „nicht relevant“ · `site.weatherOk`
 
 Info: Kein starker oder böiger Wind, kein Gewitter, keine Vereisung. Nasse oder vereiste Rinde verringert die Griffigkeit. Bei Gewitter sofort aus dem Baum.
 
@@ -319,11 +319,11 @@ Die Punkte sind aus dem Profil „Standard-Ausrüstung“ vorbelegt und müssen 
 
 ### 8A Ausrüstung
 
-**8.1 KP: Betriebssichere persönliche Schutzausrüstung (PSA) für alle vorhanden** · `equip.ppeAvailable`
+**8.1 KP: Betriebssichere persönliche Schutzausrüstung (PSA) für alle vorhanden** · ohne „nicht relevant“ · `equip.ppeAvailable`
 
 Info: Helm mit Gesichts- und Gehörschutz, Schnittschutzhose, Sicherheitsschuhe mit Schnittschutz, Handschuhe, Warnkleidung bei Verkehr.
 
-**8.2 KP: PSA vor Benutzung auf Schäden geprüft** · `equip.ppeChecked`
+**8.2 KP: PSA vor Benutzung auf Schäden geprüft** · ohne „nicht relevant“ · `equip.ppeChecked`
 
 Info: Sichtprüfung vor jedem Einsatz. Zusätzlich muss die jährliche Prüfung durch eine sachkundige Person gültig sein, besonders bei PSA gegen Absturz.
 
@@ -343,9 +343,9 @@ Info: Zum Beispiel Motorsäge, Hacker, Seilwinde, Hubarbeitsbühne. Täglicher F
 
 ### 8B Notfall
 
-**8.8 KP: Erste-Hilfe-Material vorhanden** · `emergency.firstAidKit`
+**8.8 KP: Erste-Hilfe-Material vorhanden** · ohne „nicht relevant“ · `emergency.firstAidKit`
 
-**8.9 🆕 Vorschlag KP: Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort** · `emergency.firstAider`
+**8.9 🆕 Vorschlag KP: Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort** · ohne „nicht relevant“ · `emergency.firstAider`
 
 **8.10 KP: Rettungsausrüstung vorhanden** · `emergency.rescueKit`
 
@@ -357,7 +357,7 @@ Info: Mindestens so lang, dass vom höchsten Arbeitspunkt bis zum Boden abgeseil
 
 **8.12 KP: Ruf- und Sichtverbindung zum Kletterer bzw. Bühnenbediener besteht** · nur bei SKT oder Hubarbeitsbühne · `emergency.lineOfSight`
 
-**8.13 KP: Notfallablauf besprochen** · `emergency.planBriefed`
+**8.13 KP: Notfallablauf besprochen** · ohne „nicht relevant“ · `emergency.planBriefed`
 
 Info: Wer rettet? Wer setzt den Notruf ab (112)? Wo ist der Treffpunkt für den Rettungsdienst (siehe 2.4)? Eine Person mit Gurtverletzung muss schnell aus dem Seil.
 
@@ -390,4 +390,5 @@ Mit Tippen springt die App zum jeweiligen Punkt. Fehlt bei einer Warnung die Ma�
 1. ❓ **SKT-Regel** (Schritt 3): Ist eine zusätzliche Bodenperson neben den 2 SKT-Qualifizierten Pflicht oder nur empfohlen?
 2. ❓ **Schutzabstände Stromleitungen** (7.5): Stimmen die Werte so für euren Einsatz?
 3. 🆕 **Vorschläge**: 3.2 (Bühnenbedienung / Kran-Rollen), 6.22, 6.23, 7.8, 7.9 und 8.9 jeweils übernehmen oder streichen?
-4. Fehlen dir Punkte, die ihr in der Praxis immer prüft?
+4. **Ohne „nicht relevant“:** Bei 7.1, 8.1, 8.2, 8.8, 8.9 und 8.13 habe ich die Antwort „nicht relevant“ weggelassen, weil diese Punkte bei jedem Einsatz zutreffen. Einverstanden?
+5. Fehlen dir Punkte, die ihr in der Praxis immer prüft?
