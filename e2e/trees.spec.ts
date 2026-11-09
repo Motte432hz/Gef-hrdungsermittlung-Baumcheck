@@ -162,3 +162,40 @@ test('tree result "Nein" is a danger and jumps from the summary to the right tre
   )
   await expect(page.getByRole('heading', { name: 'Baum 2' })).toBeVisible()
 })
+
+test.describe('camera', () => {
+  test.use({ permissions: ['camera'] })
+
+  test('laptop: in-app camera takes photos', async ({ page, browserName }) => {
+    test.skip(browserName !== 'chromium', 'fake camera only configured for Chromium')
+    const base = await start(page)
+    await addFirstTree(page, base)
+    // Desktop browsers get the in-app camera instead of a file dialog.
+    await expect(page.getByText('🖼 Datei auswählen')).toBeVisible()
+    await page.getByRole('button', { name: /Foto aufnehmen/ }).click()
+    const dialog = page.getByRole('dialog', { name: 'Kamera' })
+    const shutter = dialog.getByRole('button', { name: 'Foto aufnehmen' })
+    await expect(shutter).toBeEnabled()
+    await shutter.click()
+    await expect(dialog.getByRole('button', { name: 'Fertig (1)' })).toBeVisible()
+    await shutter.click()
+    await dialog.getByRole('button', { name: 'Fertig (2)' }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect(page.getByRole('list', { name: 'Fotos' }).getByRole('img')).toHaveCount(2)
+  })
+
+  test('phones use the native camera app', async ({ browser }) => {
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36',
+      viewport: { width: 412, height: 900 },
+      hasTouch: true,
+    })
+    const page = await context.newPage()
+    const base = await start(page)
+    await addFirstTree(page, base)
+    await expect(page.locator('input[type=file][capture="environment"]')).toHaveCount(1)
+    await expect(page.getByText('🖼 Aus Galerie')).toBeVisible()
+    await context.close()
+  })
+})

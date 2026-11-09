@@ -10,6 +10,12 @@ import { useObjectUrl } from '../../lib/useObjectUrl'
 import { ItemCard } from '../inputs/ItemCard'
 import { ItemLabel } from '../inputs/InfoButton'
 import { Notice } from '../inputs/Notice'
+import { CameraCapture } from '../../components/CameraCapture'
+import { detectPlatform } from '../../lib/install'
+
+/** Phones and tablets open their own camera app via <input capture>; others need the in-app camera. */
+const hasNativeCamera = () =>
+  detectPlatform(navigator.userAgent, navigator.maxTouchPoints) !== 'other'
 
 /** Longest side of stored photos; keeps the database and the PDF small. */
 const PHOTO_MAX_PX = 1600
@@ -38,13 +44,17 @@ export function PhotosField({ item, treeId }: { item: SpecialItem; treeId: strin
   const photos = useLiveQuery(() => getTreePhotos(db, treeId), [treeId])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
+  const [camera, setCamera] = useState(false)
+  const native = hasNativeCamera()
 
-  const add = async (files: FileList | null) => {
-    if (!files?.length) return
+  const add = (files: FileList | null) => addBlobs(files ? Array.from(files) : [])
+
+  const addBlobs = async (files: File[]) => {
+    if (!files.length) return
     setBusy(true)
     setError(undefined)
     try {
-      for (const f of Array.from(files)) {
+      for (const f of files) {
         const jpeg = await resizeImage(f, PHOTO_MAX_PX, 'image/jpeg', 0.8)
         await addTreePhoto(db, treeId, await toStoredFile(jpeg, 'image/jpeg'), f.name || 'foto.jpg')
       }
@@ -67,22 +77,33 @@ export function PhotosField({ item, treeId }: { item: SpecialItem; treeId: strin
         info="Optional. Fotos werden verkleinert gespeichert und als Anhang ins PDF übernommen."
       />
       <div className="flex flex-wrap gap-2">
-        <label className={pickClass}>
-          📷 Foto aufnehmen
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="sr-only"
+        {native ? (
+          <label className={pickClass}>
+            📷 Foto aufnehmen
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="sr-only"
+              disabled={busy}
+              onChange={(e) => {
+                void add(e.target.files)
+                e.target.value = ''
+              }}
+            />
+          </label>
+        ) : (
+          <button
+            type="button"
+            className={pickClass}
+            onClick={() => setCamera(true)}
             disabled={busy}
-            onChange={(e) => {
-              void add(e.target.files)
-              e.target.value = ''
-            }}
-          />
-        </label>
+          >
+            📷 Foto aufnehmen
+          </button>
+        )}
         <label className={pickClass}>
-          🖼 Aus Galerie
+          {native ? '🖼 Aus Galerie' : '🖼 Datei auswählen'}
           <input
             type="file"
             accept="image/*"
@@ -96,6 +117,14 @@ export function PhotosField({ item, treeId }: { item: SpecialItem; treeId: strin
           />
         </label>
       </div>
+      {camera && (
+        <CameraCapture
+          onCapture={(blob) =>
+            addBlobs([new File([blob], `foto-${Date.now()}.jpg`, { type: 'image/jpeg' })])
+          }
+          onClose={() => setCamera(false)}
+        />
+      )}
       {busy && <p role="status">Foto wird gespeichert …</p>}
       {error && <Notice level="warning">{error}</Notice>}
       {photos && photos.length > 0 && (

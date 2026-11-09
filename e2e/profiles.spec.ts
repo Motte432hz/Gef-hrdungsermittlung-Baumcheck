@@ -146,3 +146,30 @@ test('device code in settings', async ({ page }) => {
   await page.reload()
   await expect(page.getByLabel('Gerätekürzel (optional)')).toHaveValue('T2')
 })
+
+test('protocol number preview and continuing a series', async ({ page }) => {
+  const year = new Date().getFullYear()
+  await page.goto('/profile/firma')
+  await page.getByLabel('Firmenname').fill('Zwieselwiesel Baumpflege')
+  await page.getByLabel('Kürzel für Protokollnummern').fill('zw')
+  // Live preview while typing.
+  await expect(page.getByTestId('next-number')).toHaveText(`ZW-${year}-0001`)
+  await expect(
+    page.getByText(/Neues Kürzel: Nach dem Speichern beginnt eine neue Nummernreihe/),
+  ).toBeVisible()
+  await save(page)
+  await saved(page)
+  await expect(page.getByText(/Neues Kürzel/)).toHaveCount(0)
+
+  await page.getByText('Bestehende Nummernreihe fortsetzen').click()
+  const field = page.getByLabel(`Nächste laufende Nummer für ZW in ${year}`)
+  await field.fill('57')
+  await page.getByRole('button', { name: 'Übernehmen' }).click()
+  await expect(page.getByTestId('next-number')).toHaveText(`ZW-${year}-0057`)
+  await expect(page.getByText('Zuletzt vergeben: Nr. 56')).toBeVisible()
+
+  await field.fill('12')
+  await page.getByRole('button', { name: 'Übernehmen' }).click()
+  await expect(page.getByText('Die Nummer muss mindestens 57 sein')).toBeVisible()
+  await expect(page.getByTestId('next-number')).toHaveText(`ZW-${year}-0057`)
+})

@@ -7,6 +7,7 @@ import { TextArea, TextField } from '../../components/form/Field'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
 import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
+import { NumberingCard } from './NumberingCard'
 import {
   email,
   emailList,
@@ -161,7 +162,7 @@ function CompanyForm({ org }: { org: Organization }) {
             <TextField
               label="Kürzel für Protokollnummern"
               required
-              hint="Wird vor jede Protokollnummer gesetzt, z. B. ZW → ZW-2026-0001."
+              hint="Wird vor jede Protokollnummer gesetzt, z. B. ZW → ZW-2026-0001. Vorschau unten."
               value={form.numberPrefix}
               onChange={set('numberPrefix')}
               error={errors.numberPrefix}
@@ -212,6 +213,8 @@ function CompanyForm({ org }: { org: Organization }) {
             />
           </div>
         </Card>
+
+        <NumberingCard prefix={form.numberPrefix} savedPrefix={org.numberPrefix} />
 
         <Card title="Versand">
           <TextArea
