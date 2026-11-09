@@ -10,6 +10,7 @@ import { useOrganization } from '../app/useOrganization'
 import { Button } from '../components/Button'
 import { Card, PageTitle } from '../components/Card'
 import { InstallHint } from '../components/InstallHint'
+import { BackupReminder } from '../components/BackupReminder'
 import { startAssessment } from '../wizard/start'
 import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
 
@@ -60,6 +61,8 @@ export function HomePage() {
   return (
     <div className="space-y-4">
       <PageTitle>Gefährdungsermittlung</PageTitle>
+
+      <BackupReminder />
 
       <Button
         className="min-h-16 w-full text-lg"

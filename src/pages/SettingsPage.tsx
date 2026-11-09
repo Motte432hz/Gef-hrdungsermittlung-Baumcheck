@@ -12,6 +12,7 @@ import { TextField } from '../components/form/Field'
 import { db } from '../db/db'
 import { META_DEVICE_CODE } from '../db/repo'
 import { normalizeCode } from '../domain/protocolNumber'
+import { BackupCard } from './BackupCard'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Wie Gerät' },
@@ -95,6 +96,8 @@ export function SettingsPage() {
           </div>
         )}
       </Card>
+
+      <BackupCard />
 
       <Card title="Dieses Gerät">
         {deviceCode === undefined ? (

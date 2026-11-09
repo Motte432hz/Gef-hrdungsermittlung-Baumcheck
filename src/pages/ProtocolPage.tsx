@@ -8,6 +8,7 @@ import { sha256Hex, shortHash } from '../lib/hash'
 import { downloadPdf, sharePdf } from '../lib/sharePdf'
 import { useObjectUrl } from '../lib/useObjectUrl'
 import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
+import { createFromTemplate } from '../wizard/template'
 import { PageHeader } from '../components/PageHeader'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
@@ -141,6 +142,21 @@ export function ProtocolPage() {
             <dd className="break-all">{a.deviceInfo ?? '–'}</dd>
           </div>
         </dl>
+      </Card>
+
+      <Card title="Wiederkehrender Einsatz">
+        <p className="mb-3 text-stone-700 dark:text-stone-300">
+          Neuer Einsatz mit Kunde, Ort, Rettungsinfos, Team und Baum-Grunddaten aus diesem
+          Protokoll. Alle Prüfpunkte und Gefahren werden vor Ort neu beurteilt.
+        </p>
+        <Button
+          variant="secondary"
+          onClick={() =>
+            void createFromTemplate(db, a.id).then((d) => navigate(`/einsatz/${d.id}/job`))
+          }
+        >
+          Als Vorlage für neuen Einsatz
+        </Button>
       </Card>
 
       <Card title="Korrektur">

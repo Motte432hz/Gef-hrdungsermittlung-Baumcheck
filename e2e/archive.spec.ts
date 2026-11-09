@@ -1,0 +1,84 @@
+import { expect, test, type Page } from '@playwright/test'
+import { fillCompleteAssessment, signEveryone } from './helpers'
+
+async function completeOne(page: Page) {
+  await fillCompleteAssessment(page)
+  await signEveryone(page)
+  page.once('dialog', (d) => void d.accept())
+  await page.getByRole('button', { name: 'Abschließen & PDF erstellen' }).click()
+  await expect(page).toHaveURL(/\/protokoll\//, { timeout: 20_000 })
+}
+
+test('backup: reminder, export, import on a fresh device', async ({ page, browser }) => {
+  await completeOne(page)
+  await page.goto('/')
+  await expect(page.getByText('Es gibt noch kein Backup deiner Protokolle.')).toBeVisible()
+  await page.getByRole('link', { name: 'Jetzt sichern' }).click()
+  await expect(page.getByTestId('last-backup')).toHaveText('Noch kein Backup erstellt.')
+
+  // Headless browsers cannot share files → the backup is downloaded.
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: 'Backup erstellen' }).click(),
+  ])
+  expect(download.suggestedFilename()).toMatch(/^BaumCheck-Backup_\d{4}-\d{2}-\d{2}\.zip$/)
+  await expect(page.getByText(/Backup erstellt .*1 Einsätze, davon 1 abgeschlossen/)).toBeVisible()
+  await expect(page.getByTestId('last-backup')).toHaveText(/^Letztes Backup: /)
+  await page.goto('/')
+  await expect(page.getByText('Es gibt noch kein Backup deiner Protokolle.')).toHaveCount(0)
+
+  // New device: empty storage.
+  const ctx = await browser.newContext()
+  const fresh = await ctx.newPage()
+  await fresh.goto('/archiv')
+  await expect(fresh.getByText('Noch keine abgeschlossenen Protokolle.')).toBeVisible()
+  await fresh.goto('/einstellungen')
+  fresh.once('dialog', (d) => void d.accept())
+  await fresh.locator('input[type=file][accept*="zip"]').setInputFiles(await download.path())
+  await expect(fresh.getByText(/Backup eingespielt: \d+ neu/)).toBeVisible()
+  await fresh.goto('/archiv')
+  await fresh.getByRole('link', { name: /Lindenstraße 4/ }).click()
+  await expect(fresh.getByTestId('pdf-integrity')).toHaveText('✓ PDF ist unverändert')
+  await ctx.close()
+})
+
+test('a wrong file is rejected with a clear message', async ({ page }) => {
+  await page.goto('/einstellungen')
+  page.once('dialog', (d) => void d.accept())
+  await page.locator('input[type=file][accept*="zip"]').setInputFiles({
+    name: 'quatsch.zip',
+    mimeType: 'application/zip',
+    buffer: Buffer.from('kein zip'),
+  })
+  await expect(page.getByText('Die Datei ist kein BaumCheck-Backup.')).toBeVisible()
+})
+
+test('archive search and template for a recurring job', async ({ page }) => {
+  await completeOne(page)
+  await page.goto('/archiv')
+  const search = page.getByLabel('Suchen')
+  await search.fill('linden anna')
+  await expect(page.getByText('1 von 1 Protokollen')).toBeVisible()
+  await search.fill('Eiche')
+  await expect(page.getByText('Keine Protokolle gefunden.')).toBeVisible()
+  await search.fill('')
+  await page.getByLabel('Einsatz von').fill('2000-01-01')
+  await page.getByLabel('bis').fill('2000-12-31')
+  await expect(page.getByText('Keine Protokolle gefunden.')).toBeVisible()
+  await page.getByLabel('bis').fill('')
+
+  await page.getByRole('link', { name: /Lindenstraße 4/ }).click()
+  await page.getByRole('button', { name: 'Als Vorlage für neuen Einsatz' }).click()
+  await expect(page).toHaveURL(/\/einsatz\/[0-9a-f-]{36}\/job$/)
+  await expect(page.getByRole('checkbox', { name: 'Baumarbeiten (allgemein)' })).toBeChecked()
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByRole('textbox', { name: /Adresse/ })).toHaveValue(
+    'Lindenstraße 4, 60311 Frankfurt',
+  )
+  // Checks are not copied.
+  await expect(
+    page.locator('#item-site-locationKnown').getByRole('radio', { name: 'Ja' }),
+  ).not.toBeChecked()
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByRole('group', { name: 'Rollen von Anna Ast' })).toBeVisible()
+})
