@@ -8,6 +8,7 @@ import { useWizard } from './WizardContext'
 import { ItemField } from './ItemField'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
+import { EmergencyCard } from './special/EmergencyCard'
 
 export function StepView({ step }: { step: FormStep }) {
   const { assessment } = useWizard()
@@ -71,6 +72,7 @@ export function StepView({ step }: { step: FormStep }) {
             </section>
           ),
       )}
+      {step.id === 'site' && <EmergencyCard />}
     </div>
   )
 }

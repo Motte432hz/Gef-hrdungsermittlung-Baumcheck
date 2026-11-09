@@ -222,6 +222,18 @@ function validateItem(def: FormDefinition, item: FormItem, scope: ItemScope): Is
       break
     }
     case 'gps': {
+      if (!scope.assessment.position) {
+        out.push(
+          issue(
+            scope,
+            item,
+            'info',
+            'none',
+            'Keine GPS-Position erfasst. Für den Notruf wird sie dringend empfohlen.',
+          ),
+        )
+        break
+      }
       const acc = scope.assessment.position?.accuracy
       if (acc !== undefined && acc > GPS_ACCURACY_LIMIT_M) {
         out.push(

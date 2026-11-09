@@ -173,6 +173,14 @@ describe('validateAssessment', () => {
     expect(issues[0]!.message).toContain('± 120 m')
   })
 
+  it('missing GPS position is a hint', () => {
+    const input = validInput(def)
+    input.assessment.position = undefined
+    expect(validateAssessment(input)).toEqual([
+      expect.objectContaining({ level: 'info', key: 'site.gps:none' }),
+    ])
+  })
+
   it('end time before start time is a warning', () => {
     const input = validInput(def)
     input.assessment.answers['job.timeTo'] = { value: '07:00' }

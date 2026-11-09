@@ -171,9 +171,8 @@ test('drafts are listed on the start page and can be deleted', async ({ page }) 
   await expect(page.getByText('Noch keine angefangenen Einsätze.')).toBeVisible()
 })
 
-test('step menu shows all steps and allows jumping', async ({ page, isMobile }, testInfo) => {
-  test.skip(testInfo.project.name !== 'phone-380', 'menu toggle exists on phones only')
-  void isMobile
+test('step menu shows all steps and allows jumping', async ({ page, viewport }) => {
+  test.skip((viewport?.width ?? 0) >= 768, 'menu toggle exists on phones only')
   await start(page)
   await page.getByRole('button', { name: /Schritt 1 von 9/ }).click()
   const menu = page.locator('#step-menu')
@@ -183,8 +182,8 @@ test('step menu shows all steps and allows jumping', async ({ page, isMobile }, 
   await expect(page.getByText('Schritt 8 von 9')).toBeVisible()
 })
 
-test('tree steps are not marked complete without a tree', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name === 'phone-380', 'sidebar is visible from tablet width')
+test('tree steps are not marked complete without a tree', async ({ page, viewport }) => {
+  test.skip((viewport?.width ?? 0) < 768, 'sidebar is visible from tablet width')
   await start(page)
   await expect(page.locator('aside').getByRole('link', { name: /Baumbeurteilung/ })).toContainText(
     'offen',
