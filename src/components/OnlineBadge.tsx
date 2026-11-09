@@ -6,6 +6,7 @@ export function OnlineBadge() {
     <span
       role="status"
       aria-live="polite"
+      aria-label={online ? 'Verbindung: Online' : 'Verbindung: Offline'}
       className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${
         online
           ? 'bg-brand-50 text-brand-700 dark:bg-brand-900 dark:text-brand-100'

@@ -1,7 +1,14 @@
+import { useEffect } from 'react'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Button } from './Button'
 
-/** Shows a banner when a new app version is ready or the app became offline-capable. */
+const OFFLINE_READY_HIDE_MS = 6000
+
+/**
+ * Banner for "new version available" (stays until the user decides) and
+ * "works offline now" (informational, hides itself). Shown at the top so it never
+ * covers save buttons or the bottom navigation.
+ */
 export function UpdatePrompt() {
   const {
     offlineReady: [offlineReady, setOfflineReady],
@@ -9,12 +16,19 @@ export function UpdatePrompt() {
     updateServiceWorker,
   } = useRegisterSW()
 
+  useEffect(() => {
+    if (!offlineReady || needRefresh) return
+    const t = setTimeout(() => setOfflineReady(false), OFFLINE_READY_HIDE_MS)
+    return () => clearTimeout(t)
+  }, [offlineReady, needRefresh, setOfflineReady])
+
   if (!offlineReady && !needRefresh) return null
 
   return (
     <div
-      role="alert"
-      className="fixed inset-x-3 bottom-20 z-20 mx-auto max-w-md md:left-63 rounded-2xl border border-stone-200 bg-white p-4 shadow-lg md:bottom-6 dark:border-stone-700 dark:bg-stone-900"
+      role={needRefresh ? 'alert' : 'status'}
+      aria-label="App-Hinweis"
+      className="fixed inset-x-3 top-[calc(4rem+env(safe-area-inset-top))] z-20 mx-auto max-w-md rounded-2xl border border-stone-200 bg-white p-4 shadow-lg md:left-63 dark:border-stone-700 dark:bg-stone-900"
     >
       <p className="font-semibold">
         {needRefresh

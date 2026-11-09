@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('start page loads with navigation', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 1, name: 'Gefährdungsermittlung' })).toBeVisible()
-  await expect(page.getByRole('status')).toHaveText('Online')
+  await expect(page.getByRole('status', { name: /Verbindung/ })).toHaveText('Online')
 
   // Exactly one navigation is visible: bottom bar on phones, sidebar on tablet/desktop.
   const navs = page.getByRole('navigation', { name: 'Hauptnavigation' })

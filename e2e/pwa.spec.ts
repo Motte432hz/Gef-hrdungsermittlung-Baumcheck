@@ -54,12 +54,12 @@ test('app starts and navigates without network after first visit', async ({
   await context.setOffline(true)
   await page.reload()
   await expect(page.getByRole('heading', { level: 1, name: 'Gefährdungsermittlung' })).toBeVisible()
-  await expect(page.getByRole('status')).toHaveText('Offline')
+  await expect(page.getByRole('status', { name: /Verbindung/ })).toHaveText('Offline')
 
   // A deep link that was never visited must also work offline (navigate fallback).
   await page.goto('/einstellungen')
   await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible()
 
   await context.setOffline(false)
-  await expect(page.getByRole('status')).toHaveText('Online')
+  await expect(page.getByRole('status', { name: /Verbindung/ })).toHaveText('Online')
 })

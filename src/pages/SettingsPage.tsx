@@ -8,6 +8,10 @@ import {
   type StorageStatus,
 } from '../lib/storage'
 import { Button } from '../components/Button'
+import { TextField } from '../components/form/Field'
+import { db } from '../db/db'
+import { META_DEVICE_CODE } from '../db/repo'
+import { normalizeCode } from '../domain/protocolNumber'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Wie Gerät' },
@@ -19,9 +23,21 @@ export function SettingsPage() {
   const theme = useThemePreference()
   const [storage, setStorage] = useState<StorageStatus | null>(null)
 
+  const [deviceCode, setDeviceCode] = useState<string>()
+  const [deviceSaved, setDeviceSaved] = useState(false)
+
   useEffect(() => {
     void getStorageStatus().then(setStorage)
+    void db.meta.get(META_DEVICE_CODE).then((m) => setDeviceCode((m?.value as string) ?? ''))
   }, [])
+
+  const saveDeviceCode = async () => {
+    const code = normalizeCode(deviceCode ?? '')
+    setDeviceCode(code)
+    if (code) await db.meta.put({ key: META_DEVICE_CODE, value: code })
+    else await db.meta.delete(META_DEVICE_CODE)
+    setDeviceSaved(true)
+  }
 
   return (
     <div className="space-y-4">
@@ -76,6 +92,34 @@ export function SettingsPage() {
                 Dauerhaften Speicher anfordern
               </Button>
             )}
+          </div>
+        )}
+      </Card>
+
+      <Card title="Dieses Gerät">
+        {deviceCode === undefined ? (
+          <p>Lädt …</p>
+        ) : (
+          <div className="space-y-3">
+            <TextField
+              label="Gerätekürzel (optional)"
+              hint="Nur nötig, wenn mehrere Geräte ohne Cloud Protokolle erstellen. Dann bekommt jedes Gerät eigene Nummern, z. B. T2 → ZW-2026-T2-001."
+              value={deviceCode}
+              maxLength={6}
+              autoCapitalize="characters"
+              onChange={(e) => {
+                setDeviceCode(e.target.value)
+                setDeviceSaved(false)
+              }}
+            />
+            <div className="flex items-center gap-3">
+              <Button variant="secondary" onClick={() => void saveDeviceCode()}>
+                Kürzel speichern
+              </Button>
+              <span role="status" className="font-semibold text-brand-700 dark:text-brand-300">
+                {deviceSaved ? '✓ Gespeichert' : ''}
+              </span>
+            </div>
           </div>
         )}
       </Card>
