@@ -129,6 +129,17 @@ export function SettingsPage() {
 
       <Card title="Über">
         <p className="text-stone-700 dark:text-stone-300">BaumCheck, Version {__APP_VERSION__}</p>
+        <p className="text-stone-700 dark:text-stone-300" data-testid="build-info">
+          Stand:{' '}
+          {new Date(__BUILD_TIME__).toLocaleString('de-DE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}{' '}
+          Uhr{__BUILD_COMMIT__ && ` · ${__BUILD_COMMIT__}`}
+        </p>
       </Card>
     </div>
   )

@@ -8,6 +8,9 @@ import pkg from './package.json' with { type: 'json' }
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    // Build time and commit (Cloudflare Pages sets CF_PAGES_COMMIT_SHA) – shown in the settings.
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __BUILD_COMMIT__: JSON.stringify((process.env.CF_PAGES_COMMIT_SHA ?? '').slice(0, 7)),
   },
   plugins: [
     react(),
