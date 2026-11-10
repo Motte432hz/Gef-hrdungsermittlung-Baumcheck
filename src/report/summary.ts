@@ -6,6 +6,7 @@ import { ROLE_LABELS } from '../domain/roles'
 import { QUALIFICATION_LABELS } from '../domain/types'
 import { formatDecimal } from '../domain/geo'
 import { formatAddress } from '../domain/address'
+import { personLabel } from '../domain/people'
 
 /** ok = fine; bad = deviation/hazard with measure; danger = red; neutral = plain data */
 export type RowTone = 'ok' | 'bad' | 'danger' | 'neutral' | 'empty'
@@ -137,7 +138,7 @@ function row(
       return { ...base, value: formatDate(assessment.date), tone: 'neutral' }
     case 'supervisor': {
       const m = assessment.team.find((x) => x.id === assessment.supervisorMemberId)
-      return m ? { ...base, value: m.name, tone: 'neutral' } : empty
+      return m ? { ...base, value: personLabel(m), tone: 'neutral' } : empty
     }
     case 'gps': {
       const p = assessment.position
@@ -151,7 +152,7 @@ function row(
         .map((m) => {
           const roles = m.roles.map((r) => ROLE_LABELS[r]).join(', ') || 'ohne Rolle'
           const quals = m.qualifications.map((q) => QUALIFICATION_LABELS[q.type]).join(', ')
-          return `${m.name}${m.company ? ` (${m.company})` : ''} – ${roles}${quals ? ` – ${quals}` : ''}`
+          return `${personLabel(m)}${m.company ? ` (${m.company})` : ''} – ${roles}${quals ? ` – ${quals}` : ''}`
         })
         .join('\n')
       return { ...base, value, tone: 'neutral' }

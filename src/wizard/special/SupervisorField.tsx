@@ -9,6 +9,7 @@ import { ItemLabel } from '../inputs/InfoButton'
 import { ItemCard } from '../inputs/ItemCard'
 import { selectClass } from './selectClass'
 import { assignSupervisor, memberFromWorker } from './teamOps'
+import { personLabel } from '../../domain/people'
 
 /** Choice: "m:<memberId>" for people already in the team, "w:<workerId>" for profiles. */
 export function SupervisorField({ item }: { item: SpecialItem }) {
@@ -55,13 +56,13 @@ export function SupervisorField({ item }: { item: SpecialItem }) {
         <option value="">– bitte wählen –</option>
         {assessment.team.map((m) => (
           <option key={m.id} value={`m:${m.id}`}>
-            {m.name}
+            {personLabel(m)}
             {m.company ? ` (${m.company})` : ''}
           </option>
         ))}
         {candidates.map((w) => (
           <option key={w.id} value={`w:${w.id}`}>
-            {w.name}
+            {personLabel(w)}
           </option>
         ))}
       </select>

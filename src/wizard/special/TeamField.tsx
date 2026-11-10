@@ -19,6 +19,7 @@ import { Button } from '../../components/Button'
 import { TextField, Toggle } from '../../components/form/Field'
 import { memberFromWorker, toggleRole } from './teamOps'
 import { ROLE_LABELS } from '../../domain/roles'
+import { personLabel } from '../../domain/people'
 
 function availableRoles(jobTypes: string[]): Role[] {
   const roles: Role[] = ['supervisor', 'climber', 'ground', 'safety_lookout']
@@ -63,7 +64,7 @@ export function TeamField({ item }: { item: SpecialItem }) {
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <p className="text-lg font-semibold">{m.name}</p>
+                  <p className="text-lg font-semibold">{personLabel(m)}</p>
                   <p className="text-sm text-stone-600 dark:text-stone-400">
                     {[
                       m.kind === 'employee' ? 'Mitarbeiter/in' : m.company || 'Subunternehmer/Gast',
@@ -137,7 +138,7 @@ export function TeamField({ item }: { item: SpecialItem }) {
                   className="flex min-h-14 w-full items-center justify-between gap-2 rounded-xl border-2 border-stone-300 px-3 text-left font-semibold hover:bg-stone-100 dark:border-stone-600 dark:hover:bg-stone-800"
                 >
                   <span>
-                    {w.name}
+                    {personLabel(w)}
                     <span className="block text-sm font-normal text-stone-600 dark:text-stone-400">
                       {w.kind === 'employee' ? 'Mitarbeiter/in' : w.company || 'Subunternehmer'}
                     </span>
@@ -159,6 +160,7 @@ export function TeamField({ item }: { item: SpecialItem }) {
                 const workerId = await saveWorker(db, assessment.organizationId, {
                   kind: 'subcontractor',
                   name: member.name,
+                  nickname: member.nickname,
                   company: member.company,
                   qualifications: member.qualifications,
                   active: true,
@@ -187,6 +189,7 @@ function NewPersonForm({
   onCancel: () => void
 }) {
   const [name, setName] = useState('')
+  const [nickname, setNickname] = useState('')
   const [company, setCompany] = useState('')
   const [quals, setQuals] = useState<QualificationType[]>([])
   const [saveProfile, setSaveProfile] = useState(false)
@@ -199,6 +202,7 @@ function NewPersonForm({
         id: newId(),
         kind: 'guest',
         name: name.trim(),
+        nickname: nickname.trim() || undefined,
         company: company.trim() || undefined,
         qualifications: quals.map((type) => ({ type })),
         roles: [],
@@ -215,6 +219,11 @@ function NewPersonForm({
         value={name}
         onChange={(e) => setName(e.target.value)}
         error={error}
+      />
+      <TextField
+        label="Rufname (optional)"
+        value={nickname}
+        onChange={(e) => setNickname(e.target.value)}
       />
       <TextField label="Firma" value={company} onChange={(e) => setCompany(e.target.value)} />
       <fieldset>

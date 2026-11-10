@@ -7,6 +7,7 @@ export function memberFromWorker(w: Worker, roles: Role[] = []): TeamMember {
     workerId: w.id,
     kind: w.kind,
     name: w.name,
+    nickname: w.nickname,
     company: w.company,
     // Snapshot: later profile changes do not alter this assessment.
     qualifications: structuredClone(w.qualifications),

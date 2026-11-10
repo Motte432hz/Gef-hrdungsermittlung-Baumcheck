@@ -89,7 +89,8 @@ test('team: new person with roles, SKT plausibility hint', async ({ page }) => {
   await page.goto(page.url().replace(/job$/, 'team'))
 
   await page.getByRole('button', { name: /Neue Person/ }).click()
-  await page.getByLabel('Name').fill('Karl Kletter')
+  await page.getByLabel(/^Name/).fill('Karl Kletter')
+  await page.getByLabel('Rufname (optional)').fill('Kalle')
   await page.getByLabel('Firma').fill('Kletterteam Süd')
   await page.getByText('SKT B', { exact: true }).click()
   await page.getByText('Als Subunternehmer-Profil speichern').click()
@@ -105,7 +106,7 @@ test('team: new person with roles, SKT plausibility hint', async ({ page }) => {
   await expect(page.getByRole('combobox', { name: /Aufsichtsführende Person/ })).toHaveValue(/^m:/)
   await expect(
     page.getByRole('combobox', { name: /Aufsichtsführende Person/ }).locator('option:checked'),
-  ).toHaveText('Karl Kletter (Kletterteam Süd)')
+  ).toHaveText('Karl Kletter „Kalle“ (Kletterteam Süd)')
 
   // Saved as subcontractor profile.
   await page.goto('/profile/subunternehmer')

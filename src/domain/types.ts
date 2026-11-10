@@ -63,6 +63,8 @@ export type PersonKind = 'employee' | 'subcontractor'
 export interface Worker extends BaseRecord {
   kind: PersonKind
   name: string
+  /** Call name used on site, e.g. "Kalle". */
+  nickname?: string
   company?: string
   phone?: string
   qualifications: Qualification[]
@@ -131,6 +133,7 @@ export interface TeamMember {
   workerId?: ID
   kind: PersonKind | 'guest'
   name: string
+  nickname?: string
   company?: string
   qualifications: Qualification[]
   roles: Role[]

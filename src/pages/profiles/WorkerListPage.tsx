@@ -8,6 +8,7 @@ import { EmptyState, LinkList, ListLink } from '../../components/ListLink'
 import type { PersonKind } from '../../domain/types'
 import { qualificationSummary } from '../../domain/qualifications'
 import { workerKinds } from './workerKinds'
+import { personLabel } from '../../domain/people'
 
 export function WorkerListPage({ kind }: { kind: PersonKind }) {
   const org = useOrganization()
@@ -44,7 +45,7 @@ export function WorkerListPage({ kind }: { kind: PersonKind }) {
               to={`${k.path}/${w.id}`}
               title={
                 <>
-                  {w.name}
+                  {personLabel(w)}
                   {!w.active && <span className="font-normal text-stone-500"> (inaktiv)</span>}
                 </>
               }

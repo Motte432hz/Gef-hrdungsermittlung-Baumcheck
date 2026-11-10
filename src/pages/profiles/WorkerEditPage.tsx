@@ -22,6 +22,7 @@ import { workerKinds } from './workerKinds'
 const emptyWorker = (kind: PersonKind): WorkerInput => ({
   kind,
   name: '',
+  nickname: '',
   company: '',
   phone: '',
   qualifications: [],
@@ -36,10 +37,11 @@ export function WorkerEditPage({ kind }: { kind: PersonKind }) {
     if (!id) return emptyWorker(kind)
     const w = await db.workers.get(id)
     if (!w || w.deletedAt) return null
-    const { name, company, phone, qualifications, signature, active } = w
+    const { name, nickname, company, phone, qualifications, signature, active } = w
     return {
       kind: w.kind,
       name,
+      nickname: nickname ?? '',
       company: company ?? '',
       phone: phone ?? '',
       qualifications,
@@ -104,6 +106,7 @@ function WorkerForm({
     const input: WorkerInput = {
       ...form,
       name: form.name.trim(),
+      nickname: form.nickname?.trim() || undefined,
       company: form.company?.trim() || undefined,
       phone: form.phone?.trim() || undefined,
       // Keep the canonical order of qualifications.
@@ -152,6 +155,12 @@ function WorkerForm({
               onChange={(e) => update({ name: e.target.value })}
               error={errors.name}
               autoComplete="name"
+            />
+            <TextField
+              label="Rufname (optional)"
+              hint="So wird die Person auf der Baustelle gerufen, z. B. „Kalle“. Im PDF steht immer der vollständige Name, der Rufname dahinter."
+              value={form.nickname ?? ''}
+              onChange={(e) => update({ nickname: e.target.value })}
             />
             {kind === 'subcontractor' && (
               <TextField

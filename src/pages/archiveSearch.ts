@@ -14,7 +14,7 @@ export function searchText(a: Assessment, customers: Customer[], trees: Tree[]):
       site?.street,
       site?.city,
       typeof address === 'string' ? address : '',
-      ...a.team.map((m) => `${m.name} ${m.company ?? ''}`),
+      ...a.team.map((m) => `${m.name} ${m.nickname ?? ''} ${m.company ?? ''}`),
       ...trees.map((t) => speciesLabel(t.answers['tree.species']) ?? ''),
     ]
       .filter(Boolean)

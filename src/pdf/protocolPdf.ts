@@ -17,6 +17,7 @@ import { shortHash } from '../lib/hash'
 import { treeLabel } from '../wizard/trees/treeLabel'
 import { A4, BLACK, GRAY, MARGIN, PdfWriter, type FontBytes } from './writer'
 import { drawQr } from './qr'
+import { personLabel } from '../domain/people'
 
 export interface ProtocolPdfInput {
   definition: FormDefinition
@@ -288,7 +289,7 @@ export async function buildProtocolPdf(
     w.y = blockTop
     const infoX = MARGIN.left + 215
     const infoW = w.contentWidth - 215
-    w.text(`${r.member.name}${r.member.company ? ` (${r.member.company})` : ''}`, {
+    w.text(`${personLabel(r.member)}${r.member.company ? ` (${r.member.company})` : ''}`, {
       x: infoX,
       width: infoW,
       size: 10,

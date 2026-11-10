@@ -1,6 +1,7 @@
 import type { Assessment, Qualification, TeamMember } from '../domain/types'
 import { QUALIFICATION_LABELS } from '../domain/types'
 import type { Issue } from './validation'
+import { personLabel } from '../domain/people'
 
 const SKT_QUALIFICATIONS = new Set(['skt_a', 'skt_b', 'skt_k'])
 export const EXPIRY_NOTICE_DAYS = 30
@@ -75,7 +76,7 @@ export function checkTeam(
         level: 'warning',
         stepId,
         itemId: 'team.members',
-        message: `${m.name} hat noch keine Rolle.`,
+        message: `${personLabel(m)} hat noch keine Rolle.`,
       })
     }
     for (const q of m.qualifications) out.push(...checkExpiry(m, q, a.date, stepId))
@@ -94,7 +95,7 @@ function checkExpiry(m: TeamMember, q: Qualification, date: string, stepId: stri
         level: 'warning',
         stepId,
         itemId: 'team.members',
-        message: `Nachweis ${label} von ${m.name} ist seit ${formatDate(q.validUntil)} abgelaufen.`,
+        message: `Nachweis ${label} von ${personLabel(m)} ist seit ${formatDate(q.validUntil)} abgelaufen.`,
       },
     ]
   }
@@ -105,7 +106,7 @@ function checkExpiry(m: TeamMember, q: Qualification, date: string, stepId: stri
         level: 'info',
         stepId,
         itemId: 'team.members',
-        message: `Nachweis ${label} von ${m.name} läuft am ${formatDate(q.validUntil)} ab.`,
+        message: `Nachweis ${label} von ${personLabel(m)} läuft am ${formatDate(q.validUntil)} ab.`,
       },
     ]
   }

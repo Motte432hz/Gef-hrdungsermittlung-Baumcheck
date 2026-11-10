@@ -12,6 +12,7 @@ import { toStoredFile } from '../../lib/storedFile'
 import { useObjectUrl } from '../../lib/useObjectUrl'
 import { quickPosition } from '../../lib/quickPosition'
 import { formatDecimal } from '../../domain/geo'
+import { personLabel } from '../../domain/people'
 
 const fmtTime = (iso: string) =>
   new Date(iso).toLocaleString('de-DE', {
@@ -98,7 +99,7 @@ export function SignCard({
       <div>
         <p className="text-lg font-semibold">
           {valid && <span aria-hidden="true">✓ </span>}
-          {member.name}
+          {personLabel(member)}
           {member.company && <span className="font-normal"> ({member.company})</span>}
         </p>
         <p className="text-sm text-stone-600 dark:text-stone-400">
@@ -165,7 +166,7 @@ export function SignCard({
             className="h-24 w-full rounded-xl border border-stone-200 bg-white object-contain"
           />
           <Toggle
-            label={`Ich${supervisorName ? ` (${supervisorName})` : ''} bestätige: ${member.name} ist anwesend und hat der Erklärung zugestimmt.`}
+            label={`Ich${supervisorName ? ` (${supervisorName})` : ''} bestätige: ${personLabel(member)} ist anwesend und hat der Erklärung zugestimmt.`}
             checked={confirmed}
             onChange={setConfirmed}
           />

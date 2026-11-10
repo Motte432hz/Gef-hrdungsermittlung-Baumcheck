@@ -59,7 +59,8 @@ test('employee with qualification and stored signature', async ({ page }) => {
   await save(page)
   await expect(page.getByText('Name ist ein Pflichtfeld.')).toBeVisible()
 
-  await page.getByLabel('Name').fill('Anna Ast')
+  await page.getByLabel(/^Name/).fill('Anna Ast')
+  await page.getByLabel('Rufname (optional)').fill('Änni')
   await page.getByText('SKT A', { exact: true }).click()
   await page.getByLabel('Gültig bis (optional)').fill('2020-01-31')
   await page.getByText('AS-Baum II', { exact: true }).click()
@@ -71,12 +72,13 @@ test('employee with qualification and stored signature', async ({ page }) => {
   await expect(page).toHaveURL(/\/profile\/mitarbeiter\/[0-9a-f-]{36}$/)
 
   await page.reload()
-  await expect(page.getByLabel('Name')).toHaveValue('Anna Ast')
+  await expect(page.getByLabel(/^Name/)).toHaveValue('Anna Ast')
   const sig = page.getByRole('img', { name: 'Unterschrift (gespeichert)' })
   await expect(sig).toBeVisible()
   expect(await sig.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
 
   await page.getByRole('link', { name: 'Mitarbeiter' }).click()
+  await expect(page.getByText('Anna Ast „Änni“')).toBeVisible()
   await expect(page.getByText('AS-Baum II · SKT A (abgelaufen)')).toBeVisible()
 
   // Delete
@@ -88,7 +90,7 @@ test('employee with qualification and stored signature', async ({ page }) => {
 
 test('subcontractor has a company field', async ({ page }) => {
   await page.goto('/profile/subunternehmer/neu')
-  await page.getByLabel('Name').fill('Karl Kletter')
+  await page.getByLabel(/^Name/).fill('Karl Kletter')
   await page.getByLabel('Firma').fill('Kletterteam Süd GmbH')
   await save(page)
   await saved(page)
@@ -98,7 +100,7 @@ test('subcontractor has a company field', async ({ page }) => {
 
 test('customer with objects', async ({ page }) => {
   await page.goto('/profile/kunden/neu')
-  await page.getByLabel('Name').fill('Hausverwaltung Müller')
+  await page.getByLabel(/^Name/).fill('Hausverwaltung Müller')
   await page.getByLabel('Ort').fill('Frankfurt')
   await page.getByRole('button', { name: '+ Objekt hinzufügen' }).click()
   await save(page)

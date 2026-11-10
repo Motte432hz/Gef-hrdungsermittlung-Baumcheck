@@ -36,7 +36,7 @@ async function check(page: Page, label: string) {
 
 async function addPerson(page: Page, name: string, role: string) {
   await page.getByRole('button', { name: /Neue Person/ }).click()
-  await page.getByLabel('Name').fill(name)
+  await page.getByLabel(/^Name/).fill(name)
   await page.getByRole('button', { name: 'Hinzufügen' }).click()
   const roles = page.getByRole('group', { name: `Rollen von ${name}` })
   await roles.getByText(role, { exact: true }).click()

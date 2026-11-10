@@ -18,7 +18,7 @@ const buf = (b: Buffer) => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLen
 
 function input(over: (i: ProtocolPdfInput) => void = () => {}): ProtocolPdfInput {
   const v = validInput(def)
-  const sup = member({ id: 'm1', name: 'Anna Äst', roles: ['supervisor'] })
+  const sup = member({ id: 'm1', name: 'Anna Äst', nickname: 'Änni', roles: ['supervisor'] })
   const ground = member({
     id: 'm2',
     name: 'Bernd Borke',
@@ -135,7 +135,7 @@ describe('protocol PDF', () => {
     expect(all).toContain('Berg-Ahorn (Acer pseudoplatanus)')
     expect(all).toContain('Rußrindenkrankheit')
     expect(all).toContain('Auf Grundlage der von mir durchgeführten Gefährdungsermittlung')
-    expect(all).toContain('Anna Äst')
+    expect(all).toContain('Anna Äst „Änni“')
     expect(all).toContain('Bernd Borke (Kletterteam Süd)')
     expect(all).toContain('vor Ort unterschrieben')
     expect(all).toContain('Anlage: Fotos')
