@@ -11,6 +11,7 @@ import { stepState, SUMMARY_STEP_ID, wizardSteps, type StepState, type WizardSte
 import { StepView } from './StepView'
 import { SummaryStep } from './SummaryStep'
 import { OnlineBadge } from '../components/OnlineBadge'
+import { useOrganization } from '../app/useOrganization'
 import { neighbour } from './navigation'
 
 export function WizardPage() {
@@ -96,6 +97,8 @@ function Wizard({
   stepId?: string
 }) {
   const navigate = useNavigate()
+  const org = useOrganization()
+  const branded = !!(org?.brandInApp && org.brandColor)
   const definition = getDefinition(assessment.formVersion)
   const steps = wizardSteps(definition)
   const index = Math.max(
@@ -186,11 +189,13 @@ function Wizard({
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="pt-safe sticky top-0 z-10 border-b border-stone-200 bg-white/95 backdrop-blur dark:border-stone-800 dark:bg-stone-900/95">
-            <div className="flex min-h-14 items-center gap-2 px-2">
+            <div
+              className={`flex min-h-14 items-center gap-2 px-2 ${branded ? 'bg-brand-700 text-white dark:bg-brand-900' : ''}`}
+            >
               <Link
                 to="/"
                 aria-label="Assistent schließen"
-                className="flex size-12 items-center justify-center rounded-full text-2xl hover:bg-stone-100 dark:hover:bg-stone-800"
+                className={`flex size-12 items-center justify-center rounded-full text-2xl ${branded ? 'hover:bg-white/15' : 'hover:bg-stone-100 dark:hover:bg-stone-800'}`}
               >
                 ×
               </Link>
@@ -202,12 +207,17 @@ function Wizard({
                 onClick={() => setMenuOpen(!menuOpen)}
               >
                 <span className="min-w-0">
-                  <span className="block text-sm text-stone-600 dark:text-stone-400">
+                  <span
+                    className={`block text-sm ${branded ? 'text-white/80' : 'text-stone-600 dark:text-stone-400'}`}
+                  >
                     Schritt {index + 1} von {steps.length}
                   </span>
                   <span className="block truncate text-lg font-bold">{step.title}</span>
                 </span>
-                <span aria-hidden="true" className="ml-auto text-stone-500 md:hidden">
+                <span
+                  aria-hidden="true"
+                  className={`ml-auto md:hidden ${branded ? 'text-white/80' : 'text-stone-500'}`}
+                >
                   {menuOpen ? '▴' : '▾'}
                 </span>
               </button>

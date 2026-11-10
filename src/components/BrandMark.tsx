@@ -5,7 +5,13 @@ import { useObjectUrl } from '../lib/useObjectUrl'
  * App logo area: the company's own logo and name once set up ("mit BaumCheck" below),
  * otherwise the BaumCheck logo.
  */
-export function BrandMark({ size = 'md' }: { size?: 'sm' | 'md' }) {
+export function BrandMark({
+  size = 'md',
+  onColor = false,
+}: {
+  size?: 'sm' | 'md'
+  onColor?: boolean
+}) {
   const org = useOrganization()
   const logoUrl = useObjectUrl(org?.logo)
   const img = size === 'sm' ? 'size-8' : 'size-10'
@@ -28,7 +34,11 @@ export function BrandMark({ size = 'md' }: { size?: 'sm' | 'md' }) {
         <span className={`block truncate font-bold ${size === 'sm' ? 'text-base' : 'text-lg'}`}>
           {org.name || 'BaumCheck'}
         </span>
-        <span className="block text-xs text-stone-500 dark:text-stone-400">mit BaumCheck</span>
+        <span
+          className={`block text-xs ${onColor ? 'text-white/80' : 'text-stone-500 dark:text-stone-400'}`}
+        >
+          mit BaumCheck
+        </span>
       </span>
     </span>
   )

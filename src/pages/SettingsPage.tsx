@@ -13,6 +13,7 @@ import { db } from '../db/db'
 import { META_DEVICE_CODE } from '../db/repo'
 import { normalizeCode } from '../domain/protocolNumber'
 import { BackupCard } from './BackupCard'
+import { ColorModeChooser } from './ColorModeChooser'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Wie Gerät' },
@@ -46,7 +47,7 @@ export function SettingsPage() {
 
       <Card title="Darstellung">
         <fieldset>
-          <legend className="sr-only">Farbschema</legend>
+          <legend className="mb-2 font-semibold">Hell oder dunkel</legend>
           <div className="grid grid-cols-3 gap-2">
             {themeOptions.map((o) => (
               <label
@@ -66,6 +67,7 @@ export function SettingsPage() {
             ))}
           </div>
         </fieldset>
+        <ColorModeChooser />
       </Card>
 
       <Card title="Speicher auf diesem Gerät">

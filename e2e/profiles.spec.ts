@@ -336,3 +336,42 @@ test('two brand colours from a two-colour logo; experimental layout can be chose
   await page.reload()
   await expect(page.getByRole('radio', { name: /Seitenleiste/ })).toBeChecked()
 })
+
+test('settings: switch between BaumCheck and company colours (colours taken from the logo)', async ({
+  page,
+}) => {
+  // No logo yet: a hint points to the company profile.
+  await page.goto('/einstellungen')
+  await page.getByText('Firmenfarben', { exact: true }).click()
+  await expect(page.getByText('Noch kein Logo und keine Firmenfarbe hinterlegt.')).toBeVisible()
+
+  // Logo saved, but without colours.
+  await page.goto('/profile/firma')
+  await page.getByLabel('Firmenname').fill('Blaue Eiche')
+  const logo =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#ffffff"/><circle cx="100" cy="100" r="80" fill="#1565c0"/></svg>'
+  await page
+    .locator('input[type=file]')
+    .setInputFiles({ name: 'l.svg', mimeType: 'image/svg+xml', buffer: Buffer.from(logo) })
+  await expect(page.getByRole('button', { name: /^Farbe #/ }).first()).toBeVisible()
+  await page.getByRole('button', { name: 'Standardfarbe' }).click()
+  await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+
+  await page.goto('/einstellungen')
+  const readBrand = () =>
+    page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--color-brand-700').trim(),
+    )
+  expect(await readBrand()).toBe('#1f5130')
+  await page.getByText('Firmenfarben', { exact: true }).click()
+  await expect(page.getByRole('radio', { name: 'Firmenfarben' })).toBeChecked()
+  await expect.poll(readBrand).not.toBe('#1f5130')
+  // The header is now coloured.
+  const header = page.getByRole('banner')
+  await expect(header).toHaveClass(/bg-brand-700/)
+
+  await page.getByText('BaumCheck', { exact: true }).click()
+  await expect.poll(readBrand).toBe('#1f5130')
+  await expect(header).not.toHaveClass(/bg-brand-700/)
+})
