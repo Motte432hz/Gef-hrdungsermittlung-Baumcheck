@@ -198,6 +198,26 @@ describe('protocol PDF', () => {
     expect(pages.length).toBeGreaterThan(normal.length)
   })
 
+  it('layouts: compact is shorter and summarises unremarkable answers; table and brand colour work', async () => {
+    const standard = await pdfText(await buildProtocolPdf(input(), fonts))
+    const compact = await pdfText(
+      await buildProtocolPdf(
+        input((i) => (i.layout = 'compact')),
+        fonts,
+      ),
+    )
+    expect(compact.length).toBeLessThan(standard.length)
+    expect(compact.join('\n')).toContain('Übrige Prüfpunkte')
+    expect(compact.join('\n')).toContain('VORHANDEN')
+    const table = await buildProtocolPdf(
+      input((i) => ((i.layout = 'table'), (i.brandColor = '#e30613'))),
+      fonts,
+    )
+    const tableText = (await pdfText(table)).join('\n')
+    expect(tableText).toContain('Gefahren und Maßnahmen')
+    expect(tableText).toContain('Protokoll ZW-2026-0042')
+  })
+
   it('sanitize removes symbols the font cannot render', () => {
     expect(sanitize('⚠ Achtung 📍 ✓')).toBe('! Achtung  ')
   })

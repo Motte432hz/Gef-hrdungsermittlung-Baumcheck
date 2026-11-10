@@ -97,6 +97,8 @@ export async function finalizeAssessment(
         signatures,
         photos: photos.map((p) => ({ treeId: p.treeId!, file: p.file })),
         contentHash,
+        layout: organization?.pdfLayout,
+        brandColor: organization?.brandInPdf ? organization.brandColor : undefined,
       },
       fonts,
     )

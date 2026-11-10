@@ -15,7 +15,11 @@ import { formatDecimal, formatDms, osmLink } from '../domain/geo'
 import { getSpecies, hazardsForSpecies, plannedActivities, ACTIVITY_LABELS } from '../form/species'
 import { shortHash } from '../lib/hash'
 import { treeLabel } from '../wizard/trees/treeLabel'
-import { A4, BLACK, GRAY, MARGIN, PdfWriter, type FontBytes } from './writer'
+import { rgb } from 'pdf-lib'
+import { A4, BLACK, GRAY, LINE, MARGIN, PdfWriter, type FontBytes, type PdfStyle } from './writer'
+import { hexToRgb, makePalette } from '../lib/color'
+
+const ZEBRA = rgb(0.94, 0.94, 0.94)
 import { drawQr } from './qr'
 import { personLabel } from '../domain/people'
 
@@ -30,6 +34,9 @@ export interface ProtocolPdfInput {
   signatures: Signature[]
   photos: { treeId: string; file: StoredFile }[]
   contentHash: string
+  /** Layout variant and optional brand colour (#rrggbb). Default: standard, black. */
+  layout?: PdfStyle
+  brandColor?: string
 }
 
 const dateDe = (iso: string) => {
@@ -62,47 +69,82 @@ async function embed(w: PdfWriter, file: StoredFile | undefined): Promise<PDFIma
   }
 }
 
-/** Label/value row; deviations get a black bar, bold value and the measure below (b/w printable). */
+/** Label/value row; deviations get a bar, bold value and the measure below (b/w printable). */
 function row(w: PdfWriter, r: SummaryRow) {
+  const size = w.style === 'compact' ? 8 : 9
   const labelW = w.contentWidth * 0.42
   const valueX = MARGIN.left + labelW + 8
-  const valueW = w.contentWidth - labelW - 8
+  const valueW = w.contentWidth - labelW - 8 - (w.style === 'table' ? 4 : 0)
   const flagged = r.tone === 'bad' || r.tone === 'danger'
   const value = flagged ? r.value.toUpperCase() : r.value
   const h =
-    Math.max(w.measure(r.label, 9, labelW - 8), w.measure(value, 9, valueW, flagged)) +
-    (r.note !== undefined ? w.measure(`${r.noteLabel}: ${r.note || '–'}`, 9, valueW, true) : 0)
+    Math.max(w.measure(r.label, size, labelW - 8), w.measure(value, size, valueW, flagged)) +
+    (r.note !== undefined ? w.measure(`${r.noteLabel}: ${r.note || '–'}`, size, valueW, true) : 0)
   w.ensure(Math.min(h + 4, 200))
   const top = w.y
+  if (w.style === 'table' && w.rowIndex++ % 2 === 1 && h + 4 < top - MARGIN.bottom) {
+    // Zebra stripe behind the row.
+    w.page.drawRectangle({
+      x: MARGIN.left,
+      y: top - h - 2,
+      width: w.contentWidth,
+      height: h + 3,
+      color: ZEBRA,
+    })
+  }
   w.text(r.label, {
-    x: MARGIN.left + (flagged ? 8 : 0),
+    x: MARGIN.left + (flagged || w.style === 'table' ? 8 : 0),
     width: labelW - 8,
-    size: 9,
+    size,
     color: flagged ? BLACK : GRAY,
   })
   const afterLabel = w.y
   w.y = top
-  w.text(value, { x: valueX, width: valueW, size: 9, bold: flagged })
+  w.text(value, { x: valueX, width: valueW, size, bold: flagged })
   if (r.note !== undefined) {
     w.text(`${r.noteLabel ?? 'Maßnahme'}: ${r.note || '–'}`, {
       x: valueX,
       width: valueW,
-      size: 9,
+      size,
       bold: true,
     })
   }
   w.y = Math.min(w.y, afterLabel)
   if (flagged && top > w.y) {
-    // Bar only if the row stayed on one page.
+    // Bar only if the row stayed on one page. Dark enough for b/w printing.
     w.page.drawRectangle({
       x: MARGIN.left,
       y: w.y + 2,
       width: r.tone === 'danger' ? 4 : 2.5,
       height: top - w.y - 2,
-      color: BLACK,
+      color: r.tone === 'danger' ? BLACK : w.accent,
     })
   }
-  w.gap(3)
+  if (w.style === 'table' && top > w.y) {
+    w.page.drawLine({
+      start: { x: MARGIN.left, y: w.y + 1 },
+      end: { x: MARGIN.left + w.contentWidth, y: w.y + 1 },
+      thickness: 0.4,
+      color: LINE,
+    })
+  }
+  w.gap(w.style === 'compact' ? 2 : 3)
+}
+
+/** Compact layout: unremarkable answers are summarised in one line per section. */
+function compactRows(rows: SummaryRow[]): SummaryRow[] {
+  const ok = rows.filter((r) => r.tone === 'ok')
+  const rest = rows.filter((r) => r.tone !== 'ok' && r.tone !== 'empty')
+  if (ok.length === 0) return rest
+  return [
+    ...rest,
+    {
+      itemId: '_ok',
+      label: `Übrige Prüfpunkte (${ok.length})`,
+      value: 'in Ordnung (Ja bzw. nicht vorhanden)',
+      tone: 'neutral',
+    },
+  ]
 }
 
 export async function buildProtocolPdf(
@@ -115,6 +157,14 @@ export async function buildProtocolPdf(
     author: org.name,
     subject: 'Einsatzbezogene Gefährdungsermittlung',
   })
+  w.style = input.layout ?? 'standard'
+  if (input.brandColor) {
+    // The 700 step is dark enough for headings and stays readable when printed in b/w.
+    const [r, g, b] = hexToRgb(makePalette(input.brandColor)[700])
+    w.accent = rgb(r / 255, g / 255, b / 255)
+    // The first page was created before the colour was known.
+    w.page.drawRectangle({ x: 0, y: A4.height - 10, width: A4.width, height: 10, color: w.accent })
+  }
 
   // ---- Header -----------------------------------------------------------
   const logo = await embed(w, org.logo)
@@ -134,7 +184,7 @@ export async function buildProtocolPdf(
   )
   w.y = Math.min(w.y, logoBottom) - 14
 
-  w.text(definition.title, { size: 15, bold: true })
+  w.text(definition.title, { size: 15, bold: true, color: w.accent })
   w.gap(2)
   const meta = [
     `Protokoll-Nr. ${input.protocolNumber}`,
@@ -230,7 +280,7 @@ export async function buildProtocolPdf(
   // ---- All details -------------------------------------------------------------
   for (const s of sections) {
     w.heading(s.title, 11.5)
-    for (const r of s.rows) row(w, r)
+    for (const r of w.style === 'compact' ? compactRows(s.rows) : s.rows) row(w, r)
   }
 
   // ---- Personal protective equipment ---------------------------------------

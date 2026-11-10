@@ -25,6 +25,8 @@ export interface BaseRecord {
   syncState: SyncState
 }
 
+export type PdfLayout = 'standard' | 'compact' | 'table'
+
 export interface Organization extends BaseRecord {
   name: string
   /** Short code for protocol numbers, e.g. "ZW". */
@@ -35,6 +37,14 @@ export interface Organization extends BaseRecord {
   city?: string
   phone?: string
   email?: string
+  /** Brand colour (#rrggbb), e.g. detected from the logo. */
+  brandColor?: string
+  /** Use the brand colour for the app's look on this organisation's devices. */
+  brandInApp?: boolean
+  /** Use the brand colour in the PDF. */
+  brandInPdf?: boolean
+  /** PDF layout variant. */
+  pdfLayout?: PdfLayout
   /** Where finished protocols are sent (phase 2). */
   reportEmails: string[]
   taxNumber?: string

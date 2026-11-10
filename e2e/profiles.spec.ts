@@ -48,7 +48,7 @@ test('company profile with logo is saved and survives reload', async ({ page }) 
   expect(await logo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(100)
 
   await page.getByRole('link', { name: 'Profile' }).first().click()
-  await expect(page.getByText('Zwieselwiesel Baumpflege')).toBeVisible()
+  await expect(page.getByRole('main').getByText('Zwieselwiesel Baumpflege')).toBeVisible()
 })
 
 test('employee with qualification and stored signature', async ({ page }) => {
@@ -214,4 +214,70 @@ test('PPE and gear per person with instant search, free entry and inspection war
   await expect(
     page.getByText(/Prüfung von SpiderJack 3 \(Anna Ast\) war am 31\.01\.2020 fällig\./),
   ).toBeVisible()
+})
+
+test('logo colours are detected and applied to the app; company logo and name in the header', async ({
+  page,
+}) => {
+  await page.goto('/profile/firma')
+  await page.getByLabel('Firmenname').fill('Rotbuche Baumpflege')
+  await page.getByLabel('Kürzel für Protokollnummern').fill('RB')
+  const redLogo =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#ffffff"/><circle cx="100" cy="100" r="80" fill="#e30613"/></svg>'
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'logo.svg',
+    mimeType: 'image/svg+xml',
+    buffer: Buffer.from(redLogo),
+  })
+  // A red suggestion appears and is pre-selected; both toggles are on.
+  const swatch = page.getByRole('button', { name: /^Farbe #[0-9a-f]{6} wählen$/ }).first()
+  await expect(swatch).toHaveAttribute('aria-pressed', 'true')
+  const chosen = (await swatch.getAttribute('aria-label'))!.match(/#[0-9a-f]{6}/)![0]
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(chosen.slice(i, i + 2), 16))
+  expect(r).toBeGreaterThan(180)
+  expect(g + b).toBeLessThan(120)
+  await expect(page.getByRole('checkbox', { name: /Farbe in der App verwenden/ })).toBeChecked()
+  await expect(page.getByRole('checkbox', { name: /Farbe im PDF verwenden/ })).toBeChecked()
+
+  await page.getByText('Tabelle', { exact: true }).click()
+  await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+
+  // The app now uses a red tone instead of the default green.
+  const brand = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--color-brand-700').trim(),
+  )
+  expect(brand.toLowerCase()).not.toBe('#1f5130')
+  expect(parseInt(brand.slice(1, 3), 16)).toBeGreaterThan(parseInt(brand.slice(3, 5), 16))
+
+  await expect(page.getByTestId('brand-mark').filter({ visible: true })).toContainText(
+    'Rotbuche Baumpflege',
+  )
+  await expect(page.getByTestId('brand-mark').filter({ visible: true })).toContainText(
+    'mit BaumCheck',
+  )
+
+  // Back to the standard colour.
+  await page.getByRole('button', { name: 'Standardfarbe' }).click()
+  await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        getComputedStyle(document.documentElement).getPropertyValue('--color-brand-700').trim(),
+      ),
+    )
+    .toBe('#1f5130')
+})
+
+test('sample PDF opens', async ({ page, context }) => {
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await page.goto('/profile/firma')
+  const button = page.getByRole('button', { name: 'Muster-PDF ansehen' })
+  const [popup] = await Promise.all([context.waitForEvent('page'), button.click()])
+  expect(popup).toBeTruthy()
+  // Generation finishes (headless Chromium has no PDF viewer, so the file itself is not shown).
+  await expect(button).toBeEnabled()
+  expect(errors).toEqual([])
 })

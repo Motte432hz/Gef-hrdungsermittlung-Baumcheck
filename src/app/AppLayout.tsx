@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router'
 import { navItems } from './nav'
 import { Icon } from '../components/Icon'
 import { OnlineBadge } from '../components/OnlineBadge'
+import { BrandMark } from '../components/BrandMark'
 
 const linkBase =
   'flex items-center gap-3 rounded-xl font-semibold transition-colors min-h-14 focus-visible:outline-3'
@@ -15,8 +16,7 @@ export function AppLayout() {
         className="hidden w-60 shrink-0 flex-col gap-1 border-r border-stone-200 bg-white p-3 md:flex dark:border-stone-800 dark:bg-stone-900"
       >
         <div className="mb-4 flex items-center gap-3 px-2 py-3">
-          <img src="/favicon.svg" alt="" className="size-10" />
-          <span className="text-xl font-bold">BaumCheck</span>
+          <BrandMark />
         </div>
         {navItems.map((item) => (
           <NavLink
@@ -41,8 +41,7 @@ export function AppLayout() {
         <header className="pt-safe sticky top-0 z-10 border-b border-stone-200 bg-white/95 backdrop-blur dark:border-stone-800 dark:bg-stone-900/95">
           <div className="flex min-h-14 items-center justify-between gap-3 px-4">
             <div className="flex items-center gap-2 md:invisible">
-              <img src="/favicon.svg" alt="" className="size-8" />
-              <span className="text-lg font-bold">BaumCheck</span>
+              <BrandMark size="sm" />
             </div>
             <OnlineBadge />
           </div>

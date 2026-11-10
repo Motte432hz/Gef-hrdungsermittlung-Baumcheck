@@ -8,6 +8,7 @@ import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
 import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
 import { NumberingCard } from './NumberingCard'
+import { AppearanceCard, type AppearanceValue } from './AppearanceCard'
 import {
   email,
   emailList,
@@ -32,6 +33,7 @@ type FormState = {
   reportEmails: string
   taxNumber: string
   logo?: StoredFile
+  appearance: AppearanceValue
 }
 
 const fromOrg = (o: Organization): FormState => ({
@@ -45,6 +47,12 @@ const fromOrg = (o: Organization): FormState => ({
   reportEmails: o.reportEmails.join('\n'),
   taxNumber: o.taxNumber ?? '',
   logo: o.logo,
+  appearance: {
+    brandColor: o.brandColor,
+    brandInApp: o.brandInApp ?? false,
+    brandInPdf: o.brandInPdf ?? false,
+    pdfLayout: o.pdfLayout ?? 'standard',
+  },
 })
 
 export function CompanyPage() {
@@ -102,6 +110,7 @@ function CompanyForm({ org }: { org: Organization }) {
         reportEmails: parseEmailList(form.reportEmails),
         taxNumber: form.taxNumber.trim() || undefined,
         logo: form.logo,
+        ...form.appearance,
       })
     } catch (err) {
       console.error(err)
@@ -213,6 +222,16 @@ function CompanyForm({ org }: { org: Organization }) {
             />
           </div>
         </Card>
+
+        <AppearanceCard
+          org={org}
+          logo={form.logo}
+          value={form.appearance}
+          onChange={(appearance) => {
+            setForm((f) => ({ ...f, appearance }))
+            setSaved(false)
+          }}
+        />
 
         <NumberingCard prefix={form.numberPrefix} savedPrefix={org.numberPrefix} />
 

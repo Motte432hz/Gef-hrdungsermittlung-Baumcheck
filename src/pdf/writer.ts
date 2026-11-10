@@ -7,6 +7,8 @@ export const BLACK = rgb(0, 0, 0)
 export const GRAY = rgb(0.35, 0.35, 0.35)
 export const LINE = rgb(0.75, 0.75, 0.75)
 
+export type PdfStyle = 'standard' | 'compact' | 'table'
+
 export interface FontBytes {
   regular: ArrayBuffer | Uint8Array
   bold: ArrayBuffer | Uint8Array
@@ -32,6 +34,11 @@ export class PdfWriter {
   page!: PDFPage
   y = 0
   readonly contentWidth = A4.width - MARGIN.left - MARGIN.right
+  /** Colour for headings and decorations (black unless a brand colour is used). */
+  accent = BLACK
+  style: PdfStyle = 'standard'
+  /** Row counter within a section (zebra stripes in the table layout). */
+  rowIndex = 0
 
   static async create(
     fonts: FontBytes,
@@ -54,6 +61,16 @@ export class PdfWriter {
   newPage() {
     this.page = this.doc.addPage([A4.width, A4.height])
     this.y = A4.height - MARGIN.top
+    if (this.accent !== BLACK) {
+      // Thin brand-coloured band at the top of every page.
+      this.page.drawRectangle({
+        x: 0,
+        y: A4.height - 10,
+        width: A4.width,
+        height: 10,
+        color: this.accent,
+      })
+    }
   }
 
   /** Starts a new page if less than `height` is left. */
@@ -136,16 +153,34 @@ export class PdfWriter {
   }
 
   heading(text: string, size = 13) {
-    this.ensure(size * 3)
-    this.gap(size * 0.6)
-    this.text(text, { size, bold: true })
+    const sz = this.style === 'compact' ? size * 0.88 : size
+    this.rowIndex = 0
+    this.ensure(sz * 3)
+    this.gap(sz * 0.6)
+    if (this.style === 'table') {
+      // Filled title bar with white text.
+      const h = this.lineHeight(sz) + 6
+      this.page.drawRectangle({
+        x: MARGIN.left,
+        y: this.y - h,
+        width: this.contentWidth,
+        height: h,
+        color: this.accent,
+      })
+      this.y -= 3
+      this.text(text, { size: sz, bold: true, color: rgb(1, 1, 1), x: MARGIN.left + 6 })
+      this.y -= 3
+      this.gap(4)
+      return
+    }
+    this.text(text, { size: sz, bold: true, color: this.accent })
     this.page.drawLine({
       start: { x: MARGIN.left, y: this.y + 2 },
       end: { x: A4.width - MARGIN.right, y: this.y + 2 },
       thickness: 0.8,
-      color: BLACK,
+      color: this.accent,
     })
-    this.gap(6)
+    this.gap(this.style === 'compact' ? 4 : 6)
   }
 
   /** Draws an image scaled to fit the box at the cursor and moves below it; returns its height. */
