@@ -3,6 +3,7 @@ import { useRegisterSW } from 'virtual:pwa-register/react'
 import { Button } from './Button'
 
 const OFFLINE_READY_HIDE_MS = 6000
+const UPDATE_CHECK_MS = 30 * 60 * 1000
 
 /**
  * Banner for "new version available" (stays until the user decides) and
@@ -14,7 +15,20 @@ export function UpdatePrompt() {
     offlineReady: [offlineReady, setOfflineReady],
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
-  } = useRegisterSW()
+  } = useRegisterSW({
+    // Installed apps on iOS are often only resumed, not reloaded – check for updates
+    // whenever the app comes back to the foreground and every 30 minutes.
+    onRegisteredSW(_url, registration) {
+      if (!registration) return
+      const check = () => {
+        if (navigator.onLine) void registration.update().catch(() => {})
+      }
+      setInterval(check, UPDATE_CHECK_MS)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') check()
+      })
+    },
+  })
 
   useEffect(() => {
     if (!offlineReady || needRefresh) return
