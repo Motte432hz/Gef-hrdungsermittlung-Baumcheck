@@ -218,6 +218,41 @@ describe('protocol PDF', () => {
     expect(tableText).toContain('Protokoll ZW-2026-0042')
   })
 
+  it.each(['modern', 'sidebar'] as const)(
+    'experimental layout %s renders all content',
+    async (layout) => {
+      const pages = await pdfText(
+        await buildProtocolPdf(
+          input((i) => {
+            i.layout = layout
+            i.brandColor = '#1f6f3f'
+            i.brandColor2 = '#f2a900'
+          }),
+          fonts,
+        ),
+      )
+      const all = pages.join('\n')
+      expect(all).toContain('Auf einen Blick')
+      expect(all).toContain('Netzbetreiber schaltet frei (Maßnahme ü)')
+      expect(all).toContain('vor Ort unterschrieben')
+      pages.forEach((p, n) => expect(p).toContain(`Seite ${n + 1} von ${pages.length}`))
+      if (layout === 'sidebar') {
+        // Numbered sections and the vertical title.
+        expect(all).toMatch(/01\s+Auf einen Blick/)
+        expect(all).toContain('GEFÄHRDUNGSERMITTLUNG')
+      }
+    },
+  )
+
+  it('theme: neutral without brand colour, second colour optional', async () => {
+    const { pdfTheme } = await import('./protocolPdf')
+    expect(pdfTheme().branded).toBe(false)
+    const one = pdfTheme('#1f6f3f')
+    const two = pdfTheme('#1f6f3f', '#f2a900')
+    expect(one.branded).toBe(true)
+    expect(two.accent2).not.toEqual(one.accent2)
+  })
+
   it('sanitize removes symbols the font cannot render', () => {
     expect(sanitize('⚠ Achtung 📍 ✓')).toBe('! Achtung  ')
   })

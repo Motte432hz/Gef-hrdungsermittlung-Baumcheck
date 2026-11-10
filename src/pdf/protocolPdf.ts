@@ -15,11 +15,22 @@ import { formatDecimal, formatDms, osmLink } from '../domain/geo'
 import { getSpecies, hazardsForSpecies, plannedActivities, ACTIVITY_LABELS } from '../form/species'
 import { shortHash } from '../lib/hash'
 import { treeLabel } from '../wizard/trees/treeLabel'
-import { rgb } from 'pdf-lib'
-import { A4, BLACK, GRAY, LINE, MARGIN, PdfWriter, type FontBytes, type PdfStyle } from './writer'
+import { rgb, type Color } from 'pdf-lib'
+import {
+  A4,
+  BLACK,
+  GRAY,
+  LIGHT,
+  LINE,
+  MARGIN,
+  NEUTRAL_THEME,
+  PdfWriter,
+  WHITE,
+  type FontBytes,
+  type PdfStyle,
+  type PdfTheme,
+} from './writer'
 import { hexToRgb, makePalette } from '../lib/color'
-
-const ZEBRA = rgb(0.94, 0.94, 0.94)
 import { drawQr } from './qr'
 import { personLabel } from '../domain/people'
 
@@ -37,6 +48,29 @@ export interface ProtocolPdfInput {
   /** Layout variant and optional brand colour (#rrggbb). Default: standard, black. */
   layout?: PdfStyle
   brandColor?: string
+  /** Optional second brand colour for accents. */
+  brandColor2?: string
+}
+
+const toColor = (hex: string): Color => {
+  const [r, g, b] = hexToRgb(hex)
+  return rgb(r / 255, g / 255, b / 255)
+}
+
+/**
+ * PDF colours from the brand colours. Main colour: the dark 700 step (readable, prints
+ * dark in b/w). Second colour: its 700 step, or a lighter shade of the main colour.
+ */
+export function pdfTheme(brandColor?: string, brandColor2?: string): PdfTheme {
+  if (!brandColor) return NEUTRAL_THEME
+  const p1 = makePalette(brandColor)
+  const p2 = brandColor2 ? makePalette(brandColor2) : undefined
+  return {
+    accent: toColor(p1[700]),
+    accent2: toColor(p2 ? p2[700] : p1[500]),
+    tint: toColor(p1[50]),
+    branded: true,
+  }
 }
 
 const dateDe = (iso: string) => {
@@ -73,7 +107,7 @@ async function embed(w: PdfWriter, file: StoredFile | undefined): Promise<PDFIma
 function row(w: PdfWriter, r: SummaryRow) {
   const size = w.style === 'compact' ? 8 : 9
   const labelW = w.contentWidth * 0.42
-  const valueX = MARGIN.left + labelW + 8
+  const valueX = w.left + labelW + 8
   const valueW = w.contentWidth - labelW - 8 - (w.style === 'table' ? 4 : 0)
   const flagged = r.tone === 'bad' || r.tone === 'danger'
   const value = flagged ? r.value.toUpperCase() : r.value
@@ -82,18 +116,22 @@ function row(w: PdfWriter, r: SummaryRow) {
     (r.note !== undefined ? w.measure(`${r.noteLabel}: ${r.note || '–'}`, size, valueW, true) : 0)
   w.ensure(Math.min(h + 4, 200))
   const top = w.y
+  if (w.style === 'modern' && flagged && h + 6 < top - MARGIN.bottom) {
+    // Highlighted card behind deviations.
+    w.roundedRect(w.left - 4, top + 2, w.contentWidth + 8, h + 6, w.theme.tint, 5)
+  }
   if (w.style === 'table' && w.rowIndex++ % 2 === 1 && h + 4 < top - MARGIN.bottom) {
     // Zebra stripe behind the row.
     w.page.drawRectangle({
-      x: MARGIN.left,
+      x: w.left,
       y: top - h - 2,
       width: w.contentWidth,
       height: h + 3,
-      color: ZEBRA,
+      color: LIGHT,
     })
   }
   w.text(r.label, {
-    x: MARGIN.left + (flagged || w.style === 'table' ? 8 : 0),
+    x: w.left + (flagged || w.style === 'table' ? 8 : 0),
     width: labelW - 8,
     size,
     color: flagged ? BLACK : GRAY,
@@ -113,7 +151,7 @@ function row(w: PdfWriter, r: SummaryRow) {
   if (flagged && top > w.y) {
     // Bar only if the row stayed on one page. Dark enough for b/w printing.
     w.page.drawRectangle({
-      x: MARGIN.left,
+      x: w.left,
       y: w.y + 2,
       width: r.tone === 'danger' ? 4 : 2.5,
       height: top - w.y - 2,
@@ -122,8 +160,8 @@ function row(w: PdfWriter, r: SummaryRow) {
   }
   if (w.style === 'table' && top > w.y) {
     w.page.drawLine({
-      start: { x: MARGIN.left, y: w.y + 1 },
-      end: { x: MARGIN.left + w.contentWidth, y: w.y + 1 },
+      start: { x: w.left, y: w.y + 1 },
+      end: { x: w.left + w.contentWidth, y: w.y + 1 },
       thickness: 0.4,
       color: LINE,
     })
@@ -147,53 +185,124 @@ function compactRows(rows: SummaryRow[]): SummaryRow[] {
   ]
 }
 
+/** Modern layout: key facts as tiles in two columns. */
+function glanceTiles(w: PdfWriter, items: [string, string][]) {
+  const gapX = 8
+  const tileW = (w.contentWidth - gapX) / 2
+  const pad = 7
+  for (let i = 0; i < items.length; i += 2) {
+    const pair = items.slice(i, i + 2)
+    const h =
+      Math.max(
+        ...pair.map(
+          ([label, value]) =>
+            w.measure(label, 7.5, tileW - 2 * pad) + w.measure(value, 9.5, tileW - 2 * pad, true),
+        ),
+      ) +
+      2 * pad
+    w.ensure(h + 6)
+    const top = w.y
+    pair.forEach(([label, value], j) => {
+      const x = w.left + j * (tileW + gapX)
+      const danger = value.includes(': Nein')
+      w.roundedRect(x, top, tileW, h, danger ? LIGHT : w.theme.tint, 6)
+      if (danger) w.page.drawRectangle({ x, y: top - h, width: 4, height: h, color: BLACK })
+      w.y = top - pad
+      w.text(label, { x: x + pad, width: tileW - 2 * pad, size: 7.5, color: GRAY })
+      w.text(value, {
+        x: x + pad,
+        width: tileW - 2 * pad,
+        size: 9.5,
+        bold: true,
+        color: danger ? BLACK : w.accent,
+      })
+    })
+    w.y = top - h - 6
+  }
+}
+
 export async function buildProtocolPdf(
   input: ProtocolPdfInput,
   fonts: FontBytes,
 ): Promise<Uint8Array> {
   const { definition, organization: org, assessment: a, trees, customer } = input
-  const w = await PdfWriter.create(fonts, {
-    title: `${definition.title} ${input.protocolNumber}`,
-    author: org.name,
-    subject: 'Einsatzbezogene Gefährdungsermittlung',
-  })
-  w.style = input.layout ?? 'standard'
-  if (input.brandColor) {
-    // The 700 step is dark enough for headings and stays readable when printed in b/w.
-    const [r, g, b] = hexToRgb(makePalette(input.brandColor)[700])
-    w.accent = rgb(r / 255, g / 255, b / 255)
-    // The first page was created before the colour was known.
-    w.page.drawRectangle({ x: 0, y: A4.height - 10, width: A4.width, height: 10, color: w.accent })
-  }
+  const w = await PdfWriter.create(
+    fonts,
+    {
+      title: `${definition.title} ${input.protocolNumber}`,
+      author: org.name,
+      subject: 'Einsatzbezogene Gefährdungsermittlung',
+    },
+    {
+      style: input.layout ?? 'standard',
+      theme: pdfTheme(input.brandColor, input.brandColor2),
+      sideText: `Gefährdungsermittlung  ·  ${input.protocolNumber}  ·  ${org.name}`,
+    },
+  )
 
   // ---- Header -----------------------------------------------------------
   const logo = await embed(w, org.logo)
-  const top = w.y
-  if (logo) w.image(logo, MARGIN.left, 150, 56)
-  const logoBottom = w.y
-  w.y = top
-  const orgLines = [
-    org.name,
-    org.street,
-    [org.postalCode, org.city].filter(Boolean).join(' '),
-    [org.phone && `Tel. ${org.phone}`, org.email].filter(Boolean).join(' · '),
-  ].filter(Boolean) as string[]
-  const orgX = MARGIN.left + w.contentWidth * 0.5
-  orgLines.forEach((l, i) =>
-    w.text(l, { x: orgX, width: w.contentWidth * 0.5, size: i === 0 ? 10 : 8.5, bold: i === 0 }),
-  )
-  w.y = Math.min(w.y, logoBottom) - 14
-
-  w.text(definition.title, { size: 15, bold: true, color: w.accent })
-  w.gap(2)
   const meta = [
     `Protokoll-Nr. ${input.protocolNumber}`,
     `Einsatzdatum ${dateDe(a.date)}`,
     `abgeschlossen ${dateTimeDe(input.completedAt)} Uhr`,
     a.version > 1 ? `Version ${a.version} (Korrektur einer früheren Fassung)` : undefined,
   ].filter(Boolean)
-  w.text(meta.join('   ·   '), { size: 9.5 })
-  w.gap(8)
+  const orgLines = [
+    org.name,
+    org.street,
+    [org.postalCode, org.city].filter(Boolean).join(' '),
+    [org.phone && `Tel. ${org.phone}`, org.email].filter(Boolean).join(' · '),
+  ].filter(Boolean) as string[]
+
+  if (w.style === 'modern') {
+    // Large colour band with logo, company and title in white.
+    const bandH = 172
+    w.page.drawRectangle({
+      x: 0,
+      y: A4.height - bandH,
+      width: A4.width,
+      height: bandH,
+      color: w.accent,
+    })
+    w.page.drawRectangle({
+      x: 0,
+      y: A4.height - bandH - 6,
+      width: A4.width,
+      height: 6,
+      color: w.theme.accent2,
+    })
+    w.y = A4.height - 30
+    const top = w.y
+    if (logo) {
+      w.roundedRect(w.left, top, 70, 70, WHITE, 10)
+      w.y = top - 6
+      w.image(logo, w.left + 6, 58, 58)
+    }
+    w.y = top
+    const textX = w.left + (logo ? 86 : 0)
+    orgLines.forEach((l, i) =>
+      w.text(l, { x: textX, size: i === 0 ? 12 : 8.5, bold: i === 0, color: WHITE }),
+    )
+    w.y = Math.min(w.y, top - 76)
+    w.text(definition.title, { size: 14, bold: true, color: WHITE })
+    w.text(meta.join('   ·   '), { size: 8.5, color: WHITE })
+    w.y = A4.height - bandH - 22
+  } else {
+    const top = w.y
+    if (logo) w.image(logo, w.left, 150, 56)
+    const logoBottom = w.y
+    w.y = top
+    const orgX = w.left + w.contentWidth * 0.5
+    orgLines.forEach((l, i) =>
+      w.text(l, { x: orgX, width: w.contentWidth * 0.5, size: i === 0 ? 10 : 8.5, bold: i === 0 }),
+    )
+    w.y = Math.min(w.y, logoBottom) - 14
+    w.text(definition.title, { size: 15, bold: true, color: w.accent })
+    w.gap(2)
+    w.text(meta.join('   ·   '), { size: 9.5 })
+    w.gap(8)
+  }
 
   const sections = buildSummary({
     definition,
@@ -227,8 +336,10 @@ export async function buildProtocolPdf(
       ?.rows.find((r) => r.itemId === 'tree.result')
     glance.push([treeLabel(t), `Baum sicher für die geplanten Arbeiten: ${result?.value ?? '–'}`])
   }
-  for (const [label, value] of glance)
-    row(w, { itemId: label, label, value, tone: value.includes(': Nein') ? 'danger' : 'neutral' })
+  if (w.style === 'modern') glanceTiles(w, glance)
+  else
+    for (const [label, value] of glance)
+      row(w, { itemId: label, label, value, tone: value.includes(': Nein') ? 'danger' : 'neutral' })
 
   // ---- Location & rescue (with QR code) ------------------------------------
   w.heading('Standort und Rettung')
@@ -298,7 +409,7 @@ export async function buildProtocolPdf(
         ]
           .filter(Boolean)
           .join(', ')
-        w.text(`${g.name}${details ? ` (${details})` : ''}`, { size: 9, x: MARGIN.left + 10 })
+        w.text(`${g.name}${details ? ` (${details})` : ''}`, { size: 9, x: w.left + 10 })
       }
       w.gap(3)
     }
@@ -324,9 +435,9 @@ export async function buildProtocolPdf(
       w.text(`${treeLabel(t)} (${s!.la})`, { size: 10, bold: true })
       if (s!.note) w.text(s!.note, { size: 9 })
       for (const v of hazardsForSpecies(s!, activities).filter((x) => x.relevant)) {
-        w.text(v.hazard.title, { size: 9, bold: true, x: MARGIN.left + 8 })
+        w.text(v.hazard.title, { size: 9, bold: true, x: w.left + 8 })
         for (const adv of v.advice) {
-          w.text(`${ACTIVITY_LABELS[adv.key]}: ${adv.text}`, { size: 8.5, x: MARGIN.left + 16 })
+          w.text(`${ACTIVITY_LABELS[adv.key]}: ${adv.text}`, { size: 8.5, x: w.left + 16 })
         }
       }
       w.gap(4)
@@ -349,16 +460,16 @@ export async function buildProtocolPdf(
     const sig = r.signature
     const img = await embed(w, sig?.image)
     const blockTop = w.y
-    if (img) w.image(img, MARGIN.left, 180, 54)
+    if (img) w.image(img, w.left, 180, 54)
     w.page.drawLine({
-      start: { x: MARGIN.left, y: w.y - 2 },
-      end: { x: MARGIN.left + 200, y: w.y - 2 },
+      start: { x: w.left, y: w.y - 2 },
+      end: { x: w.left + 200, y: w.y - 2 },
       thickness: 0.6,
       color: BLACK,
     })
     const after = w.y - 6
     w.y = blockTop
-    const infoX = MARGIN.left + 215
+    const infoX = w.left + 215
     const infoW = w.contentWidth - 215
     w.text(`${personLabel(r.member)}${r.member.company ? ` (${r.member.company})` : ''}`, {
       x: infoX,
@@ -411,7 +522,7 @@ export async function buildProtocolPdf(
       const img = await embed(w, p.file)
       w.text(p.caption, { size: 9.5, bold: true })
       if (img) {
-        w.image(img, MARGIN.left, w.contentWidth, boxH - 20)
+        w.image(img, w.left, w.contentWidth, boxH - 20)
       } else {
         w.text('(Foto konnte nicht eingebettet werden)', { size: 9, color: GRAY })
       }

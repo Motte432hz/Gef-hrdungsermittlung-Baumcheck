@@ -26,7 +26,7 @@ export function AppLayout() {
             className={({ isActive }) =>
               `${linkBase} px-3 ${
                 isActive
-                  ? 'bg-brand-700 text-white'
+                  ? 'border-l-4 border-accent-500 bg-brand-700 text-white'
                   : 'text-stone-700 hover:bg-stone-100 dark:text-stone-200 dark:hover:bg-stone-800'
               }`
             }
@@ -63,10 +63,10 @@ export function AppLayout() {
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `flex min-h-16 flex-col items-center justify-center gap-0.5 text-xs font-semibold ${
+              `flex min-h-16 flex-col items-center justify-center gap-0.5 border-t-4 text-xs font-semibold ${
                 isActive
-                  ? 'text-brand-700 dark:text-brand-300'
-                  : 'text-stone-600 dark:text-stone-400'
+                  ? 'border-accent-500 text-brand-700 dark:text-brand-300'
+                  : 'border-transparent text-stone-600 dark:text-stone-400'
               }`
             }
           >

@@ -25,7 +25,7 @@ export interface BaseRecord {
   syncState: SyncState
 }
 
-export type PdfLayout = 'standard' | 'compact' | 'table'
+export type PdfLayout = 'standard' | 'compact' | 'table' | 'modern' | 'sidebar'
 
 export interface Organization extends BaseRecord {
   name: string
@@ -39,6 +39,8 @@ export interface Organization extends BaseRecord {
   email?: string
   /** Brand colour (#rrggbb), e.g. detected from the logo. */
   brandColor?: string
+  /** Optional second brand colour for accents. */
+  brandColor2?: string
   /** Use the brand colour for the app's look on this organisation's devices. */
   brandInApp?: boolean
   /** Use the brand colour in the PDF. */

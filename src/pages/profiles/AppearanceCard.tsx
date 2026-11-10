@@ -3,19 +3,20 @@ import type { Organization, PdfLayout, StoredFile } from '../../domain/types'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
 import { Toggle } from '../../components/form/Field'
-import { contrast, makePalette } from '../../lib/color'
+import { contrast, distance, harmonies, makePalette } from '../../lib/color'
 import { logoColors } from '../../lib/logoColors'
 import { loadFonts } from '../../pdf/fonts'
 import { buildSamplePdf } from '../../pdf/samplePdf'
 
 export interface AppearanceValue {
   brandColor?: string
+  brandColor2?: string
   brandInApp: boolean
   brandInPdf: boolean
   pdfLayout: PdfLayout
 }
 
-const LAYOUTS: { value: PdfLayout; label: string; text: string }[] = [
+const LAYOUTS: { value: PdfLayout; label: string; text: string; experimental?: boolean }[] = [
   { value: 'standard', label: 'Standard', text: 'Übersichtlich mit allen Angaben, gut lesbar.' },
   {
     value: 'compact',
@@ -27,7 +28,42 @@ const LAYOUTS: { value: PdfLayout; label: string; text: string }[] = [
     label: 'Tabelle',
     text: 'Klassisch wie ein Formular: Titelbalken, Linien und abwechselnd graue Zeilen.',
   },
+  {
+    value: 'modern',
+    label: 'Modern',
+    text: 'Großer farbiger Kopf mit Logo, Eckdaten als Kacheln, Gefahren als farbige Karten.',
+    experimental: true,
+  },
+  {
+    value: 'sidebar',
+    label: 'Seitenleiste',
+    text: 'Farbiges Band am linken Rand mit senkrechtem Titel, nummerierte Abschnitte.',
+    experimental: true,
+  },
 ]
+
+function Swatch({
+  color,
+  label,
+  selected,
+  onClick,
+}: {
+  color: string
+  label: string
+  selected: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`size-12 rounded-xl border-4 ${selected ? 'border-stone-900 dark:border-white' : 'border-transparent'}`}
+      style={{ backgroundColor: color }}
+    />
+  )
+}
 
 export function AppearanceCard({
   org,
@@ -51,8 +87,15 @@ export function AppearanceCard({
       .then((c) => {
         if (cancelled) return
         setSuggestions(c)
-        if (!value.brandColor && c[0])
-          onChange({ ...value, brandColor: c[0], brandInApp: true, brandInPdf: true })
+        if (!value.brandColor && c[0]) {
+          onChange({
+            ...value,
+            brandColor: c[0],
+            brandColor2: c[1],
+            brandInApp: true,
+            brandInPdf: true,
+          })
+        }
       })
       .catch(() => {})
     return () => {
@@ -70,7 +113,11 @@ export function AppearanceCard({
     try {
       const pdf = await buildSamplePdf(
         { ...org, logo },
-        { layout: value.pdfLayout, brandColor: value.brandInPdf ? value.brandColor : undefined },
+        {
+          layout: value.pdfLayout,
+          brandColor: value.brandInPdf ? value.brandColor : undefined,
+          brandColor2: value.brandInPdf ? value.brandColor2 : undefined,
+        },
         await loadFonts(),
       )
       const url = URL.createObjectURL(
@@ -91,20 +138,18 @@ export function AppearanceCard({
     <Card title="Erscheinungsbild">
       <div className="space-y-4">
         <div className="space-y-2">
-          <p className="font-semibold">Firmenfarbe</p>
+          <p className="font-semibold">Hauptfarbe</p>
           {suggestions.length > 0 && (
             <p className="text-sm text-stone-600 dark:text-stone-400">Aus deinem Logo erkannt:</p>
           )}
           <div className="flex flex-wrap items-center gap-2">
             {suggestions.map((c) => (
-              <button
+              <Swatch
                 key={c}
-                type="button"
-                aria-label={`Farbe ${c} wählen`}
-                aria-pressed={value.brandColor === c}
+                color={c}
+                label={`Farbe ${c} wählen`}
+                selected={value.brandColor === c}
                 onClick={() => onChange({ ...value, brandColor: c })}
-                className={`size-12 rounded-xl border-4 ${value.brandColor === c ? 'border-stone-900 dark:border-white' : 'border-transparent'}`}
-                style={{ backgroundColor: c }}
               />
             ))}
             <label className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border-2 border-stone-300 px-3 font-semibold dark:border-stone-600">
@@ -139,6 +184,54 @@ export function AppearanceCard({
               Lade oben ein Logo hoch – die App schlägt dann passende Farben vor.
             </p>
           )}
+          {value.brandColor && (
+            <div className="space-y-2 pt-2">
+              <p className="font-semibold">Zweitfarbe (optional)</p>
+              <p className="text-sm text-stone-600 dark:text-stone-400">
+                Für Akzente wie Leisten, Fortschrittsbalken und Nummern.
+              </p>
+              <div className="flex flex-wrap items-end gap-2">
+                {suggestions
+                  .filter((c) => distance(c, value.brandColor!) > 40)
+                  .map((c) => (
+                    <Swatch
+                      key={c}
+                      color={c}
+                      label={`Zweitfarbe ${c} wählen`}
+                      selected={value.brandColor2 === c}
+                      onClick={() => onChange({ ...value, brandColor2: c })}
+                    />
+                  ))}
+                {harmonies(value.brandColor).map((h) => (
+                  <span key={h.label} className="flex flex-col items-center gap-1 text-xs">
+                    <Swatch
+                      color={h.hex}
+                      label={`Zweitfarbe ${h.label} wählen`}
+                      selected={value.brandColor2 === h.hex}
+                      onClick={() => onChange({ ...value, brandColor2: h.hex })}
+                    />
+                    {h.label}
+                  </span>
+                ))}
+                <input
+                  type="color"
+                  aria-label="Eigene Zweitfarbe wählen"
+                  value={value.brandColor2 ?? '#d39a1c'}
+                  onChange={(e) => onChange({ ...value, brandColor2: e.target.value })}
+                  className="size-12 cursor-pointer"
+                />
+                {value.brandColor2 && (
+                  <button
+                    type="button"
+                    className="min-h-12 px-2 font-semibold underline"
+                    onClick={() => onChange({ ...value, brandColor2: undefined })}
+                  >
+                    Keine Zweitfarbe
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           {palette && (
             <div className="flex flex-wrap items-center gap-2" aria-label="Vorschau der Farben">
               <span
@@ -153,6 +246,14 @@ export function AppearanceCard({
               >
                 Hinweis
               </span>
+              {value.brandColor2 && (
+                <span
+                  className="h-10 w-16 rounded-xl"
+                  style={{ backgroundColor: makePalette(value.brandColor2)[500] }}
+                  aria-label="Zweitfarbe"
+                  role="img"
+                />
+              )}
               <span className="text-sm text-stone-600 dark:text-stone-400">
                 Kontrast {contrast(palette[700], '#ffffff').toFixed(1)} : 1 – gut lesbar
               </span>
@@ -188,7 +289,14 @@ export function AppearanceCard({
                 className="mt-1 size-5 accent-brand-700"
               />
               <span>
-                <span className="block font-semibold">{l.label}</span>
+                <span className="block font-semibold">
+                  {l.label}
+                  {l.experimental && (
+                    <span className="ml-2 rounded-md bg-sky-100 px-1.5 py-0.5 text-xs font-semibold text-sky-900 dark:bg-sky-900 dark:text-sky-100">
+                      experimentell
+                    </span>
+                  )}
+                </span>
                 <span className="block text-sm text-stone-600 dark:text-stone-400">{l.text}</span>
               </span>
             </label>

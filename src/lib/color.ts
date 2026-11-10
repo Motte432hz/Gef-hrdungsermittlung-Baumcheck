@@ -109,17 +109,27 @@ export function distance(a: string, b: string): number {
   return Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
 }
 
+/** Smallest angle between two hues (0 … 180). */
+function hueDiff(a: number, b: number): number {
+  const d = Math.abs(a - b) % 360
+  return d > 180 ? 360 - d : d
+}
+
 /**
  * Most characteristic colours of an image (RGBA pixel data): transparent, near-white and
- * near-black pixels are ignored, saturated colours are preferred.
+ * near-black pixels are ignored, saturated colours are preferred. Anti-aliased edge pixels
+ * (mixtures with the background) are dropped: a colour needs a minimum area and a hue that
+ * clearly differs from colours already chosen.
  */
 export function dominantColors(rgba: Uint8ClampedArray, max = 4): string[] {
   const buckets = new Map<string, { n: number; r: number; g: number; b: number; s: number }>()
+  let total = 0
   for (let i = 0; i < rgba.length; i += 4) {
     const [r, g, b, a] = [rgba[i]!, rgba[i + 1]!, rgba[i + 2]!, rgba[i + 3]!]
     if (a < 128) continue
     const [, s, l] = rgbToHsl([r, g, b])
     if (l > 0.93 || l < 0.07) continue
+    total++
     const key = `${r >> 5},${g >> 5},${b >> 5}`
     const e = buckets.get(key) ?? { n: 0, r: 0, g: 0, b: 0, s }
     e.n++
@@ -129,12 +139,43 @@ export function dominantColors(rgba: Uint8ClampedArray, max = 4): string[] {
     buckets.set(key, e)
   }
   const ranked = [...buckets.values()]
-    .map((e) => ({ hex: rgbToHex([e.r / e.n, e.g / e.n, e.b / e.n]), score: e.n * (0.3 + e.s) }))
+    .filter((e) => e.n >= Math.max(2, total * 0.04))
+    .map((e) => {
+      const hex = rgbToHex([e.r / e.n, e.g / e.n, e.b / e.n])
+      const [h, s] = rgbToHsl(hexToRgb(hex))
+      return { hex, h, s, score: e.n * (0.3 + e.s) }
+    })
     .sort((a, b) => b.score - a.score)
-  const out: string[] = []
+  const out: { hex: string; h: number; s: number }[] = []
   for (const c of ranked) {
-    if (out.every((o) => distance(o, c.hex) > 60)) out.push(c.hex)
+    const distinct = out.every((o) =>
+      // Greys are told apart by distance, colours by hue.
+      c.s < 0.15 || o.s < 0.15 ? distance(o.hex, c.hex) > 80 : hueDiff(o.h, c.h) > 25,
+    )
+    if (distinct) out.push(c)
     if (out.length >= max) break
   }
-  return out
+  return out.map((c) => c.hex)
+}
+
+export interface Harmony {
+  label: string
+  hex: string
+}
+
+/** Second colours that go well with the main colour (for logos with a single colour). */
+export function harmonies(hex: string): Harmony[] {
+  const [h, s, l] = rgbToHsl(hexToRgb(hex))
+  const sat = Math.max(s, 0.45)
+  const at = (hue: number, light: number, sa = sat) =>
+    rgbToHex(hslToRgb(((hue % 360) + 360) % 360, sa, light))
+  return [
+    { label: 'Ähnlich', hex: at(h + 35, Math.min(Math.max(l, 0.35), 0.5)) },
+    { label: 'Kontrast', hex: at(h + 180, 0.45) },
+    {
+      label: 'Ton in Ton',
+      hex: at(h, l < 0.5 ? Math.min(l + 0.25, 0.65) : Math.max(l - 0.25, 0.25)),
+    },
+    { label: 'Warmes Gold', hex: '#d39a1c' },
+  ]
 }

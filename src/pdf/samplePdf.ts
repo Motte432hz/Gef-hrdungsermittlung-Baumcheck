@@ -37,7 +37,7 @@ function demoAnswers(scope: 'assessment' | 'tree'): Answers {
 /** Example protocol with the organisation's data and the chosen layout/colour. */
 export async function buildSamplePdf(
   org: Organization,
-  style: { layout: PdfLayout; brandColor?: string },
+  style: { layout: PdfLayout; brandColor?: string; brandColor2?: string },
   fonts: FontBytes,
 ): Promise<Uint8Array> {
   const now = new Date().toISOString()
@@ -104,6 +104,7 @@ export async function buildSamplePdf(
       contentHash: '0'.repeat(64),
       layout: style.layout,
       brandColor: style.brandColor,
+      brandColor2: style.brandColor2,
     },
     fonts,
   )

@@ -215,7 +215,7 @@ function Wizard({
             </div>
             <div className="h-1 bg-stone-200 dark:bg-stone-800">
               <div
-                className="h-1 bg-brand-500 transition-all"
+                className="h-1 bg-accent-500 transition-all"
                 style={{ width: `${((index + 1) / steps.length) * 100}%` }}
               />
             </div>

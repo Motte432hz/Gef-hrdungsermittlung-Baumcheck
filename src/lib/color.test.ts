@@ -47,3 +47,39 @@ describe('colour helpers', () => {
     expect(hexToRgb(colors[1]!)[1]).toBeGreaterThan(100) // then green
   })
 })
+
+describe('dominantColors with anti-aliasing', () => {
+  it('ignores edge mixtures of a colour with the background', () => {
+    const px = (r: number, g: number, b: number) => [r, g, b, 255]
+    const data = new Uint8ClampedArray([
+      ...Array(400)
+        .fill(px(21, 101, 192))
+        .flat(), // blue
+      ...Array(250)
+        .fill(px(242, 169, 0))
+        .flat(), // yellow
+      ...Array(40)
+        .fill(px(140, 180, 225))
+        .flat(), // light blue edge (blue + white)
+      ...Array(300)
+        .fill(px(255, 255, 255))
+        .flat(),
+    ])
+    const colors = dominantColors(data)
+    expect(colors).toHaveLength(2)
+    expect(hexToRgb(colors[0]!)[2]).toBeGreaterThan(150) // blue
+    expect(hexToRgb(colors[1]!)[0]).toBeGreaterThan(200) // yellow
+  })
+})
+
+describe('harmonies', () => {
+  it('returns distinct suggestions different from the main colour', async () => {
+    const { harmonies, distance } = await import('./color')
+    const h = harmonies('#1f5130')
+    expect(h.map((x) => x.label)).toEqual(['Ähnlich', 'Kontrast', 'Ton in Ton', 'Warmes Gold'])
+    for (const x of h) {
+      expect(x.hex).toMatch(/^#[0-9a-f]{6}$/)
+      expect(distance(x.hex, '#1f5130')).toBeGreaterThan(30)
+    }
+  })
+})

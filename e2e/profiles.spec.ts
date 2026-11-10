@@ -243,11 +243,13 @@ test('logo colours are detected and applied to the app; company logo and name in
   await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
-  // The app now uses a red tone instead of the default green.
-  const brand = await page.evaluate(() =>
-    getComputedStyle(document.documentElement).getPropertyValue('--color-brand-700').trim(),
-  )
-  expect(brand.toLowerCase()).not.toBe('#1f5130')
+  // The app now uses a red tone instead of the default green (applied right after saving).
+  const readBrand = () =>
+    page.evaluate(() =>
+      getComputedStyle(document.documentElement).getPropertyValue('--color-brand-700').trim(),
+    )
+  await expect.poll(readBrand).not.toBe('#1f5130')
+  const brand = await readBrand()
   expect(parseInt(brand.slice(1, 3), 16)).toBeGreaterThan(parseInt(brand.slice(3, 5), 16))
 
   await expect(page.getByTestId('brand-mark').filter({ visible: true })).toContainText(
@@ -280,4 +282,57 @@ test('sample PDF opens', async ({ page, context }) => {
   // Generation finishes (headless Chromium has no PDF viewer, so the file itself is not shown).
   await expect(button).toBeEnabled()
   expect(errors).toEqual([])
+})
+
+test('two brand colours from a two-colour logo; experimental layout can be chosen', async ({
+  page,
+}) => {
+  await page.goto('/profile/firma')
+  await page.getByLabel('Firmenname').fill('Zwei Farben GmbH')
+  const logo =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#ffffff"/><rect x="0" y="0" width="200" height="120" fill="#1565c0"/><rect x="0" y="120" width="200" height="80" fill="#f2a900"/></svg>'
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'logo.svg',
+    mimeType: 'image/svg+xml',
+    buffer: Buffer.from(logo),
+  })
+  // Main colour blue, second colour yellow – both detected automatically.
+  await expect(page.getByRole('button', { name: /^Farbe #/ }).first()).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  const second = page.getByRole('button', {
+    name: /^Zweitfarbe #[0-9a-f]{6} wählen$/,
+    pressed: true,
+  })
+  await expect(second).toHaveCount(1)
+  // Harmony suggestions are offered too.
+  await expect(page.getByRole('button', { name: 'Zweitfarbe Kontrast wählen' })).toBeVisible()
+
+  await page.getByRole('radio', { name: /Seitenleiste/ }).check()
+  await expect(page.getByRole('radio', { name: /Seitenleiste/ })).toBeChecked()
+  await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        getComputedStyle(document.documentElement).getPropertyValue('--color-accent-500').trim(),
+      ),
+    )
+    .not.toBe('#2f7a47')
+  const [brand, accent] = await page.evaluate(() => {
+    const st = getComputedStyle(document.documentElement)
+    return [
+      st.getPropertyValue('--color-brand-700').trim(),
+      st.getPropertyValue('--color-accent-500').trim(),
+    ]
+  })
+  expect(brand).not.toBe(accent)
+  // Blue main colour, yellowish accent.
+  expect(parseInt(brand.slice(5, 7), 16)).toBeGreaterThan(parseInt(brand.slice(1, 3), 16))
+  expect(parseInt(accent.slice(1, 3), 16)).toBeGreaterThan(parseInt(accent.slice(5, 7), 16))
+
+  await page.reload()
+  await expect(page.getByRole('radio', { name: /Seitenleiste/ })).toBeChecked()
 })

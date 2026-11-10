@@ -49,6 +49,7 @@ const fromOrg = (o: Organization): FormState => ({
   logo: o.logo,
   appearance: {
     brandColor: o.brandColor,
+    brandColor2: o.brandColor2,
     brandInApp: o.brandInApp ?? false,
     brandInPdf: o.brandInPdf ?? false,
     pdfLayout: o.pdfLayout ?? 'standard',

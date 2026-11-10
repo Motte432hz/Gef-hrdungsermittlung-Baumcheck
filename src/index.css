@@ -9,6 +9,11 @@
   --color-brand-500: #2f7a47;
   --color-brand-700: #1f5130;
   --color-brand-900: #0f2a18;
+  /* Second brand colour for accents (progress, active markers); defaults to the main colour. */
+  --color-accent-100: #cfe6d4;
+  --color-accent-300: #7fbf8f;
+  --color-accent-500: #2f7a47;
+  --color-accent-700: #1f5130;
   --color-warn: #b45309;
   --color-danger: #b91c1c;
   --font-sans:

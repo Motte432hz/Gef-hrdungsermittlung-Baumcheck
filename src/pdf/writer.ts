@@ -1,13 +1,42 @@
-import { PDFDocument, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib'
+import {
+  degrees,
+  PDFDocument,
+  rgb,
+  type Color,
+  type PDFFont,
+  type PDFImage,
+  type PDFPage,
+} from 'pdf-lib'
 import fontkit from '@pdf-lib/fontkit'
 
 export const A4 = { width: 595.28, height: 841.89 }
 export const MARGIN = { top: 48, bottom: 56, left: 44, right: 44 }
 export const BLACK = rgb(0, 0, 0)
+export const WHITE = rgb(1, 1, 1)
 export const GRAY = rgb(0.35, 0.35, 0.35)
 export const LINE = rgb(0.75, 0.75, 0.75)
+export const LIGHT = rgb(0.94, 0.94, 0.94)
 
-export type PdfStyle = 'standard' | 'compact' | 'table'
+/** standard/compact/table are classic; modern and sidebar are the experimental layouts. */
+export type PdfStyle = 'standard' | 'compact' | 'table' | 'modern' | 'sidebar'
+
+/** Colours of a PDF: main colour, second colour and a light tint for backgrounds. */
+export interface PdfTheme {
+  accent: Color
+  accent2: Color
+  tint: Color
+  /** False when no brand colour is used (classic black/grey look). */
+  branded: boolean
+}
+
+export const NEUTRAL_THEME: PdfTheme = {
+  accent: BLACK,
+  accent2: rgb(0.25, 0.25, 0.25),
+  tint: LIGHT,
+  branded: false,
+}
+
+const SIDEBAR_WIDTH = 30
 
 export interface FontBytes {
   regular: ArrayBuffer | Uint8Array
@@ -23,9 +52,15 @@ export function sanitize(text: string): string {
     .replace(/\u00a0/g, ' ')
 }
 
+/** SVG path of a rectangle with rounded corners (pdf-lib has no radius option). */
+function roundedRectPath(w: number, h: number, r: number): string {
+  const rr = Math.min(r, w / 2, h / 2)
+  return `M ${rr} 0 H ${w - rr} Q ${w} 0 ${w} ${rr} V ${h - rr} Q ${w} ${h} ${w - rr} ${h} H ${rr} Q 0 ${h} 0 ${h - rr} V ${rr} Q 0 0 ${rr} 0 Z`
+}
+
 /**
  * Minimal flowing layout on top of pdf-lib: a cursor that moves down the page,
- * automatic page breaks, word wrapping and a footer added at the end.
+ * automatic page breaks, word wrapping, per-layout page decoration and a footer.
  */
 export class PdfWriter {
   doc!: PDFDocument
@@ -33,18 +68,37 @@ export class PdfWriter {
   bold!: PDFFont
   page!: PDFPage
   y = 0
-  readonly contentWidth = A4.width - MARGIN.left - MARGIN.right
-  /** Colour for headings and decorations (black unless a brand colour is used). */
-  accent = BLACK
   style: PdfStyle = 'standard'
+  theme: PdfTheme = NEUTRAL_THEME
+  /** Vertical text in the sidebar layout. */
+  sideText = ''
   /** Row counter within a section (zebra stripes in the table layout). */
   rowIndex = 0
+  /** Section counter (numbered headings in the sidebar layout). */
+  sectionNo = 0
+
+  /** Main colour for headings and decorations. */
+  get accent() {
+    return this.theme.accent
+  }
+
+  get left() {
+    return this.style === 'sidebar' ? SIDEBAR_WIDTH + 34 : MARGIN.left
+  }
+
+  get contentWidth() {
+    return A4.width - this.left - MARGIN.right
+  }
 
   static async create(
     fonts: FontBytes,
     meta: { title: string; author?: string; subject?: string },
+    opts: { style?: PdfStyle; theme?: PdfTheme; sideText?: string } = {},
   ) {
     const w = new PdfWriter()
+    w.style = opts.style ?? 'standard'
+    w.theme = opts.theme ?? NEUTRAL_THEME
+    w.sideText = opts.sideText ?? ''
     w.doc = await PDFDocument.create()
     w.doc.registerFontkit(fontkit)
     w.regular = await w.doc.embedFont(fonts.regular, { subset: true })
@@ -61,14 +115,62 @@ export class PdfWriter {
   newPage() {
     this.page = this.doc.addPage([A4.width, A4.height])
     this.y = A4.height - MARGIN.top
-    if (this.accent !== BLACK) {
-      // Thin brand-coloured band at the top of every page.
+    const { accent, accent2, branded } = this.theme
+    if (this.style === 'sidebar') {
+      // Coloured band on the left with the title written vertically.
+      this.page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: SIDEBAR_WIDTH,
+        height: A4.height,
+        color: accent,
+      })
+      this.page.drawRectangle({
+        x: SIDEBAR_WIDTH,
+        y: 0,
+        width: 3,
+        height: A4.height,
+        color: accent2,
+      })
+      const t = sanitize(this.sideText.toUpperCase())
+      this.page.drawText(t, {
+        x: SIDEBAR_WIDTH / 2 + 4,
+        y: 70,
+        size: 9,
+        font: this.bold,
+        color: WHITE,
+        rotate: degrees(90),
+      })
+    } else if (this.style === 'modern') {
+      // Thin two-colour band (the first page gets a large header band instead).
+      this.page.drawRectangle({
+        x: 0,
+        y: A4.height - 8,
+        width: A4.width * 0.7,
+        height: 8,
+        color: accent,
+      })
+      this.page.drawRectangle({
+        x: A4.width * 0.7,
+        y: A4.height - 8,
+        width: A4.width * 0.3,
+        height: 8,
+        color: accent2,
+      })
+    } else if (branded) {
       this.page.drawRectangle({
         x: 0,
         y: A4.height - 10,
         width: A4.width,
         height: 10,
-        color: this.accent,
+        color: accent,
+      })
+      this.page.drawRectangle({
+        x: 0,
+        y: A4.height - 13,
+        width: A4.width,
+        height: 3,
+        color: accent2,
       })
     }
   }
@@ -80,6 +182,11 @@ export class PdfWriter {
 
   gap(h: number) {
     this.y -= h
+  }
+
+  /** Filled rectangle with rounded corners; (x, yTop) is the top-left corner. */
+  roundedRect(x: number, yTop: number, width: number, height: number, color: Color, radius = 6) {
+    this.page.drawSvgPath(roundedRectPath(width, height, radius), { x, y: yTop, color })
   }
 
   /** Splits text into lines that fit `width` (respects newlines, breaks long words). */
@@ -123,18 +230,12 @@ export class PdfWriter {
   /** Draws wrapped text at x with given width; returns the height used. Breaks pages per line. */
   text(
     text: string,
-    opts: {
-      x?: number
-      width?: number
-      size?: number
-      bold?: boolean
-      color?: ReturnType<typeof rgb>
-    } = {},
+    opts: { x?: number; width?: number; size?: number; bold?: boolean; color?: Color } = {},
   ): number {
     const size = opts.size ?? 10
     const font = opts.bold ? this.bold : this.regular
-    const x = opts.x ?? MARGIN.left
-    const width = opts.width ?? this.contentWidth - (x - MARGIN.left)
+    const x = opts.x ?? this.left
+    const width = opts.width ?? this.contentWidth - (x - this.left)
     const lh = this.lineHeight(size)
     const lines = this.wrap(text, font, size, width)
     for (const l of lines) {
@@ -154,31 +255,70 @@ export class PdfWriter {
 
   heading(text: string, size = 13) {
     const sz = this.style === 'compact' ? size * 0.88 : size
+    const { accent, accent2, tint } = this.theme
     this.rowIndex = 0
-    this.ensure(sz * 3)
+    this.ensure(sz * 3.4)
     this.gap(sz * 0.6)
+    const full = this.contentWidth
+
     if (this.style === 'table') {
       // Filled title bar with white text.
       const h = this.lineHeight(sz) + 6
       this.page.drawRectangle({
-        x: MARGIN.left,
+        x: this.left,
         y: this.y - h,
-        width: this.contentWidth,
+        width: full,
         height: h,
-        color: this.accent,
+        color: accent,
       })
+      this.page.drawRectangle({ x: this.left, y: this.y - h, width: 5, height: h, color: accent2 })
       this.y -= 3
-      this.text(text, { size: sz, bold: true, color: rgb(1, 1, 1), x: MARGIN.left + 6 })
+      this.text(text, { size: sz, bold: true, color: WHITE, x: this.left + 10 })
       this.y -= 3
       this.gap(4)
       return
     }
-    this.text(text, { size: sz, bold: true, color: this.accent })
+    if (this.style === 'modern') {
+      // Tinted pill with a coloured dot.
+      const h = this.lineHeight(sz) + 8
+      const textW = this.bold.widthOfTextAtSize(sanitize(text), sz)
+      this.roundedRect(this.left, this.y, Math.min(textW + 34, full), h, tint, h / 2)
+      this.page.drawCircle({ x: this.left + 12, y: this.y - h / 2, size: 4, color: accent2 })
+      this.y -= 4
+      this.text(text, { size: sz, bold: true, color: accent, x: this.left + 22 })
+      this.y -= 4
+      this.gap(6)
+      return
+    }
+    if (this.style === 'sidebar') {
+      // Large section number in the second colour, title next to it.
+      this.sectionNo++
+      const no = String(this.sectionNo).padStart(2, '0')
+      const top = this.y
+      this.page.drawText(no, {
+        x: this.left,
+        y: this.y - sz * 1.4,
+        size: sz * 1.6,
+        font: this.bold,
+        color: accent2,
+      })
+      this.text(text, { size: sz, bold: true, color: accent, x: this.left + sz * 2.6 })
+      this.y = Math.min(this.y, top - sz * 1.9)
+      this.page.drawLine({
+        start: { x: this.left, y: this.y + 2 },
+        end: { x: this.left + full, y: this.y + 2 },
+        thickness: 0.5,
+        color: LINE,
+      })
+      this.gap(6)
+      return
+    }
+    this.text(text, { size: sz, bold: true, color: accent })
     this.page.drawLine({
-      start: { x: MARGIN.left, y: this.y + 2 },
-      end: { x: A4.width - MARGIN.right, y: this.y + 2 },
+      start: { x: this.left, y: this.y + 2 },
+      end: { x: this.left + full, y: this.y + 2 },
       thickness: 0.8,
-      color: this.accent,
+      color: accent,
     })
     this.gap(this.style === 'compact' ? 4 : 6)
   }
@@ -200,7 +340,7 @@ export class PdfWriter {
     pages.forEach((p, i) => {
       const text = sanitize(textFor(i + 1, pages.length))
       p.drawLine({
-        start: { x: MARGIN.left, y: MARGIN.bottom - 18 },
+        start: { x: this.left, y: MARGIN.bottom - 18 },
         end: { x: A4.width - MARGIN.right, y: MARGIN.bottom - 18 },
         thickness: 0.5,
         color: LINE,
@@ -208,7 +348,7 @@ export class PdfWriter {
       const lines = this.wrap(text, this.regular, 7.5, this.contentWidth)
       lines.forEach((l, j) =>
         p.drawText(l, {
-          x: MARGIN.left,
+          x: this.left,
           y: MARGIN.bottom - 30 - j * 10,
           size: 7.5,
           font: this.regular,

@@ -99,6 +99,7 @@ export async function finalizeAssessment(
         contentHash,
         layout: organization?.pdfLayout,
         brandColor: organization?.brandInPdf ? organization.brandColor : undefined,
+        brandColor2: organization?.brandInPdf ? organization.brandColor2 : undefined,
       },
       fonts,
     )
