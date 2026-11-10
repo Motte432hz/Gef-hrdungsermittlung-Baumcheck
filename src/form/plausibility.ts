@@ -1,4 +1,4 @@
-import type { Assessment, Qualification, TeamMember } from '../domain/types'
+import type { Assessment, GearItem, Qualification, TeamMember } from '../domain/types'
 import { QUALIFICATION_LABELS } from '../domain/types'
 import type { Issue } from './validation'
 import { personLabel } from '../domain/people'
@@ -80,6 +80,7 @@ export function checkTeam(
       })
     }
     for (const q of m.qualifications) out.push(...checkExpiry(m, q, a.date, stepId))
+    for (const g of m.gear ?? []) out.push(...checkInspection(m, g, a.date, stepId))
   }
   return out
 }
@@ -107,6 +108,34 @@ function checkExpiry(m: TeamMember, q: Qualification, date: string, stepId: stri
         stepId,
         itemId: 'team.members',
         message: `Nachweis ${label} von ${personLabel(m)} läuft am ${formatDate(q.validUntil)} ab.`,
+      },
+    ]
+  }
+  return []
+}
+
+/** Inspection dates of PPE (e.g. yearly check of fall protection by a competent person). */
+function checkInspection(m: TeamMember, g: GearItem, date: string, stepId: string): Issue[] {
+  if (!g.nextInspection) return []
+  const days = daysBetween(date, g.nextInspection)
+  const base = { stepId, itemId: 'team.members' }
+  if (days < 0) {
+    return [
+      {
+        ...base,
+        key: `team:${m.id}:gear:${g.id}:overdue`,
+        level: 'warning',
+        message: `Prüfung von ${g.name} (${personLabel(m)}) war am ${formatDate(g.nextInspection)} fällig.`,
+      },
+    ]
+  }
+  if (days <= EXPIRY_NOTICE_DAYS) {
+    return [
+      {
+        ...base,
+        key: `team:${m.id}:gear:${g.id}:due`,
+        level: 'info',
+        message: `Prüfung von ${g.name} (${personLabel(m)}) ist am ${formatDate(g.nextInspection)} fällig.`,
       },
     ]
   }

@@ -72,6 +72,11 @@ export function TeamField({ item }: { item: SpecialItem }) {
                         'keine Qualifikation hinterlegt',
                     ].join(' · ')}
                   </p>
+                  {m.gear && m.gear.length > 0 && (
+                    <p className="text-sm text-stone-600 dark:text-stone-400">
+                      PSA: {m.gear.map((g) => g.name).join(', ')}
+                    </p>
+                  )}
                 </div>
                 <button
                   type="button"

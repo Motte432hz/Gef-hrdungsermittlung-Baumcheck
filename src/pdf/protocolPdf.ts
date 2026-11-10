@@ -233,6 +233,27 @@ export async function buildProtocolPdf(
     for (const r of s.rows) row(w, r)
   }
 
+  // ---- Personal protective equipment ---------------------------------------
+  const withGear = a.team.filter((m) => m.gear && m.gear.length > 0)
+  if (withGear.length > 0) {
+    w.heading('Persönliche Schutzausrüstung (laut Profil)')
+    for (const m of withGear) {
+      w.ensure(30)
+      w.text(personLabel(m), { size: 10, bold: true })
+      for (const g of m.gear!) {
+        const details = [
+          g.serialNumber && `Nr. ${g.serialNumber}`,
+          g.nextInspection && `nächste Prüfung ${dateDe(g.nextInspection)}`,
+          g.note,
+        ]
+          .filter(Boolean)
+          .join(', ')
+        w.text(`${g.name}${details ? ` (${details})` : ''}`, { size: 9, x: MARGIN.left + 10 })
+      }
+      w.gap(3)
+    }
+  }
+
   // ---- Species-specific advice -----------------------------------------------
   const activities = plannedActivities(a.answers)
   const speciesTrees = [...trees]

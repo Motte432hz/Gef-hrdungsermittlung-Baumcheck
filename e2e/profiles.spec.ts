@@ -175,3 +175,43 @@ test('protocol number preview and continuing a series', async ({ page }) => {
   await expect(page.getByText('Die Nummer muss mindestens 57 sein')).toBeVisible()
   await expect(page.getByTestId('next-number')).toHaveText(`ZW-${year}-0057`)
 })
+
+test('PPE and gear per person with instant search, free entry and inspection warning', async ({
+  page,
+}) => {
+  await page.goto('/profile/mitarbeiter/neu')
+  await page.getByLabel(/^Name/).fill('Anna Ast')
+
+  const add = page.getByRole('combobox', { name: 'Ausrüstung hinzufügen' })
+  await add.fill('spider')
+  await expect(page.getByRole('option').first()).toContainText('SpiderJack 3')
+  await page.getByRole('option', { name: /SpiderJack 3/ }).click()
+  await page.getByLabel('Seriennummer (optional)').fill('SJ-123')
+  await page.getByLabel('Nächste Prüfung (optional)').fill('2020-01-31')
+
+  await add.fill('Mein Spezialhaken')
+  await page
+    .getByRole('option', { name: '„Mein Spezialhaken“ als eigene Ausrüstung übernehmen' })
+    .click()
+
+  const list = page.getByRole('list', { name: 'Ausrüstung' })
+  await expect(list.getByRole('listitem')).toHaveCount(2)
+  await expect(list).toContainText('Prüfung überfällig')
+  await save(page)
+  await saved(page)
+
+  await page.reload()
+  await expect(page.getByRole('list', { name: 'Ausrüstung' })).toContainText('SpiderJack 3')
+  await expect(page.getByRole('list', { name: 'Ausrüstung' })).toContainText('Nr. SJ-123')
+
+  // In an assessment the team shows the gear and warns about the overdue inspection.
+  await page.goto('/')
+  await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
+  await expect(page).toHaveURL(/\/job$/)
+  await page.goto(page.url().replace(/job$/, 'team'))
+  await page.getByRole('button', { name: /^Anna Ast/ }).click()
+  await expect(page.getByText('PSA: SpiderJack 3, Mein Spezialhaken')).toBeVisible()
+  await expect(
+    page.getByText(/Prüfung von SpiderJack 3 \(Anna Ast\) war am 31\.01\.2020 fällig\./),
+  ).toBeVisible()
+})

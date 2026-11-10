@@ -10,6 +10,7 @@ import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
 import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
 import { SignatureField } from '../../components/SignatureField'
+import { GearEditor } from '../../components/gear/GearEditor'
 import {
   QUALIFICATION_LABELS,
   QUALIFICATIONS,
@@ -26,6 +27,7 @@ const emptyWorker = (kind: PersonKind): WorkerInput => ({
   company: '',
   phone: '',
   qualifications: [],
+  gear: [],
   active: true,
 })
 
@@ -37,7 +39,7 @@ export function WorkerEditPage({ kind }: { kind: PersonKind }) {
     if (!id) return emptyWorker(kind)
     const w = await db.workers.get(id)
     if (!w || w.deletedAt) return null
-    const { name, nickname, company, phone, qualifications, signature, active } = w
+    const { name, nickname, company, phone, qualifications, gear, signature, active } = w
     return {
       kind: w.kind,
       name,
@@ -45,6 +47,7 @@ export function WorkerEditPage({ kind }: { kind: PersonKind }) {
       company: company ?? '',
       phone: phone ?? '',
       qualifications,
+      gear: gear ?? [],
       signature,
       active,
     }
@@ -217,6 +220,14 @@ function WorkerForm({
               )
             })}
           </ul>
+        </Card>
+
+        <Card title="PSA & Ausrüstung">
+          <p className="mb-3 text-sm text-stone-600 dark:text-stone-400">
+            Persönliche Schutzausrüstung und Geräte dieser Person. Mit Prüftermin warnt die App,
+            wenn eine Prüfung fällig ist.
+          </p>
+          <GearEditor value={form.gear ?? []} onChange={(gear) => update({ gear })} />
         </Card>
 
         <Card title="Gespeicherte Unterschrift (optional)">

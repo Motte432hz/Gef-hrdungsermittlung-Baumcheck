@@ -57,6 +57,20 @@ export interface Qualification {
   validUntil?: string
 }
 
+/** A piece of personal protective equipment or gear of a person. */
+export interface GearItem {
+  id: ID
+  name: string
+  /** Category key from the gear catalogue ('other' for free entries). */
+  category: string
+  /** Catalogue entry, if picked from the list. */
+  catalogId?: string
+  serialNumber?: string
+  /** Next due inspection (YYYY-MM-DD), e.g. yearly check of fall protection PPE. */
+  nextInspection?: string
+  note?: string
+}
+
 export type PersonKind = 'employee' | 'subcontractor'
 
 /** Saved person profile: own employee or subcontractor. */
@@ -68,6 +82,8 @@ export interface Worker extends BaseRecord {
   company?: string
   phone?: string
   qualifications: Qualification[]
+  /** Personal PPE and gear. */
+  gear?: GearItem[]
   /** Optional stored signature (PNG). */
   signature?: StoredFile
   active: boolean
@@ -136,6 +152,7 @@ export interface TeamMember {
   nickname?: string
   company?: string
   qualifications: Qualification[]
+  gear?: GearItem[]
   roles: Role[]
 }
 

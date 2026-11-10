@@ -73,3 +73,29 @@ describe('checkTeam', () => {
     ])
   })
 })
+
+describe('gear inspections', () => {
+  it('overdue and soon due inspections', () => {
+    const team = [
+      member({
+        name: 'Anna Ast',
+        gear: [
+          {
+            id: 'g1',
+            name: 'Petzl Sequoia SRT',
+            category: 'harness',
+            nextInspection: '2026-10-01',
+          },
+          { id: 'g2', name: 'SpiderJack 3', category: 'friction', nextInspection: '2026-11-20' },
+          { id: 'g3', name: 'Petzl Zigzag', category: 'friction', nextInspection: '2027-06-01' },
+          { id: 'g4', name: 'Helm', category: 'helmet' },
+        ],
+      }),
+    ]
+    const issues = checkTeam({ answers: answers([]), team, date: '2026-11-09' }, 'team')
+    expect(issues.map((i) => [i.level, i.message])).toEqual([
+      ['warning', 'Prüfung von Petzl Sequoia SRT (Anna Ast) war am 01.10.2026 fällig.'],
+      ['info', 'Prüfung von SpiderJack 3 (Anna Ast) ist am 20.11.2026 fällig.'],
+    ])
+  })
+})

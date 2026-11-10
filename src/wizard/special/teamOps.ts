@@ -11,6 +11,7 @@ export function memberFromWorker(w: Worker, roles: Role[] = []): TeamMember {
     company: w.company,
     // Snapshot: later profile changes do not alter this assessment.
     qualifications: structuredClone(w.qualifications),
+    gear: w.gear ? structuredClone(w.gear) : undefined,
     roles,
   }
 }
