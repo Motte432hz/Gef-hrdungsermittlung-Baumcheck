@@ -1,6 +1,6 @@
 # Plan Phase 2 – Firmen-Kartei, Beitritt per Code, Abgleich zwischen Geräten
 
-Stand: 11.11.2026 · Status: Plan abgestimmt, Umsetzung nach den Blöcken B und D
+Stand: 11.11.2026 · Status: in Umsetzung – Block 1 (Datenbank und Rechte) fertig
 
 ## Ablauf
 
@@ -47,3 +47,21 @@ Admins können also keine Daten endgültig löschen. Ein „Entfernen“ durch A
 
 - Supabase-Konto (kostenloser Tarif zum Start; bei vielen Fotos/PDFs Pro, ca. 25 $/Monat).
 - Später: Mail-Dienst mit EU-Server für die Anmelde-Codes.
+
+## Umsetzung
+
+| Block | Inhalt                                                                         | Stand |
+| ----- | ------------------------------------------------------------------------------ | ----- |
+| 1     | Datenbank, Rechte (RLS), Funktionen für Firma/Einladung/Freigabe, Datei-Ablage | ✓     |
+| 2     | Anmeldung per E-Mail-Code, Firma in die Cloud bringen, beitreten               | offen |
+| 3     | Abgleich Daten und Dateien                                                     | offen |
+| 4     | Mitglieder-Verwaltung in der App                                               | offen |
+
+### Datenbank pflegen
+
+- Schema: `supabase/migrations/*.sql` (werden der Reihe nach genau einmal angewendet)
+- Rechte-Tests: `supabase/tests/rls_test.sql` (laufen in einer Transaktion, die zurückgerollt wird)
+- `scripts/db.sh migrate` · `scripts/db.sh test` · `scripts/db.sh query "select 1"`
+- Benötigt einen Supabase-Zugangs-Token (`SUPABASE_ACCESS_TOKEN`); in der Cloud-Entwicklungsumgebung setzt ihn der Netzwerk-Proxy automatisch ein.
+- Projekt: `fjrhcvgiyivanikgazyk` (Region eu-central-1, Frankfurt)
+- Die Sicherheitsprüfung von Supabase meldet nur die sechs App-Funktionen (`create_organization`, `create_invite`, `request_join`, `decide_membership`, `set_my_worker`, `transfer_ownership`). Das ist gewollt: Sie prüfen die Rolle selbst, die Tests decken das ab.
