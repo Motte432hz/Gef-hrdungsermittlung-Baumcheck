@@ -257,7 +257,7 @@ Info: Stufen nach Nadelverlust bzw. Kronenverlichtung, geschätzt im Vergleich z
 - Stufe 4 – abgestorben → deutliche Warnung (nicht beklettern) + Pflichtfeld „Maßnahme“
 - Nicht beurteilbar
 
-❓ Die Stufen orientieren sich an den Nadelverlust-Klassen der Waldzustandserhebung, nicht an Roloff. Passt das für eure Praxis, oder nutzt ihr eine andere Einteilung?
+Die Stufen orientieren sich an den Nadelverlust-Klassen der Waldzustandserhebung (bestätigt 11.11.2026).
 
 **Filterfrage: Gibt es Auffälligkeiten in der Krone?** · `tree.crown.gate`
 
