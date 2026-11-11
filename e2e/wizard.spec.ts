@@ -193,3 +193,27 @@ test('tree steps are not marked complete without a tree', async ({ page, viewpor
     page.locator('aside').getByRole('link', { name: /Baumbeurteilung/ }),
   ).not.toContainText('vollständig')
 })
+
+test('filter question hides hazards until abnormalities are reported', async ({ page }) => {
+  await start(page)
+  await page.goto(page.url().replace(/job$/, 'workplace'))
+  const gate = item(page, 'Gibt es besondere Gefahren am Einsatzort?')
+  await expect(page.getByText('Stromleitungen', { exact: false })).toHaveCount(0)
+
+  await gate.getByText('Ja, einzeln prüfen', { exact: true }).click()
+  await expect(gate.getByRole('radio', { name: 'Ja, einzeln prüfen' })).toBeChecked()
+  const power = page.locator('#item-site-powerLines')
+  await power.getByText('vorhanden', { exact: true }).click()
+  await power.getByLabel('Maßnahme').fill('Netzbetreiber schaltet frei')
+  await gate.getByRole('button', { name: /Übrige 4 als „nicht vorhanden“ markieren/ }).click()
+  await expect(
+    page.locator('#item-site-undergroundUtilities').getByRole('radio', { name: 'nicht vorhanden' }),
+  ).toBeChecked()
+
+  // Switching to "none" asks before deleting the reported hazard.
+  page.once('dialog', (d) => void d.accept())
+  await gate.getByText('Nein, unauffällig', { exact: true }).click()
+  await expect(gate.getByRole('radio', { name: 'Nein, unauffällig' })).toBeChecked()
+  await expect(page.locator('#item-site-powerLines')).toHaveCount(0)
+  await expect(gate.getByText('5 Merkmale als unauffällig erfasst.')).toBeVisible()
+})

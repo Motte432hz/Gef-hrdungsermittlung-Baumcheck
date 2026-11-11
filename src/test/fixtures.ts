@@ -35,6 +35,8 @@ export function fillAnswers(def: FormDefinition, scope: 'assessment' | 'tree'): 
   for (const step of def.steps) {
     if ((step.repeat === 'tree') !== (scope === 'tree')) continue
     for (const section of step.sections) {
+      // Gates open, so every hazard is answered and tests can flip single hazards.
+      if (section.gate) answers[section.gate.id] = { value: 'some' }
       for (const item of section.items) {
         // Conditional items stay unanswered, so tests can check that they appear when triggered.
         if (item.visibleIf) continue

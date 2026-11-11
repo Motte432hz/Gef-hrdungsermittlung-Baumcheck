@@ -1,5 +1,6 @@
 import type { Answer, Assessment, Customer, Tree } from '../domain/types'
-import type { FormDefinition, FormItem } from '../form/schema'
+import type { FormDefinition, FormItem, FormSection } from '../form/schema'
+import { GATE_NONE, isGatedOut } from '../form/schema'
 import { isItemVisible, makeLookup, selectedOptions } from '../form/validation'
 import { speciesLabel } from '../form/species'
 import { ROLE_LABELS } from '../domain/roles'
@@ -160,6 +161,46 @@ function row(
   }
 }
 
+/**
+ * Rows of one section. A gated section answered with "no abnormalities" is condensed into
+ * a single row instead of listing every hazard as "nicht vorhanden".
+ */
+function sectionRows(
+  section: FormSection,
+  answers: Record<string, Answer>,
+  lookup: ReturnType<typeof makeLookup>,
+  ctx: SummaryContext,
+  treeId?: string,
+): SummaryRow[] {
+  const gate = section.gate
+  const gateValue = gate ? answers[gate.id]?.value : undefined
+  const visible = section.items.filter((i) => isItemVisible(i, lookup))
+  const rows: SummaryRow[] = []
+  let gateRowDone = false
+  for (const item of visible) {
+    if (gate && isGatedOut(section, item, gateValue)) {
+      if (!gateRowDone) {
+        gateRowDone = true
+        const n = visible.filter((i) => i.type === 'hazard').length
+        rows.push(
+          gateValue === GATE_NONE
+            ? {
+                itemId: gate.id,
+                label: section.title ?? gate.label,
+                value: `keine Auffälligkeiten (${n} Merkmale geprüft)`,
+                tone: 'ok',
+              }
+            : { itemId: gate.id, label: gate.label, value: '–', tone: 'empty' },
+        )
+      }
+      continue
+    }
+    const r = row(item, answers[item.id], ctx, treeId)
+    if (r) rows.push(r)
+  }
+  return rows
+}
+
 /** Structured overview of all visible answers – used by the summary screen and the PDF. */
 export function buildSummary(ctx: SummaryContext): SummarySection[] {
   const { definition, assessment, trees } = ctx
@@ -168,11 +209,7 @@ export function buildSummary(ctx: SummaryContext): SummarySection[] {
     if (step.repeat === 'tree') {
       for (const t of [...trees].sort((a, b) => a.index - b.index)) {
         const lookup = makeLookup(assessment.answers, t.answers)
-        const rows = step.sections
-          .flatMap((s) => s.items)
-          .filter((i) => isItemVisible(i, lookup))
-          .map((i) => row(i, t.answers[i.id], ctx, t.id))
-          .filter((r): r is SummaryRow => !!r)
+        const rows = step.sections.flatMap((sec) => sectionRows(sec, t.answers, lookup, ctx, t.id))
         out.push({
           stepId: step.id,
           title: `${step.title} – Baum ${t.index + 1}`,
@@ -182,11 +219,7 @@ export function buildSummary(ctx: SummaryContext): SummarySection[] {
       }
     } else {
       const lookup = makeLookup(assessment.answers)
-      const rows = step.sections
-        .flatMap((s) => s.items)
-        .filter((i) => isItemVisible(i, lookup))
-        .map((i) => row(i, assessment.answers[i.id], ctx))
-        .filter((r): r is SummaryRow => !!r)
+      const rows = step.sections.flatMap((sec) => sectionRows(sec, assessment.answers, lookup, ctx))
       out.push({ stepId: step.id, title: step.title, rows })
     }
   }

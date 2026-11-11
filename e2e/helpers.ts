@@ -94,7 +94,8 @@ export async function fillCompleteAssessment(
   await expect(growth.getByRole('radio').first()).toBeChecked()
   await next(page)
 
-  await answerAll(page, 'nicht vorhanden')
+  await page.getByText('Stufe 0 – Exploration (vital)', { exact: true }).click()
+  await answerAll(page, 'Nein, unauffällig')
   await answerAll(page, 'Gleichmäßig')
   const result = page.locator('[id$="tree-result"]')
   await result.getByText('Ja', { exact: true }).click()
@@ -102,7 +103,7 @@ export async function fillCompleteAssessment(
   await next(page)
 
   await answerAll(page, 'Ja')
-  await answerAll(page, 'nicht vorhanden')
+  await answerAll(page, 'Nein, unauffällig')
   await next(page)
 
   await answerAll(page, 'Ja')

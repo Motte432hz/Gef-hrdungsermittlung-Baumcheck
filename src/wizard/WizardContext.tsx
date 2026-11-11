@@ -10,6 +10,8 @@ export interface WizardContextValue {
   issues: Issue[]
   /** Writes an answer immediately (autosave). treeId for per-tree items. */
   setAnswer: (itemId: string, answer: Answer | undefined, treeId?: string) => Promise<void>
+  /** Writes several answers in one go (gates clear the hazards of their section). */
+  setAnswers: (changes: Record<string, Answer | undefined>, treeId?: string) => Promise<void>
   update: (changes: Partial<Assessment>) => Promise<void>
 }
 

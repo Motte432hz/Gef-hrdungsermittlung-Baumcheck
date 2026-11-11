@@ -118,8 +118,45 @@ describe('validateAssessment', () => {
     const input = validInput(def)
     input.trees.push({ id: 't2', index: 1, answers: {} })
     const issues = validateAssessment(input)
-    expect(issues.length).toBeGreaterThan(20)
+    // Gated hazards are not asked until their gate is answered.
+    expect(issues.length).toBeGreaterThan(8)
     expect(issues.every((i) => i.treeId === 't2')).toBe(true)
+    expect(issues.map((i) => i.itemId)).toEqual(
+      expect.arrayContaining(['tree.env.gate', 'tree.trunk.gate', 'tree.crown.gate']),
+    )
+  })
+
+  it('a gate answered "none" replaces all hazard questions of its section', () => {
+    const input = validInput(def)
+    const t = input.trees[0]!
+    t.answers['tree.trunk.gate'] = { value: 'none' }
+    for (const k of Object.keys(t.answers))
+      if (k.startsWith('tree.trunk.') && k !== 'tree.trunk.gate') delete t.answers[k]
+    expect(validateAssessment(input)).toEqual([])
+  })
+
+  it('a gate answered "some" asks every hazard of its section', () => {
+    const input = validInput(def)
+    delete input.assessment.answers['site.powerLines']
+    expect(validateAssessment(input).map((i) => i.itemId)).toEqual(['site.powerLines'])
+    input.assessment.answers['site.hazards.gate'] = { value: 'none' }
+    expect(validateAssessment(input)).toEqual([])
+  })
+
+  it('a missing gate is a blocking issue', () => {
+    const input = validInput(def)
+    delete input.assessment.answers['site.hazards.gate']
+    expect(validateAssessment(input)).toEqual([
+      expect.objectContaining({ itemId: 'site.hazards.gate', level: 'blocking' }),
+    ])
+  })
+
+  it('Roloff stage 3 is a danger and needs a measure', () => {
+    const input = validInput(def)
+    input.trees[0]!.answers['tree.crown.vitality'] = { value: '3' }
+    expect(validateAssessment(input)).toEqual(
+      expect.arrayContaining([expect.objectContaining({ itemId: 'tree.crown.vitality' })]),
+    )
   })
 
   it('at least one tree is required', () => {

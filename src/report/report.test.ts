@@ -102,6 +102,27 @@ describe('requiredSignatures', () => {
 })
 
 describe('buildSummary', () => {
+  it('condenses a gated section answered "none" into one row', () => {
+    const input = validInput(def)
+    const t = input.trees[0]!
+    t.answers['tree.env.gate'] = { value: 'none' }
+    for (const k of ['soilCracks', 'neighbourTrees', 'rootDamage', 'fungi'])
+      delete t.answers[`tree.env.${k}`]
+    const sections = buildSummary({
+      definition: def,
+      assessment: assessmentFrom(input),
+      trees: input.trees as never,
+    })
+    const rows = sections.find((s) => s.title === 'Baumbeurteilung – Baum 1')!.rows
+    expect(rows.filter((r) => r.itemId.startsWith('tree.env.'))).toEqual([
+      expect.objectContaining({
+        itemId: 'tree.env.gate',
+        value: 'keine Auffälligkeiten (4 Merkmale geprüft)',
+        tone: 'ok',
+      }),
+    ])
+  })
+
   it('lists all steps, one section per tree', () => {
     const input = validInput(def)
     input.trees.push({ id: 't2', index: 1, answers: {} })

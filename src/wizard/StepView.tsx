@@ -5,7 +5,7 @@ import { isItemVisible, makeLookup } from '../form/validation'
 import { confirmPrefilled } from '../db/repo'
 import { db } from '../db/db'
 import { useWizard } from './WizardContext'
-import { ItemField } from './ItemField'
+import { SectionView } from './SectionView'
 import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { EmergencyCard } from './special/EmergencyCard'
@@ -54,17 +54,14 @@ export function StepView({ step }: { step: FormStep }) {
           </Button>
         </Card>
       )}
-      {visible.map(
-        (section) =>
-          section.items.length > 0 && (
-            <section key={section.id} className="space-y-3">
-              {section.title && <h2 className="text-xl font-bold">{section.title}</h2>}
-              {section.items.map((item) => (
-                <ItemField key={item.id} item={item} />
-              ))}
-            </section>
-          ),
-      )}
+      {step.sections.map((section) => (
+        <SectionView
+          key={section.id}
+          section={section}
+          lookup={lookup}
+          answers={assessment.answers}
+        />
+      ))}
       {step.id === 'site' && <EmergencyCard />}
     </div>
   )

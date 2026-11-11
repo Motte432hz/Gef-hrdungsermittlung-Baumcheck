@@ -1,11 +1,11 @@
 import { useNavigate, useSearchParams } from 'react-router'
 import type { FormStep } from '../../form/schema'
-import { isItemVisible, makeLookup } from '../../form/validation'
+import { makeLookup } from '../../form/validation'
 import { getSpecies } from '../../form/species'
 import { db } from '../../db/db'
 import { addTree, removeTree } from '../../db/repo'
 import { useWizard } from '../WizardContext'
-import { ItemField } from '../ItemField'
+import { SectionView } from '../SectionView'
 import { TreeTabs } from './TreeTabs'
 import { SpeciesHazards } from './SpeciesHazards'
 import { treeLabel } from './treeLabel'
@@ -52,19 +52,16 @@ export function TreeStepView({ step }: { step: FormStep }) {
       <TreeTabs stepId={step.id} currentTreeId={tree.id} />
       <h2 className="text-2xl font-bold">{treeLabel(tree)}</h2>
       {step.id === 'treeAssessment' && species && <SpeciesHazards species={species} compact />}
-      {step.sections.map((section) => {
-        const items = section.items.filter((i) => isItemVisible(i, lookup))
-        if (items.length === 0) return null
-        return (
-          <section key={section.id} className="space-y-3">
-            {section.title && <h3 className="text-xl font-bold">{section.title}</h3>}
-            {items.map((item) => (
-              // Keyed by tree: switching trees remounts inputs with that tree's values.
-              <ItemField key={`${tree.id}-${item.id}`} item={item} treeId={tree.id} />
-            ))}
-          </section>
-        )
-      })}
+      {step.sections.map((section) => (
+        <SectionView
+          key={section.id}
+          section={section}
+          lookup={lookup}
+          answers={tree.answers}
+          treeId={tree.id}
+          headingLevel={3}
+        />
+      ))}
       {step.id === 'tree' && (
         <Button
           variant="secondary"

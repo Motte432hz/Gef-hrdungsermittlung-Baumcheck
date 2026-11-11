@@ -57,6 +57,20 @@ export function checkDefinition(def: FormDefinition): string[] {
     stepIds.add(step.id)
   }
 
+  for (const step of def.steps) {
+    for (const section of step.sections) {
+      if (!section.gate) continue
+      if (ids.has(section.gate.id)) problems.push(`Duplicate id ${section.gate.id}`)
+      ids.add(section.gate.id)
+      if (step.repeat === 'tree' && !section.gate.id.startsWith('tree.')) {
+        problems.push(`${section.gate.id}: gates in tree steps must start with "tree."`)
+      }
+      if (!section.items.some((i) => i.type === 'hazard')) {
+        problems.push(`${section.gate.id}: gate without hazard items`)
+      }
+    }
+  }
+
   for (const { item, step } of located) {
     if (ids.has(item.id)) problems.push(`Duplicate item id ${item.id}`)
     ids.add(item.id)

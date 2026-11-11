@@ -87,10 +87,30 @@ export type FormItem =
 
 export type AnsweredItemType = Exclude<FormItem['type'], SpecialItem['type']>
 
+/**
+ * Filter question for a section of hazard features: "keine Auffälligkeiten" covers all
+ * hazards of the section at once; "Auffälligkeiten vorhanden" shows them one by one.
+ */
+export interface SectionGate {
+  /** Answer key, e.g. "tree.crown.gate". */
+  id: string
+  label: string
+  info?: string
+}
+
+export const GATE_NONE = 'none'
+export const GATE_SOME = 'some'
+
 export interface FormSection {
   id: string
   title?: string
+  gate?: SectionGate
   items: FormItem[]
+}
+
+/** Hazard items of a gated section are hidden/implied unless the gate says "some". */
+export function isGatedOut(section: FormSection, item: FormItem, gateValue: unknown): boolean {
+  return !!section.gate && item.type === 'hazard' && gateValue !== GATE_SOME
 }
 
 export interface FormStep {

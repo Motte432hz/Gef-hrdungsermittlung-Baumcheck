@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
-import { getTrees, setAnswer, setTreeAnswer, updateAssessment } from '../db/repo'
+import {
+  getTrees,
+  setAnswer,
+  setAnswers,
+  setTreeAnswer,
+  setTreeAnswers,
+  updateAssessment,
+} from '../db/repo'
 import { getDefinition } from '../form/definition'
 import { validateAssessment } from '../form/validation'
 import type { Assessment, Tree } from '../domain/types'
@@ -152,6 +159,8 @@ function Wizard({
           ? setTreeAnswer(db, treeId, itemId, answer)
           : setAnswer(db, assessment.id, itemId, answer),
       ),
+    setAnswers: (changes, treeId) =>
+      guard(treeId ? setTreeAnswers(db, treeId, changes) : setAnswers(db, assessment.id, changes)),
     update: (changes) => guard(updateAssessment(db, assessment.id, changes)),
   }
 

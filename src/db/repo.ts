@@ -141,19 +141,37 @@ export async function updateAssessment(
   })
 }
 
+/** Changes of several answers at once; `undefined` removes an answer. */
+export type AnswerChanges = Record<string, Answer | undefined>
+
+function applyChanges(answers: Record<string, Answer>, changes: AnswerChanges) {
+  const out = { ...answers }
+  for (const [id, a] of Object.entries(changes)) {
+    if (a === undefined) delete out[id]
+    else out[id] = a
+  }
+  return out
+}
+
 export async function setAnswer(
   db: BaumCheckDB,
   assessmentId: ID,
   itemId: string,
   answer: Answer | undefined,
 ): Promise<void> {
+  await setAnswers(db, assessmentId, { [itemId]: answer })
+}
+
+/** Writes several answers in one transaction (e.g. a gate plus the answers it clears). */
+export async function setAnswers(
+  db: BaumCheckDB,
+  assessmentId: ID,
+  changes: AnswerChanges,
+): Promise<void> {
   await db.transaction('rw', db.assessments, async () => {
     const a = await requireDraft(db, assessmentId)
-    const answers = { ...a.answers }
-    if (answer === undefined) delete answers[itemId]
-    else answers[itemId] = answer
     await db.assessments.update(assessmentId, {
-      answers,
+      answers: applyChanges(a.answers, changes),
       updatedAt: nowIso(),
       syncState: 'pending',
     })
@@ -176,14 +194,23 @@ export async function setTreeAnswer(
   itemId: string,
   answer: Answer | undefined,
 ): Promise<void> {
+  await setTreeAnswers(db, treeId, { [itemId]: answer })
+}
+
+export async function setTreeAnswers(
+  db: BaumCheckDB,
+  treeId: ID,
+  changes: AnswerChanges,
+): Promise<void> {
   await db.transaction('rw', db.assessments, db.trees, async () => {
     const tree = await db.trees.get(treeId)
     if (!tree) throw new Error(`Tree ${treeId} not found`)
     await requireDraft(db, tree.assessmentId)
-    const answers = { ...tree.answers }
-    if (answer === undefined) delete answers[itemId]
-    else answers[itemId] = answer
-    await db.trees.update(treeId, { answers, updatedAt: nowIso(), syncState: 'pending' })
+    await db.trees.update(treeId, {
+      answers: applyChanges(tree.answers, changes),
+      updatedAt: nowIso(),
+      syncState: 'pending',
+    })
   })
 }
 

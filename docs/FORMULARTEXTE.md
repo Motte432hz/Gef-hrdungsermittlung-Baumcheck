@@ -168,6 +168,10 @@ Info: Vor-, Rück- und Seithänger beziehen sich auf die geplante Fällrichtung.
 
 ### 6A Baumumfeld
 
+**Filterfrage: Gibt es Auffälligkeiten im Baumumfeld?** · Nein, unauffällig / Ja, einzeln prüfen · `tree.env.gate`
+
+Bei „Nein“ gelten alle Merkmale dieses Abschnitts als nicht vorhanden und werden nicht einzeln abgefragt (Zusammenfassung/PDF: „keine Auffälligkeiten (n Merkmale geprüft)“). Bei „Ja“ erscheinen die Merkmale; die übrigen können mit einem Knopf als „nicht vorhanden“ markiert werden.
+
 **6.1 GM: Bodenrisse oder angehobener Wurzelteller** · `tree.env.soilCracks`
 
 Info: Risse im Boden oder ein angehobener Wurzelteller auf einer Seite deuten darauf hin, dass der Baum seine Standsicherheit verliert.
@@ -185,6 +189,8 @@ Info: Etwa durch Bauarbeiten, Leitungsgräben oder Bodenverdichtung. Das kann di
 Info: Pilze am Wurzelanlauf oder im Boden um den Stamm herum, z. B. Hallimasch oder Riesenporling, können auf Wurzelfäule hinweisen. Erhöhte Gefahr, dass der Baum umstürzt.
 
 ### 6B Stammfuß und Stamm
+
+**Filterfrage: Gibt es Auffälligkeiten an Stammfuß oder Stamm?** · `tree.trunk.gate`
 
 **6.5 GM: Risse, Wülste, Beulen oder Rippen** · `tree.trunk.defects`
 
@@ -208,9 +214,19 @@ Info: Darunter ist das Holz oft schon zersetzt. Lose Rinde kann beim Klettern od
 
 ### 6C Krone
 
-**6.11 GM: Eingeschränkte Vitalität** · `tree.crown.lowVitality`
+**6.11 Vitalität der Krone (Roloff)** · Pflicht, Einfachauswahl · `tree.crown.vitality`
 
-Info: Schütteres Laub, kleine Blätter, abgestorbene Triebspitzen. Bei geschwächten Bäumen ist die Bruchgefahr erhöht.
+Info: Vitalitätsstufen nach Roloff, beurteilt an der Verzweigung der Krone (für Laubbäume). Geschwächte Bäume haben ein erhöhtes Bruchrisiko, besonders bei Belastung durch Seile oder Kletterer.
+
+- Stufe 0 – Exploration (vital): lange Langtriebe, gleichmäßig verzweigte, geschlossene Krone
+- Stufe 1 – Degeneration (leicht geschwächt): kürzere Triebe, Krone außen spießig/schütter
+- Stufe 2 – Stagnation (geschwächt): pinselartige Kurztriebe, deutliche Lücken → Warnung + Pflichtfeld „Maßnahme“
+- Stufe 3 – Resignation (stark geschwächt / absterbend): Krone zerfällt von außen → deutliche Warnung + Pflichtfeld „Maßnahme“
+- Nicht beurteilbar: z. B. unbelaubt, Nadelbaum, stark geschnittene Krone
+
+Steht vor der Filterfrage, wird also immer abgefragt.
+
+**Filterfrage: Gibt es Auffälligkeiten in der Krone?** · `tree.crown.gate`
 
 **6.12 GM: Totholz** · `tree.crown.deadwood`
 
@@ -285,6 +301,8 @@ Info: Schräg nach hinten, etwa 45° zur Fällrichtung, frei von Hindernissen un
 **7.4 KP: Verständigung ist am Einsatzort möglich** · `site.communicationPossible`
 
 Info: Ruf- und Sichtverbindung oder Funk zwischen Kletterer, Bodenperson und Sicherungsposten, auch bei laufenden Maschinen.
+
+**Filterfrage: Gibt es besondere Gefahren am Einsatzort?** · `site.hazards.gate` (betrifft 7.5–7.9; 7.10 bleibt immer sichtbar)
 
 **7.5 GM: Stromleitungen in der Nähe** · `site.powerLines`
 

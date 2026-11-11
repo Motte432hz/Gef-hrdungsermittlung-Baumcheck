@@ -1,6 +1,7 @@
 import type { Answer, Answers, Assessment, Tree } from '../domain/types'
 import { evaluateCondition, type ValueLookup } from './conditions'
-import type { ChoiceOption, FormDefinition, FormItem, FormStep } from './schema'
+import type { ChoiceOption, FormDefinition, FormItem, FormSection, FormStep } from './schema'
+import { isGatedOut } from './schema'
 import { checkTeam } from './plausibility'
 
 /**
@@ -260,6 +261,25 @@ function validateItem(def: FormDefinition, item: FormItem, scope: ItemScope): Is
   return out
 }
 
+/** The filter question of a gated section must be answered. */
+function validateGate(section: FormSection, scope: ItemScope): Issue[] {
+  const gate = section.gate
+  if (!gate) return []
+  const v = scope.answers[gate.id]?.value
+  if (v === 'none' || v === 'some') return []
+  return [
+    {
+      key: `${scope.tree ? `${scope.tree.id}:` : ''}${gate.id}:missing`,
+      level: 'blocking',
+      stepId: scope.step.id,
+      itemId: gate.id,
+      treeId: scope.tree?.id,
+      treeIndex: scope.tree?.index,
+      message: `„${gate.label}“ ist noch nicht beantwortet.`,
+    },
+  ]
+}
+
 /** Validates the whole assessment. Order follows the wizard steps. */
 export function validateAssessment({ definition, assessment, trees }: ValidationInput): Issue[] {
   const issues: Issue[] = []
@@ -278,8 +298,10 @@ export function validateAssessment({ definition, assessment, trees }: Validation
       for (const tree of sortedTrees) {
         const lookup = makeLookup(assessment.answers, tree.answers)
         for (const section of step.sections) {
+          issues.push(...validateGate(section, { step, answers: tree.answers, assessment, tree }))
           for (const item of section.items) {
             if (!isItemVisible(item, lookup)) continue
+            if (isGatedOut(section, item, tree.answers[section.gate?.id ?? '']?.value)) continue
             issues.push(
               ...validateItem(definition, item, { step, answers: tree.answers, assessment, tree }),
             )
@@ -289,8 +311,10 @@ export function validateAssessment({ definition, assessment, trees }: Validation
     } else {
       const lookup = makeLookup(assessment.answers)
       for (const section of step.sections) {
+        issues.push(...validateGate(section, { step, answers: assessment.answers, assessment }))
         for (const item of section.items) {
           if (!isItemVisible(item, lookup)) continue
+          if (isGatedOut(section, item, assessment.answers[section.gate?.id ?? '']?.value)) continue
           issues.push(
             ...validateItem(definition, item, { step, answers: assessment.answers, assessment }),
           )
@@ -344,6 +368,7 @@ export function collectFindings({ definition, assessment, trees }: ValidationInp
     for (const section of step.sections) {
       for (const item of section.items) {
         if (!isItemVisible(item, lookup)) continue
+        if (isGatedOut(section, item, answers[section.gate?.id ?? '']?.value)) continue
         const a = answers[item.id]
         const base = {
           stepId: step.id,
