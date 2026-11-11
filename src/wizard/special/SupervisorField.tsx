@@ -68,14 +68,14 @@ export function SupervisorField({ item }: { item: SpecialItem }) {
       </select>
       {employees && employees.length === 0 && assessment.team.length === 0 && (
         <p className="text-stone-600 dark:text-stone-400">
-          Noch keine Mitarbeiter gespeichert.{' '}
+          Noch keine Personen gespeichert. Lege sie im Schritt{' '}
           <Link
-            to="/profile/mitarbeiter/neu"
+            to={`/einsatz/${assessment.id}/team`}
             className="font-semibold text-brand-700 underline dark:text-brand-300"
           >
-            Mitarbeiter anlegen
+            „Team“
           </Link>{' '}
-          oder die Person im Schritt „Team“ neu erfassen.
+          an – die erste Person wird automatisch Aufsicht.
         </p>
       )}
     </ItemCard>

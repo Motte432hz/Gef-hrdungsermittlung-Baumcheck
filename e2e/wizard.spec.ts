@@ -93,17 +93,25 @@ test('team: new person with roles, SKT plausibility hint', async ({ page }) => {
   await selectSkt(page)
   await page.goto(page.url().replace(/job$/, 'team'))
 
-  await page.getByRole('button', { name: /Neue Person/ }).click()
-  await page.getByLabel(/^Name/).fill('Karl Kletter')
+  // Search → not found → create right here.
+  await page.getByRole('searchbox', { name: 'Person hinzufügen' }).fill('Karl Kletter')
+  await expect(page.getByText('Keine gespeicherte Person gefunden.')).toBeVisible()
+  await page.getByRole('button', { name: '„Karl Kletter“ neu anlegen' }).click()
+  await expect(page.getByLabel(/^Name/)).toHaveValue('Karl Kletter')
   await page.getByLabel('Rufname (optional)').fill('Kalle')
-  await page.getByLabel('Firma').fill('Kletterteam Süd')
+  await page.getByText('Subunternehmer', { exact: true }).click()
+  await page.getByLabel('Firma', { exact: true }).fill('Kletterteam Süd')
   await page.getByText('SKT B', { exact: true }).click()
-  await page.getByText('Als Subunternehmer-Profil speichern').click()
+  // First person → supervisor proposed; climbing added by hand.
+  const form = page.getByRole('group', { name: 'Rolle im Einsatz' })
+  await expect(form.getByRole('checkbox', { name: 'Aufsicht' })).toBeChecked()
+  await form.getByText('Kletterer/in', { exact: true }).click()
+  await expect(page.getByRole('checkbox', { name: 'Für spätere Einsätze speichern' })).toBeChecked()
   await page.getByRole('button', { name: 'Hinzufügen' }).click()
 
   const roles = page.getByRole('group', { name: 'Rollen von Karl Kletter' })
-  await roles.getByText('Aufsicht', { exact: true }).click()
-  await roles.getByText('Kletterer/in', { exact: true }).click()
+  await expect(roles.getByRole('checkbox', { name: 'Aufsicht' })).toBeChecked()
+  await expect(roles.getByRole('checkbox', { name: 'Kletterer/in' })).toBeChecked()
   await expect(page.getByText(/mindestens 2 Personen mit SKT-Qualifikation/)).toBeVisible()
 
   // Supervisor is now selected in step 1.
@@ -244,4 +252,52 @@ test('answered items collapse; "all yes" answers the open checkpoints of a secti
   await expect(page.getByRole('button', { name: /offenen mit „Ja“/ })).toHaveCount(0)
   // The "Nein" with its measure field stays open.
   await expect(item(page, briefed).getByRole('radio', { name: 'Nein' })).toBeChecked()
+})
+
+test('new customer and whole subcontractor company without leaving the wizard', async ({
+  page,
+}) => {
+  for (const name of ['Kim Krone', 'Lea Laub']) {
+    await page.goto('/profile/subunternehmer/neu')
+    await page.getByLabel(/^Name/).fill(name)
+    await page.getByLabel('Firma').fill('Kletterteam Süd')
+    await page.getByRole('button', { name: 'Speichern' }).click()
+    await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+  }
+
+  await start(page)
+  await page.getByRole('button', { name: '+ Neuer Kunde' }).click()
+  await page.getByLabel(/^Name des Kunden/).fill('Hausverwaltung Müller')
+  await page.getByLabel('Objekt (optional)').fill('Wohnanlage Lindenstraße')
+  await page.getByLabel('Straße und Hausnummer').fill('Lindenstraße 4')
+  await page.getByLabel('PLZ').fill('60311')
+  await page.getByLabel('Ort').fill('Frankfurt')
+  await page.getByRole('button', { name: 'Speichern und auswählen' }).click()
+  await expect(
+    page.getByRole('combobox', { name: 'Kunde / Objekt' }).locator('option:checked'),
+  ).toHaveText('Hausverwaltung Müller')
+  await expect(
+    page.getByRole('combobox', { name: 'Objekt', exact: true }).locator('option:checked'),
+  ).toHaveText('Wohnanlage Lindenstraße')
+
+  await next(page)
+  await expect(page.getByRole('textbox', { name: /Adresse/ })).toHaveValue(
+    'Lindenstraße 4, 60311 Frankfurt',
+  )
+
+  await next(page)
+  await page.getByRole('button', { name: 'Alle von Kletterteam Süd hinzufügen (2)' }).click()
+  await expect(
+    page
+      .getByRole('group', { name: 'Rollen von Kim Krone' })
+      .getByRole('checkbox', { name: 'Aufsicht' }),
+  ).toBeChecked()
+  await expect(
+    page
+      .getByRole('group', { name: 'Rollen von Lea Laub' })
+      .getByRole('checkbox', { name: 'Bodenperson' }),
+  ).toBeChecked()
+  // Search finds nobody left to add.
+  await page.getByRole('searchbox', { name: 'Person hinzufügen' }).fill('Kim')
+  await expect(page.getByText('Keine gespeicherte Person gefunden.')).toBeVisible()
 })

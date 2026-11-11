@@ -39,13 +39,19 @@ async function check(page: Page, label: string) {
   await expect(page.getByRole('checkbox', { name: label, exact: true })).toBeChecked()
 }
 
+/** Makes sure a person has a role (roles are proposed automatically, so only click if needed). */
+async function ensureRole(page: Page, name: string, role: string) {
+  const roles = page.getByRole('group', { name: `Rollen von ${name}` })
+  const box = roles.getByRole('checkbox', { name: role })
+  if (!(await box.isChecked())) await roles.getByText(role, { exact: true }).click()
+  await expect(box).toBeChecked()
+}
+
 async function addPerson(page: Page, name: string, role: string) {
   await page.getByRole('button', { name: /Neue Person/ }).click()
   await page.getByLabel(/^Name/).fill(name)
   await page.getByRole('button', { name: 'Hinzufügen' }).click()
-  const roles = page.getByRole('group', { name: `Rollen von ${name}` })
-  await roles.getByText(role, { exact: true }).click()
-  await expect(roles.getByRole('checkbox', { name: role })).toBeChecked()
+  await ensureRole(page, name, role)
 }
 
 /**
@@ -82,12 +88,8 @@ export async function fillCompleteAssessment(
   }
   for (const name of newPeople)
     await addPerson(page, name, name === all[0] ? 'Aufsicht' : 'Bodenperson')
-  for (const name of profilePeople) {
-    const roles = page.getByRole('group', { name: `Rollen von ${name}` })
-    const role = name === all[0] ? 'Aufsicht' : 'Bodenperson'
-    await roles.getByText(role, { exact: true }).click()
-    await expect(roles.getByRole('checkbox', { name: role })).toBeChecked()
-  }
+  for (const name of profilePeople)
+    await ensureRole(page, name, name === all[0] ? 'Aufsicht' : 'Bodenperson')
   await answerAll(page, 'Ja')
   await next(page)
 
