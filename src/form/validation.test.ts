@@ -151,6 +151,20 @@ describe('validateAssessment', () => {
     ])
   })
 
+  it('conifers get the needle scale instead of Roloff', () => {
+    const input = validInput(def)
+    const t = input.trees[0]!
+    t.answers['tree.species'] = { value: 'picea-abies' }
+    expect(validateAssessment(input).map((i) => i.itemId)).toEqual(['tree.crown.needleLoss'])
+    t.answers['tree.crown.needleLoss'] = { value: '4' }
+    expect(validateAssessment(input)).toEqual([
+      expect.objectContaining({ itemId: 'tree.crown.needleLoss', level: 'danger' }),
+      expect.objectContaining({ itemId: 'tree.crown.needleLoss', level: 'blocking' }),
+    ])
+    t.answers['tree.species'] = { value: 'tilia-cordata' }
+    expect(validateAssessment(input)).toEqual([])
+  })
+
   it('Roloff stage 3 is a danger and needs a measure', () => {
     const input = validInput(def)
     input.trees[0]!.answers['tree.crown.vitality'] = { value: '3' }

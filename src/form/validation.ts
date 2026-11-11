@@ -3,6 +3,10 @@ import { evaluateCondition, type ValueLookup } from './conditions'
 import type { ChoiceOption, FormDefinition, FormItem, FormSection, FormStep } from './schema'
 import { isGatedOut } from './schema'
 import { checkTeam } from './plausibility'
+import { getSpecies } from './species'
+
+/** Derived field for conditions: "laub" or "nadel" from the chosen tree species. */
+export const SPECIES_GROUP_FIELD = 'tree.species.group'
 
 /**
  * blocking = must be fixed before the protocol can be completed
@@ -45,7 +49,13 @@ const isEmpty = (v: unknown) =>
 const hasNote = (a: Answer | undefined) => !!a?.note && a.note.trim() !== ''
 
 export function makeLookup(assessmentAnswers: Answers, treeAnswers?: Answers): ValueLookup {
-  return (field) => (treeAnswers?.[field] ?? assessmentAnswers[field])?.value
+  return (field) => {
+    if (field === SPECIES_GROUP_FIELD) {
+      const id = treeAnswers?.['tree.species']?.value
+      return getSpecies(typeof id === 'string' ? id : undefined)?.group
+    }
+    return (treeAnswers?.[field] ?? assessmentAnswers[field])?.value
+  }
 }
 
 export function isItemVisible(item: FormItem, lookup: ValueLookup): boolean {

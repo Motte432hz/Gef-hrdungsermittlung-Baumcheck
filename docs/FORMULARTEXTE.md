@@ -234,7 +234,7 @@ Info: Darunter ist das Holz oft schon zersetzt. Lose Rinde kann beim Klettern od
 
 ### 6C Krone
 
-**6.11 Vitalität der Krone (Roloff)** · Pflicht, Einfachauswahl · `tree.crown.vitality`
+**6.11 Vitalität der Krone (Roloff, Laubbäume)** · Pflicht, Einfachauswahl · nur wenn kein Nadelbaum gewählt ist · `tree.crown.vitality`
 
 Info: Vitalitätsstufen nach Roloff, beurteilt an der Verzweigung der Krone (für Laubbäume). Geschwächte Bäume haben ein erhöhtes Bruchrisiko, besonders bei Belastung durch Seile oder Kletterer.
 
@@ -245,6 +245,19 @@ Info: Vitalitätsstufen nach Roloff, beurteilt an der Verzweigung der Krone (fü
 - Nicht beurteilbar: z. B. unbelaubt, Nadelbaum, stark geschnittene Krone
 
 Steht vor der Filterfrage, wird also immer abgefragt.
+
+**6.11b Benadelung der Krone (Nadelbäume)** · Pflicht, Einfachauswahl · nur bei Nadelbäumen aus der Baumartenliste · `tree.crown.needleLoss`
+
+Info: Stufen nach Nadelverlust bzw. Kronenverlichtung, geschätzt im Vergleich zu einem voll benadelten Baum gleicher Art. Achte auch auf vergilbte oder braune Nadeln und abgestorbene Wipfel. Lärche, Sumpfzypresse und Urweltmammutbaum werfen im Winter die Nadeln ab – dann „nicht beurteilbar“.
+
+- Stufe 0 – voll benadelt (bis 10 % Nadelverlust)
+- Stufe 1 – leicht verlichtet (11–25 %)
+- Stufe 2 – mittelstark verlichtet (26–60 %) → Warnung + Pflichtfeld „Maßnahme“
+- Stufe 3 – stark verlichtet (über 60 %) → deutliche Warnung + Pflichtfeld „Maßnahme“
+- Stufe 4 – abgestorben → deutliche Warnung (nicht beklettern) + Pflichtfeld „Maßnahme“
+- Nicht beurteilbar
+
+❓ Die Stufen orientieren sich an den Nadelverlust-Klassen der Waldzustandserhebung, nicht an Roloff. Passt das für eure Praxis, oder nutzt ihr eine andere Einteilung?
 
 **Filterfrage: Gibt es Auffälligkeiten in der Krone?** · `tree.crown.gate`
 

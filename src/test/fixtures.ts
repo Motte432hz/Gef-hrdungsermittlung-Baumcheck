@@ -1,6 +1,7 @@
 import type { Answers, TeamMember } from '../domain/types'
 import type { FormDefinition, FormItem } from '../form/schema'
-import type { ValidationInput } from '../form/validation'
+import { makeLookup, type ValidationInput } from '../form/validation'
+import { evaluateCondition } from '../form/conditions'
 
 /** Harmless default answer for an item (no warnings). */
 function defaultAnswer(item: FormItem): Answers[string] | undefined {
@@ -38,8 +39,10 @@ export function fillAnswers(def: FormDefinition, scope: 'assessment' | 'tree'): 
       // Gates open, so every hazard is answered and tests can flip single hazards.
       if (section.gate) answers[section.gate.id] = { value: 'some' }
       for (const item of section.items) {
-        // Conditional items stay unanswered, so tests can check that they appear when triggered.
-        if (item.visibleIf) continue
+        // Conditional items stay unanswered, so tests can check that they appear when triggered –
+        // except those visible by default (e.g. Roloff scale while no conifer is chosen).
+        if (item.visibleIf && !evaluateCondition(item.visibleIf, makeLookup(answers, answers)))
+          continue
         const a = defaultAnswer(item)
         if (a) answers[item.id] = a
       }

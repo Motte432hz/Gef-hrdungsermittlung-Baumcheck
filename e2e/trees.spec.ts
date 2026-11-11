@@ -229,3 +229,14 @@ test('another tree like tree 1: basics copied, assessment must be confirmed', as
     page.getByRole('radio', { name: 'Stufe 1 – Degeneration (leicht geschwächt)' }),
   ).toBeChecked()
 })
+
+test('conifers get the needle scale instead of the Roloff scale', async ({ page }) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await pickSpecies(page, 'Fichte', 'Gemeine Fichte')
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByText('Benadelung der Krone (Nadelbäume)')).toBeVisible()
+  await expect(page.getByText('Vitalität der Krone (Roloff, Laubbäume)')).toHaveCount(0)
+  await page.getByText('Stufe 3 – stark verlichtet (über 60 %)', { exact: true }).click()
+  await expect(page.getByText(/hohe Bruchgefahr, besonders im Wipfel/)).toBeVisible()
+})

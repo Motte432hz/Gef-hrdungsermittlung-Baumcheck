@@ -430,9 +430,9 @@
             {
               "id": "tree.crown.vitality",
               "type": "single",
-              "label": "Vitalität der Krone (Roloff)",
+              "label": "Vitalität der Krone (Roloff, Laubbäume)",
               "required": true,
-              "info": "Vitalitätsstufen nach Roloff, beurteilt an der Verzweigung der Krone (für Laubbäume). Geschwächte Bäume haben ein erhöhtes Bruchrisiko, besonders bei Belastung durch Seile oder Kletterer.",
+              "info": "Vitalitätsstufen nach Roloff, beurteilt an der Verzweigung der Krone. Gilt für Laubbäume; bei Nadelbäumen erscheint stattdessen die Benadelung. Geschwächte Bäume haben ein erhöhtes Bruchrisiko, besonders bei Belastung durch Seile oder Kletterer.",
               "options": [
                 {
                   "value": "0",
@@ -465,7 +465,68 @@
                 {
                   "value": "na",
                   "label": "Nicht beurteilbar",
-                  "info": "Z. B. unbelaubt, Nadelbaum oder stark geschnittene Krone."
+                  "info": "Z. B. unbelaubt (Winter) oder stark geschnittene Krone."
+                }
+              ],
+              "visibleIf": {
+                "not": {
+                  "field": "tree.species.group",
+                  "equals": "nadel"
+                }
+              }
+            },
+            {
+              "id": "tree.crown.needleLoss",
+              "type": "single",
+              "required": true,
+              "label": "Benadelung der Krone (Nadelbäume)",
+              "info": "Stufen nach Nadelverlust bzw. Kronenverlichtung, geschätzt im Vergleich zu einem voll benadelten Baum gleicher Art. Achte auch auf vergilbte oder braune Nadeln und abgestorbene Wipfel. Lärche, Sumpfzypresse und Urweltmammutbaum werfen im Winter die Nadeln ab – dann „nicht beurteilbar“.",
+              "visibleIf": {
+                "field": "tree.species.group",
+                "equals": "nadel"
+              },
+              "options": [
+                {
+                  "value": "0",
+                  "label": "Stufe 0 – voll benadelt (bis 10 % Nadelverlust)",
+                  "info": "Dichte, gleichmäßig grüne Krone."
+                },
+                {
+                  "value": "1",
+                  "label": "Stufe 1 – leicht verlichtet (11–25 %)",
+                  "info": "Krone etwas durchsichtig, vor allem innen oder im oberen Bereich."
+                },
+                {
+                  "value": "2",
+                  "label": "Stufe 2 – mittelstark verlichtet (26–60 %)",
+                  "info": "Deutlich durchsichtige Krone, kurze Nadeljahrgänge, Verfärbungen.",
+                  "warning": "Geschwächter Baum: Äste, Wipfel und Anschlagpunkte besonders sorgfältig prüfen.",
+                  "severity": "warning",
+                  "requiresNote": true,
+                  "noteLabel": "Maßnahme"
+                },
+                {
+                  "value": "3",
+                  "label": "Stufe 3 – stark verlichtet (über 60 %)",
+                  "info": "Nur noch Reste der Benadelung, Wipfel oft dürr.",
+                  "warning": "Stark geschwächter Baum: hohe Bruchgefahr, besonders im Wipfel. Klettern nur nach eingehender Prüfung, besser Hubarbeitsbühne.",
+                  "severity": "danger",
+                  "requiresNote": true,
+                  "noteLabel": "Maßnahme"
+                },
+                {
+                  "value": "4",
+                  "label": "Stufe 4 – abgestorben",
+                  "info": "Keine grünen Nadeln mehr, Rinde löst sich oft.",
+                  "warning": "Abgestorbener Nadelbaum: Holz kann spröde sein und ohne Vorwarnung brechen. Nicht beklettern; Fällung von der Hubarbeitsbühne oder mit Seilwinde planen.",
+                  "severity": "danger",
+                  "requiresNote": true,
+                  "noteLabel": "Maßnahme"
+                },
+                {
+                  "value": "na",
+                  "label": "Nicht beurteilbar",
+                  "info": "Z. B. Lärche im Winter oder stark geschnittene Krone."
                 }
               ]
             },

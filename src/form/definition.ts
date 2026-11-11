@@ -91,6 +91,11 @@ export function checkDefinition(def: FormDefinition): string[] {
   const answerable = new Map(located.map((l) => [l.item.id, l]))
   for (const { item, step } of located) {
     for (const field of conditionFields(item.visibleIf)) {
+      // Derived from the species (tree steps only).
+      if (field === 'tree.species.group') {
+        if (step.repeat !== 'tree') problems.push(`${item.id}: species group only in tree steps`)
+        continue
+      }
       const target = answerable.get(field)
       if (!target) problems.push(`${item.id}: condition references unknown item ${field}`)
       else if (target.step.repeat === 'tree' && step.repeat !== 'tree') {
