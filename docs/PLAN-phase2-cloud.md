@@ -1,6 +1,6 @@
 # Plan Phase 2 – Firmen-Kartei, Beitritt per Code, Abgleich zwischen Geräten
 
-Stand: 11.11.2026 · Status: in Umsetzung – Block 1 (Datenbank und Rechte) fertig
+Stand: 11.11.2026 · Status: in Umsetzung – Blöcke 1–3 fertig (Mail-Dienst für Anmelde-Codes steht noch aus)
 
 ## Ablauf
 
@@ -65,3 +65,17 @@ Admins können also keine Daten endgültig löschen. Ein „Entfernen“ durch A
 - Benötigt einen Supabase-Zugangs-Token (`SUPABASE_ACCESS_TOKEN`); in der Cloud-Entwicklungsumgebung setzt ihn der Netzwerk-Proxy automatisch ein.
 - Projekt: `fjrhcvgiyivanikgazyk` (Region eu-central-1, Frankfurt)
 - Die Sicherheitsprüfung von Supabase meldet nur die sechs App-Funktionen (`create_organization`, `create_invite`, `request_join`, `decide_membership`, `set_my_worker`, `transfer_ownership`). Das ist gewollt: Sie prüfen die Rolle selbst, die Tests decken das ab.
+
+### Abgleich (Block 3)
+
+- Jede lokale Änderung markiert den Datensatz als „wartet auf Abgleich“ und aktualisiert seinen Zeitstempel; lokale Löschungen hinterlassen eine Löschmarke.
+- Abgleich: beim Start, wenn das Netz zurückkommt, wenn die App wieder in den Vordergrund kommt, wenige Sekunden nach Änderungen und jede Minute.
+- Senden: Dateien zuerst (Pfad enthält den Inhalts-Hash, also kein doppeltes Hochladen), dann die Datensätze; Bäume und Unterschriften vor dem Protokoll (abgeschlossene Protokolle nehmen keine neuen Teile an).
+- Holen: alles, was sich seit dem letzten Abgleich auf dem Server geändert hat (Server-Uhr). Eine neuere, noch nicht gesendete Änderung auf dem Gerät wird nicht überschrieben.
+- Konflikte: Die neuere Änderung gewinnt. Lehnt der Server eine Änderung oder Löschung ab (fehlende Rechte), übernimmt das Gerät wieder den Serverstand.
+- Tests: `src/cloud/sync.test.ts` (simulierter Server mit denselben Regeln), `npm run test:cloud` (gegen das echte Projekt mit zwei Test-Konten, räumt danach alles ab).
+
+### Offen
+
+- Mail-Dienst (SMTP) mit EU-Servern und eigener Domain für die Anmelde-Codes; danach deutsche Code-E-Mail (`supabase/auth/code-email.html`) und höhere Versandgrenze einstellen.
+- App-Adresse (Cloudflare) als `site_url` bei Supabase eintragen.

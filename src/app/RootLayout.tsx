@@ -1,4 +1,7 @@
+import { useEffect } from 'react'
 import { Outlet } from 'react-router'
+import { db } from '../db/db'
+import { startAutoSync } from '../cloud/syncManager'
 import { UpdatePrompt } from '../components/UpdatePrompt'
 import { useThemeSync } from '../lib/theme'
 import { useBranding } from './useBranding'
@@ -7,6 +10,7 @@ import { useBranding } from './useBranding'
 export function RootLayout() {
   useThemeSync()
   useBranding()
+  useEffect(() => startAutoSync(db), [])
   return (
     <>
       <UpdatePrompt />

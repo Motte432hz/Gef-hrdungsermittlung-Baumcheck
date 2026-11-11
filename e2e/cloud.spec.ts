@@ -48,7 +48,11 @@ async function fakeServer(page: Page): Promise<Server> {
     }
     if (path === '/auth/v1/logout') return route.fulfill({ status: 204 })
     if (path === '/rest/v1/memberships') return route.fulfill(json(s.memberships))
-    if (path === '/rest/v1/organizations')
+    if (
+      path === '/rest/v1/organizations' &&
+      route.request().method() === 'GET' &&
+      url.searchParams.has('id')
+    )
       return route.fulfill(
         json(Object.entries(s.orgName).map(([id, name]) => ({ id, data: { name } }))),
       )
@@ -85,6 +89,15 @@ async function fakeServer(page: Page): Promise<Server> {
         ]),
       )
     }
+    // Sync: reading returns nothing new, writing is accepted.
+    if (path.startsWith('/rest/v1/')) {
+      const method = route.request().method()
+      if (method === 'GET') return route.fulfill(json([]))
+      s.calls.push(`sync ${method} ${path}`)
+      return route.fulfill({ status: method === 'POST' ? 201 : 204 })
+    }
+    if (path.startsWith('/storage/v1/object/files/'))
+      return route.fulfill(json({ Key: path.replace('/storage/v1/object/', '') }))
     return route.fulfill(json({ message: `unexpected ${path}` }, 500))
   })
   return s
@@ -115,6 +128,9 @@ test('owner puts the company into the cloud and invites someone', async ({ page 
   await page.getByRole('button', { name: 'Firmen-Kartei anlegen' }).click()
   await expect(page.getByText('Zwieselwiesel · Inhaber/in')).toBeVisible()
   expect(server.calls).toContain('POST /rest/v1/rpc/create_organization')
+  // The company's data goes up right away.
+  await expect(page.getByTestId('sync-status')).toContainText('✓ Abgeglichen')
+  expect(server.calls).toContain('sync PATCH /rest/v1/organizations')
 
   await page.getByRole('button', { name: 'Einladungs-Code erstellen' }).click()
   await expect(page.getByTestId('invite-code')).toHaveText('K7P3-9QXM')

@@ -10,6 +10,7 @@ import { Button } from '../../components/Button'
 import { TextField } from '../../components/form/Field'
 import { Notice } from '../../wizard/inputs/Notice'
 import { useCloudSession, type CloudUser } from '../../cloud/useCloudSession'
+import { META_CLOUD, syncNow, useSyncStatus, type CloudLink } from '../../cloud/syncManager'
 import {
   adoptOrganization,
   cloudErrorMessage,
@@ -196,11 +197,32 @@ function SignedIn({ client, user }: { client: SupabaseClient; user: CloudUser })
 
   // After approval this device switches to the cloud company.
   useEffect(() => {
-    if (!active || !org || active.organizationId === org.id) return
-    adoptOrganization(db, active.organizationId, active.organizationName).catch((e) =>
-      setError(cloudErrorMessage(e)),
-    )
-  }, [active, org])
+    if (!active || !org) return
+    const link: CloudLink = {
+      organizationId: active.organizationId,
+      userId: user.id,
+      role: active.role,
+    }
+    void (async () => {
+      try {
+        if (active.organizationId !== org.id)
+          await adoptOrganization(db, active.organizationId, active.organizationName)
+        const old = (await db.meta.get(META_CLOUD))?.value as CloudLink | undefined
+        if (JSON.stringify(old) !== JSON.stringify(link)) {
+          await db.meta.put({ key: META_CLOUD, value: link })
+          void syncNow(db)
+        }
+      } catch (e) {
+        setError(cloudErrorMessage(e))
+      }
+    })()
+  }, [active, org, user.id])
+
+  const signOut = async () => {
+    await db.meta.delete(META_CLOUD)
+    await client.auth.signOut()
+    void syncNow(db)
+  }
 
   return (
     <>
@@ -209,7 +231,7 @@ function SignedIn({ client, user }: { client: SupabaseClient; user: CloudUser })
           <p>
             Angemeldet als <strong>{user.email}</strong>
           </p>
-          <Button variant="secondary" onClick={() => void client.auth.signOut()}>
+          <Button variant="secondary" onClick={() => void signOut()}>
             Abmelden
           </Button>
         </div>
@@ -257,6 +279,7 @@ function ActiveCard({ client, membership }: { client: SupabaseClient; membership
           <strong>{membership.organizationName || 'Eure Firma'}</strong> ·{' '}
           {ROLE_LABELS_CLOUD[membership.role]}
         </p>
+        <SyncStatusLine />
         {canInvite && (
           <div className="space-y-3 rounded-xl bg-stone-100 p-3 dark:bg-stone-800">
             <p className="font-semibold">Mitarbeiter oder weiteres Gerät einladen</p>
@@ -344,6 +367,8 @@ function ChooseCard({
     try {
       if (mode === 'create') {
         await createCloudOrganization(client, org!, displayName)
+        // Newer than the summary on the server: the full company data goes up with the sync.
+        await db.organizations.update(org!.id, { updatedAt: new Date().toISOString() })
       } else {
         const r = await requestJoin(client, code, displayName)
         await db.meta.put({ key: META_JOIN_NAME, value: r.organizationName })
@@ -453,6 +478,44 @@ function ChooseCard({
           </form>
         </Card>
       )}
+    </div>
+  )
+}
+
+const timeAgo = (iso?: string) => {
+  if (!iso) return 'noch nie'
+  const min = Math.round((Date.now() - Date.parse(iso)) / 60_000)
+  if (min < 1) return 'gerade eben'
+  if (min < 60) return `vor ${min} Min.`
+  const h = Math.round(min / 60)
+  return h < 24 ? `vor ${h} Std.` : new Date(iso).toLocaleDateString('de-DE')
+}
+
+function SyncStatusLine() {
+  const s = useSyncStatus()
+  const text =
+    s.state === 'syncing'
+      ? 'Gleicht ab …'
+      : s.state === 'offline'
+        ? `Offline – wird abgeglichen, sobald Netz da ist (zuletzt ${timeAgo(s.lastSyncAt)})`
+        : s.state === 'error'
+          ? `Abgleich fehlgeschlagen: ${s.error}`
+          : s.state === 'off'
+            ? 'Abgleich startet …'
+            : `✓ Abgeglichen ${timeAgo(s.lastSyncAt)}`
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-stone-200 p-3 dark:border-stone-700">
+      <p role="status" data-testid="sync-status">
+        {text}
+        {s.pending > 0 && s.state !== 'syncing' && (
+          <span className="block text-sm text-stone-600 dark:text-stone-400">
+            {s.pending} {s.pending === 1 ? 'Änderung wartet' : 'Änderungen warten'} auf den Abgleich
+          </span>
+        )}
+      </p>
+      <Button variant="secondary" disabled={s.state === 'syncing'} onClick={() => void syncNow(db)}>
+        Jetzt abgleichen
+      </Button>
     </div>
   )
 }

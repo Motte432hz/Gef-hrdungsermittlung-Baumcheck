@@ -17,6 +17,7 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:cloud": "CLOUD_IT=1 NODE_USE_ENV_PROXY=1 vitest run src/cloud/sync.cloud.test.ts",
     "e2e": "playwright test --trace off",
     "icons": "pwa-assets-generator",
     "species": "python3 scripts/build-species.py"

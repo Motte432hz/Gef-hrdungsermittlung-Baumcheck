@@ -1,5 +1,5 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
-import type { BaumCheckDB } from '../db/db'
+import { markRemote, type BaumCheckDB } from '../db/db'
 import { audit, META_DEVICE_CODE, newId, nowIso } from '../db/repo'
 import { linkCompanies } from '../db/profiles'
 
@@ -79,18 +79,16 @@ export async function exportBackup(
 ): Promise<{ zip: Uint8Array; summary: BackupSummary }> {
   const files: Record<string, Uint8Array> = {}
   const tables: Partial<Record<TableName, unknown[]>> = {}
-  await db.transaction(
-    'r',
-    TABLES.map((t) => db[t]),
-    async () => {
-      for (const t of TABLES) {
-        const rows = (await db[t].toArray()) as unknown[]
-        tables[t] = (
-          t === 'meta' ? rows.filter((m) => !LOCAL_META.has((m as { key: string }).key)) : rows
-        ).map((r) => extract(r, files))
-      }
-    },
-  )
+  await db.transaction('r', [...TABLES.map((t) => db[t]), db.tombstones], async (tx) => {
+    // Restoring is not a change made on this device: keep the records' own sync marks.
+    markRemote(tx)
+    for (const t of TABLES) {
+      const rows = (await db[t].toArray()) as unknown[]
+      tables[t] = (
+        t === 'meta' ? rows.filter((m) => !LOCAL_META.has((m as { key: string }).key)) : rows
+      ).map((r) => extract(r, files))
+    }
+  })
   const assessments = (tables.assessments ?? []) as { status: string }[]
   const summary: BackupSummary = {
     assessments: assessments.length,
@@ -183,49 +181,47 @@ export async function importBackup(db: BaumCheckDB, bytes: Uint8Array): Promise<
   let added = 0
   let updated = 0
   let skipped = 0
-  await db.transaction(
-    'rw',
-    TABLES.map((t) => db[t]),
-    async () => {
-      if (adoptOrg && localOrgId) {
-        await db.organizations.delete(localOrgId)
-        await db.meta.put({ key: META_CURRENT_ORG, value: backupOrgId!.value })
+  await db.transaction('rw', [...TABLES.map((t) => db[t]), db.tombstones], async (tx) => {
+    // Restoring is not a change made on this device: keep the records' own sync marks.
+    markRemote(tx)
+    if (adoptOrg && localOrgId) {
+      await db.organizations.delete(localOrgId)
+      await db.meta.put({ key: META_CURRENT_ORG, value: backupOrgId!.value })
+    }
+    for (const t of TABLES) {
+      const table = db[t] as unknown as {
+        get: (k: string) => Promise<Row | undefined>
+        add: (r: Row) => Promise<unknown>
+        put: (r: Row) => Promise<unknown>
       }
-      for (const t of TABLES) {
-        const table = db[t] as unknown as {
-          get: (k: string) => Promise<Row | undefined>
-          add: (r: Row) => Promise<unknown>
-          put: (r: Row) => Promise<unknown>
+      for (const row of tables[t] ?? []) {
+        if (t === 'meta') {
+          const key = row.key!
+          if (LOCAL_META.has(key) || key === META_CURRENT_ORG) continue
+          const local = await table.get(key)
+          // Number counters: keep the higher one so numbers are never reused.
+          if (key.startsWith('counter:')) {
+            const v = Math.max(
+              Number((local as { value?: number })?.value ?? 0),
+              Number((row as { value?: number }).value ?? 0),
+            )
+            await table.put({ key, value: v } as Row)
+          } else if (!local) await table.put(row)
+          continue
         }
-        for (const row of tables[t] ?? []) {
-          if (t === 'meta') {
-            const key = row.key!
-            if (LOCAL_META.has(key) || key === META_CURRENT_ORG) continue
-            const local = await table.get(key)
-            // Number counters: keep the higher one so numbers are never reused.
-            if (key.startsWith('counter:')) {
-              const v = Math.max(
-                Number((local as { value?: number })?.value ?? 0),
-                Number((row as { value?: number }).value ?? 0),
-              )
-              await table.put({ key, value: v } as Row)
-            } else if (!local) await table.put(row)
-            continue
-          }
-          const local = await table.get(row.id!)
-          if (!local) {
-            await table.add(row)
-            added++
-          } else if (t === 'assessments' && local.status !== 'draft') {
-            skipped++
-          } else if ((row.updatedAt ?? '') > (local.updatedAt ?? '')) {
-            await table.put(row)
-            updated++
-          } else skipped++
-        }
+        const local = await table.get(row.id!)
+        if (!local) {
+          await table.add(row)
+          added++
+        } else if (t === 'assessments' && local.status !== 'draft') {
+          skipped++
+        } else if ((row.updatedAt ?? '') > (local.updatedAt ?? '')) {
+          await table.put(row)
+          updated++
+        } else skipped++
       }
-    },
-  )
+    }
+  })
   // Backups from before subcontractor companies existed only have free-text company names.
   await linkCompanies(db)
   const orgId = ((await db.meta.get(META_CURRENT_ORG))?.value as string | undefined) ?? ''

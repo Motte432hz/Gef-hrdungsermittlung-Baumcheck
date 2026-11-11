@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { BaumCheckDB } from '../db/db'
+import { markRemote, type BaumCheckDB } from '../db/db'
 import { META_CURRENT_ORG } from '../db/repo'
 import type { ID, Organization } from '../domain/types'
 
@@ -154,7 +154,9 @@ export async function adoptOrganization(db: BaumCheckDB, toId: ID, name?: string
       db.attachments,
       db.auditLog,
     ],
-    async () => {
+    async (tx) => {
+      // Bookkeeping of this device, not a change to send: no sync marks, no tombstones.
+      markRemote(tx)
       const fromId = (await db.meta.get(META_CURRENT_ORG))?.value as string | undefined
       if (fromId === toId) return
       if (fromId) {

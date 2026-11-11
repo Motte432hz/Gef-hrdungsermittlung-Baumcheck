@@ -60,6 +60,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    // Against the real cloud project: only on request (npm run test:cloud).
+    exclude: process.env.CLOUD_IT ? [] : ['**/*.cloud.test.ts', '**/node_modules/**'],
     css: false,
   },
 })
