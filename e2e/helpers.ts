@@ -19,14 +19,19 @@ export async function drawSignature(page: Page, scope = page.locator('body')) {
   await page.mouse.up()
 }
 
-/** Clicks every unchecked radio with this exact label text and waits until all are stored. */
+/**
+ * Answers every open item that offers this exact option and waits until each is stored.
+ * Answered items either show a checked radio or collapse into a summary row.
+ */
 async function answerAll(page: Page, text: string) {
-  const labels = page.locator('main label').filter({ hasText: new RegExp(`^${text}$`) })
-  await expect(labels.first()).toBeVisible()
-  const n = await labels.count()
-  for (let i = 0; i < n; i++) await labels.nth(i).click()
-  const radios = page.locator('main').getByRole('radio', { name: text, exact: true })
-  for (let i = 0; i < n; i++) await expect(radios.nth(i)).toBeChecked()
+  const open = page
+    .locator('main label:has(input[type=radio]:not(:checked))')
+    .filter({ hasText: new RegExp(`^${text}$`) })
+  await expect(open.first()).toBeVisible()
+  for (let n = await open.count(); n > 0; n--) {
+    await open.first().click()
+    await expect(open).toHaveCount(n - 1)
+  }
 }
 
 async function check(page: Page, label: string) {

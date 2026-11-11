@@ -48,6 +48,7 @@ test('summary shows all answers; everyone signs; changes invalidate signatures',
   await teamSection.getByRole('link', { name: 'Bearbeiten' }).click()
   await expect(page).toHaveURL(/\/team$/)
   const item = page.locator('#item-team-fitForWork')
+  await item.getByRole('button', { name: /: Ja – ändern$/ }).click()
   await item.getByText('Nein', { exact: true }).click()
   await item.getByLabel('Maßnahme / Begründung').fill('Bernd bleibt am Boden')
   // In-app navigation to the summary (no reload).

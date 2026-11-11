@@ -13,8 +13,15 @@ const item = (page: Page, label: string) =>
 /** Answers an item and waits until it is stored (radio state comes from the database). */
 async function answer(page: Page, label: string, option: string) {
   await item(page, label).getByText(option, { exact: true }).click()
-  await expect(item(page, label).getByRole('radio', { name: option })).toBeChecked()
+  await expect(
+    item(page, label)
+      .getByRole('radio', { name: option, checked: true })
+      .or(collapsed(page, label, option)),
+  ).toHaveCount(1)
 }
+/** An item answered without findings collapses into a single row. */
+const collapsed = (page: Page, label: string, value: string) =>
+  page.getByRole('button', { name: `${label}: ${value} – ändern` })
 
 /** In-app navigation via sidebar (tablet/desktop) or step menu (phone) – no page reload. */
 async function gotoStep(page: Page, title: RegExp) {
@@ -45,10 +52,8 @@ test('walks through the steps and autosaves answers', async ({ page }) => {
     'Lindenstraße 4, 60311 Frankfurt',
   )
   await expect(
-    item(page, 'Genauer Einsatzort und Zufahrt sind allen im Team bekannt').getByRole('radio', {
-      name: 'Ja',
-    }),
-  ).toBeChecked()
+    collapsed(page, 'Genauer Einsatzort und Zufahrt sind allen im Team bekannt', 'Ja'),
+  ).toBeVisible()
   await page.getByRole('button', { name: '‹ Zurück' }).click()
   await expect(page.getByRole('checkbox', { name: 'Seilklettertechnik (SKT)' })).toBeChecked()
   await expect(page.getByLabel('Arbeitszeit von')).toHaveValue('08:00')
@@ -207,8 +212,10 @@ test('filter question hides hazards until abnormalities are reported', async ({ 
   await power.getByLabel('Maßnahme').fill('Netzbetreiber schaltet frei')
   await gate.getByRole('button', { name: /Übrige 4 als „nicht vorhanden“ markieren/ }).click()
   await expect(
-    page.locator('#item-site-undergroundUtilities').getByRole('radio', { name: 'nicht vorhanden' }),
-  ).toBeChecked()
+    page.locator('#item-site-undergroundUtilities').getByRole('button', {
+      name: /: nicht vorhanden – ändern$/,
+    }),
+  ).toBeVisible()
 
   // Switching to "none" asks before deleting the reported hazard.
   page.once('dialog', (d) => void d.accept())
@@ -216,4 +223,26 @@ test('filter question hides hazards until abnormalities are reported', async ({ 
   await expect(gate.getByRole('radio', { name: 'Nein, unauffällig' })).toBeChecked()
   await expect(page.locator('#item-site-powerLines')).toHaveCount(0)
   await expect(gate.getByText('5 Merkmale als unauffällig erfasst.')).toBeVisible()
+})
+
+test('answered items collapse; "all yes" answers the open checkpoints of a section', async ({
+  page,
+}) => {
+  await start(page)
+  await page.goto(page.url().replace(/job$/, 'team'))
+  const briefed = 'Der Arbeitsauftrag wurde mit allen besprochen'
+  await answer(page, briefed, 'Ja')
+  const row = collapsed(page, briefed, 'Ja')
+  await expect(row).toBeVisible()
+
+  // Change a collapsed answer.
+  await row.click()
+  await answer(page, briefed, 'Nein')
+  await expect(item(page, briefed).getByLabel('Maßnahme / Begründung')).toBeVisible()
+
+  await page.getByRole('button', { name: 'Alle 4 offenen mit „Ja“ beantworten' }).click()
+  await expect(page.getByRole('button', { name: /: Ja – ändern$/ })).toHaveCount(4)
+  await expect(page.getByRole('button', { name: /offenen mit „Ja“/ })).toHaveCount(0)
+  // The "Nein" with its measure field stays open.
+  await expect(item(page, briefed).getByRole('radio', { name: 'Nein' })).toBeChecked()
 })

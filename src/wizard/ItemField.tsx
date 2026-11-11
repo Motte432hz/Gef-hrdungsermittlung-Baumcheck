@@ -1,6 +1,10 @@
+import { useState } from 'react'
+import type { Answer } from '../domain/types'
 import type { FormItem } from '../form/schema'
 import { useWizard } from './WizardContext'
 import { itemAnchor } from './anchors'
+import { OPEN_ATTR, scrollToNextOpen } from './nextOpen'
+import { CollapsedItem } from './inputs/CollapsedItem'
 import { CheckpointField, HazardField } from './inputs/RatedFields'
 import { ChoiceField } from './inputs/ChoiceField'
 import { NumberItemField, TextItemField, TimeItemField } from './inputs/SimpleFields'
@@ -16,7 +20,23 @@ export function ItemField({ item, treeId }: { item: FormItem; treeId?: string })
   const { definition, assessment, trees, setAnswer } = useWizard()
   const answers = treeId ? (trees.find((t) => t.id === treeId)?.answers ?? {}) : assessment.answers
   const answer = answers[item.id]
-  const onChange = (a: Parameters<typeof setAnswer>[1]) => void setAnswer(item.id, a, treeId)
+  const anchor = itemAnchor(item.id, treeId)
+  const [expanded, setExpanded] = useState(false)
+  const onChange = (a: Answer | undefined) => {
+    setExpanded(false)
+    void setAnswer(item.id, a, treeId).then(() => {
+      if (okText(item, a)) scrollToNextOpen(anchor)
+    })
+  }
+
+  const ok = okText(item, answer)
+  if (ok && !expanded) {
+    return (
+      <div id={anchor} className="scroll-mt-40">
+        <CollapsedItem label={item.label} value={ok} onExpand={() => setExpanded(true)} />
+      </div>
+    )
+  }
 
   const field = (() => {
     switch (item.type) {
@@ -66,9 +86,27 @@ export function ItemField({ item, treeId }: { item: FormItem; treeId?: string })
     }
   })()
 
+  const isOpen =
+    answer === undefined || !!answer.prefilled
+      ? ['checkpoint', 'hazard', 'single'].includes(item.type)
+      : false
   return (
-    <div id={itemAnchor(item.id, treeId)} className="scroll-mt-40">
+    <div id={anchor} className="scroll-mt-40" {...(isOpen ? { [OPEN_ATTR]: '' } : {})}>
       {field}
     </div>
   )
+}
+
+/**
+ * Display text when the item is answered without any finding (it can then be collapsed);
+ * undefined while it is open, prefilled or shows a deviation.
+ */
+function okText(item: FormItem, answer: Answer | undefined): string | undefined {
+  if (!answer || answer.prefilled) return undefined
+  if (item.type === 'checkpoint') {
+    if (answer.value === 'yes') return 'Ja'
+    if (answer.value === 'na') return 'n. r.'
+  }
+  if (item.type === 'hazard' && answer.value === 'absent') return 'nicht vorhanden'
+  return undefined
 }
