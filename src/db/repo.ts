@@ -30,7 +30,7 @@ export function baseRecord(organizationId: ID): BaseRecord {
   return { id: newId(), organizationId, createdAt: ts, updatedAt: ts, syncState: 'pending' }
 }
 
-const META_CURRENT_ORG = 'currentOrganizationId'
+export const META_CURRENT_ORG = 'currentOrganizationId'
 export const META_DEVICE_CODE = 'deviceCode'
 
 /** Phase 1: a single local organization, created on first start. */

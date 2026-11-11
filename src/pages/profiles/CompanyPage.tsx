@@ -129,6 +129,20 @@ function CompanyForm({ org }: { org: Organization }) {
     <div>
       <PageHeader title="Firma" back="/profile" backLabel="Profile" />
       <div className="space-y-4">
+        <Link
+          to="/profile/firma/cloud"
+          className="flex min-h-16 items-center justify-between gap-3 rounded-2xl border-2 border-brand-700 bg-white px-4 py-2 dark:border-brand-300 dark:bg-stone-900"
+        >
+          <span>
+            <span className="block font-semibold">Firmen-Kartei (Cloud)</span>
+            <span className="block text-sm text-stone-600 dark:text-stone-400">
+              Daten mit allen Geräten der Firma teilen, Mitarbeiter einladen
+            </span>
+          </span>
+          <span aria-hidden="true" className="text-2xl text-stone-400">
+            ›
+          </span>
+        </Link>
         <Card title="Logo">
           <div className="space-y-3">
             {logoUrl ? (

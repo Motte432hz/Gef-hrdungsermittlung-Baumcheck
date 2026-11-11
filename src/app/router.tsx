@@ -8,6 +8,7 @@ import { ProfilesPage } from '../pages/ProfilesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { CompanyPage } from '../pages/profiles/CompanyPage'
+import { CloudPage } from '../pages/profiles/CloudPage'
 import { TeamPage } from '../pages/profiles/TeamPage'
 import { PersonRoute } from '../pages/profiles/PersonPage'
 import { SubcompanyRoute } from '../pages/profiles/SubcompanyPage'
@@ -31,6 +32,7 @@ export const routes = [
           { path: 'protokoll/:id', element: <ProtocolPage /> },
           { path: 'profile', element: <ProfilesPage /> },
           { path: 'profile/firma', element: <CompanyPage /> },
+          { path: 'profile/firma/cloud', element: <CloudPage /> },
           { path: 'profile/team', element: <TeamPage /> },
           { path: 'profile/team/person/:id', element: <PersonRoute /> },
           { path: 'profile/team/firma/:id', element: <SubcompanyRoute /> },
