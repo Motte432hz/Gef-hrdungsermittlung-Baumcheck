@@ -34,6 +34,8 @@ Die Nummerierung unten bleibt zur Durchsicht wie gehabt.
 - **Filterfragen**: Baumumfeld, Stamm, Krone und Gefahren am Einsatzort beginnen mit „Gibt es Auffälligkeiten …?“. Nur bei „Ja“ werden die einzelnen Merkmale abgefragt.
 - **„Alle offenen mit Ja beantworten“** je Abschnitt mit Kontrollpunkten.
 - Beantwortete Punkte ohne Befund werden zu einer Zeile eingeklappt („ändern“ öffnet sie wieder). Danach springt die Ansicht zum nächsten offenen Punkt.
+- **Letzter Einsatz am Objekt**: Nach Auswahl von Kunde/Objekt zeigt die App den letzten abgeschlossenen Einsatz dort mit den damals festgestellten Gefahren und Maßnahmen. Adresse, what3words, Zufahrt, Krankenhaus und GPS lassen sich mit einem Tipp übernehmen (nur leere Felder; Kontrollpunkte nie).
+- **„Weiterer Baum wie Baum N“**: Baumart, Höhe, Durchmesser und Wuchsform werden übernommen; die Baumbeurteilung wird vorbelegt und muss am neuen Baum bestätigt werden. Baum-Nr., Fotos und Bemerkung werden nicht übernommen.
 
 Bitte korrigiere direkt in dieser Datei oder schreib mir die Änderungen, z. B. „3.4 Text ändern in …“ oder „7.9 streichen“.
 

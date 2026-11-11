@@ -8,7 +8,7 @@ import { ItemField } from './ItemField'
 import { itemAnchor } from './anchors'
 import { OPEN_ATTR, scrollToNextOpen } from './nextOpen'
 import { ItemLabel } from './inputs/InfoButton'
-import { ItemCard } from './inputs/ItemCard'
+import { ItemCard, PrefilledBadge } from './inputs/ItemCard'
 
 /**
  * One form section. Gated sections first ask a filter question ("Gibt es Auffälligkeiten …?");
@@ -74,7 +74,8 @@ function GateField({
 }) {
   const { setAnswers } = useWizard()
   const gate = section.gate!
-  const value = answers[gate.id]?.value as typeof GATE_NONE | typeof GATE_SOME | undefined
+  const gateAnswer = answers[gate.id]
+  const value = gateAnswer?.value as typeof GATE_NONE | typeof GATE_SOME | undefined
   const present = hazards.filter((h) => answers[h.id]?.value === 'present')
   const open = hazards.filter((h) => answers[h.id] === undefined)
 
@@ -118,6 +119,12 @@ function GateField({
           onChange={choose}
           tones={{ none: 'good', some: 'bad' }}
         />
+        {gateAnswer?.prefilled && (
+          <PrefilledBadge
+            from={gateAnswer.prefilledFrom}
+            onConfirm={() => void setAnswers({ [gate.id]: { value: gateAnswer.value } }, treeId)}
+          />
+        )}
         {value === GATE_NONE && (
           <p className="text-sm text-stone-700 dark:text-stone-300">
             ✓ {hazards.length} Merkmale als unauffällig erfasst.

@@ -138,8 +138,10 @@ export interface Answer {
   note?: string
   /** Free text for an "other" option. */
   otherText?: string
-  /** Pre-filled from the equipment preset and not yet confirmed on site. */
+  /** Pre-filled (equipment preset or copied from another tree), not yet confirmed on site. */
   prefilled?: boolean
+  /** Where a prefilled answer came from, e.g. "Baum 1" (default: equipment preset). */
+  prefilledFrom?: string
 }
 
 export type Answers = Record<string, Answer>

@@ -1,6 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router'
 import type { FormStep } from '../../form/schema'
-import { makeLookup } from '../../form/validation'
+import { confirmed, makeLookup } from '../../form/validation'
 import { getSpecies } from '../../form/species'
 import { db } from '../../db/db'
 import { addTree, removeTree } from '../../db/repo'
@@ -9,12 +9,14 @@ import { SectionView } from '../SectionView'
 import { TreeTabs } from './TreeTabs'
 import { SpeciesHazards } from './SpeciesHazards'
 import { treeLabel } from './treeLabel'
+import { addTreeLike } from './copyTree'
+import type { Answer } from '../../domain/types'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
 
 /** A per-tree step (basic data or assessment) for the tree selected via ?baum=. */
 export function TreeStepView({ step }: { step: FormStep }) {
-  const { assessment, trees } = useWizard()
+  const { assessment, trees, definition, setAnswers } = useWizard()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const tree = trees.find((t) => t.id === params.get('baum')) ?? trees[0]
@@ -41,6 +43,21 @@ export function TreeStepView({ step }: { step: FormStep }) {
   const speciesAnswer = tree.answers['tree.species']?.value
   const species = getSpecies(typeof speciesAnswer === 'string' ? speciesAnswer : undefined)
 
+  // Answers copied from another tree that still need a look at this tree.
+  const stepIds = new Set(
+    step.sections.flatMap((s) => [...(s.gate ? [s.gate.id] : []), ...s.items.map((i) => i.id)]),
+  )
+  const prefilled = Object.entries(tree.answers).filter(([id, a]) => stepIds.has(id) && a.prefilled)
+  const confirmAll = () => {
+    const changes: Record<string, Answer> = {}
+    for (const [id, a] of prefilled) changes[id] = confirmed(a)
+    void setAnswers(changes, tree.id)
+  }
+  const addLike = async () => {
+    const t = await addTreeLike(db, definition, tree)
+    navigate(`/einsatz/${assessment.id}/tree?baum=${t.id}`)
+  }
+
   const remove = async () => {
     if (!window.confirm(`${treeLabel(tree)} mit allen Angaben und Fotos entfernen?`)) return
     await removeTree(db, tree.id)
@@ -52,6 +69,18 @@ export function TreeStepView({ step }: { step: FormStep }) {
       <TreeTabs stepId={step.id} currentTreeId={tree.id} />
       <h2 className="text-2xl font-bold">{treeLabel(tree)}</h2>
       {step.id === 'treeAssessment' && species && <SpeciesHazards species={species} compact />}
+      {prefilled.length > 0 && (
+        <Card>
+          <p className="mb-3">
+            {prefilled.length} {prefilled.length === 1 ? 'Angabe wurde' : 'Angaben wurden'} von{' '}
+            {prefilled[0]![1].prefilledFrom ?? 'einem anderen Baum'} übernommen. Prüfe sie an diesem
+            Baum und bestätige oder ändere sie.
+          </p>
+          <Button variant="secondary" onClick={confirmAll}>
+            Alle übernommenen bestätigen
+          </Button>
+        </Card>
+      )}
       {step.sections.map((section) => (
         <SectionView
           key={section.id}
@@ -62,6 +91,11 @@ export function TreeStepView({ step }: { step: FormStep }) {
           headingLevel={3}
         />
       ))}
+      {step.id === 'treeAssessment' && (
+        <Button variant="secondary" className="min-h-14 w-full" onClick={() => void addLike()}>
+          + Weiterer Baum wie {treeLabel(tree).split(' · ')[0]}
+        </Button>
+      )}
       {step.id === 'tree' && (
         <Button
           variant="secondary"

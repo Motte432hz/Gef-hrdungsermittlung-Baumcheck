@@ -54,7 +54,7 @@ async function addPerson(page: Page, name: string, role: string) {
  */
 export async function fillCompleteAssessment(
   page: Page,
-  opts: { newPeople?: string[]; profilePeople?: string[] } = {},
+  opts: { newPeople?: string[]; profilePeople?: string[]; customer?: string } = {},
 ) {
   const newPeople = opts.newPeople ?? ['Anna Ast', 'Bernd Borke']
   const profilePeople = opts.profilePeople ?? []
@@ -63,6 +63,10 @@ export async function fillCompleteAssessment(
   await expect(page).toHaveURL(/\/job$/)
 
   await check(page, 'Baumarbeiten (allgemein)')
+  if (opts.customer)
+    await page
+      .getByRole('combobox', { name: 'Kunde / Objekt' })
+      .selectOption({ label: opts.customer })
   await check(page, 'Totholzentnahme')
   await next(page)
 

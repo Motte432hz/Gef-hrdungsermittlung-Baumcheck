@@ -197,3 +197,33 @@ test.describe('camera', () => {
     await context.close()
   })
 })
+
+test('another tree like tree 1: basics copied, assessment must be confirmed', async ({ page }) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await pickSpecies(page, 'Winter-Linde', 'Winter-Linde')
+  await page.getByRole('textbox', { name: /Baumhöhe/ }).fill('18')
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByText('Schritt 5 von 7')).toBeVisible()
+  await page.getByText('Stufe 1 – Degeneration (leicht geschwächt)', { exact: true }).click()
+  const env = page.locator('[id$="tree-env-gate"]')
+  await env.getByText('Nein, unauffällig', { exact: true }).click()
+  await expect(env.getByRole('radio', { name: 'Nein, unauffällig' })).toBeChecked()
+
+  await page.getByRole('button', { name: '+ Weiterer Baum wie Baum 1' }).click()
+  await expect(page).toHaveURL(/\/tree\?baum=/)
+  await expect(page.getByRole('heading', { name: 'Baum 2 · Winter-Linde' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: /Baumhöhe/ })).toHaveValue('18')
+
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByRole('heading', { name: 'Baum 2 · Winter-Linde' })).toBeVisible()
+  await expect(
+    page.getByText('2 Angaben wurden von Baum 1 übernommen.', { exact: false }),
+  ).toBeVisible()
+  await expect(page.getByText('Von Baum 1 übernommen – bitte prüfen')).toHaveCount(2)
+  await page.getByRole('button', { name: 'Alle übernommenen bestätigen' }).click()
+  await expect(page.getByText(/von Baum 1 übernommen/i)).toHaveCount(0)
+  await expect(
+    page.getByRole('radio', { name: 'Stufe 1 – Degeneration (leicht geschwächt)' }),
+  ).toBeChecked()
+})

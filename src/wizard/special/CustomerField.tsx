@@ -10,6 +10,7 @@ import { ItemLabel } from '../inputs/InfoButton'
 import { ItemCard } from '../inputs/ItemCard'
 import { selectClass } from './selectClass'
 import { formatAddress } from '../../domain/address'
+import { PreviousVisitCard } from './PreviousVisitCard'
 
 export function CustomerField({ item }: { item: SpecialItem }) {
   const { assessment, update, setAnswer } = useWizard()
@@ -102,6 +103,7 @@ export function CustomerField({ item }: { item: SpecialItem }) {
           )}
         </div>
       )}
+      {customer && <PreviousVisitCard />}
     </ItemCard>
   )
 }

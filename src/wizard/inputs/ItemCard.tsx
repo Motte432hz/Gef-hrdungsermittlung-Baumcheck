@@ -14,11 +14,11 @@ export function ItemCard({ children, tone }: { children: ReactNode; tone?: 'bad'
   )
 }
 
-export function PrefilledBadge({ onConfirm }: { onConfirm: () => void }) {
+export function PrefilledBadge({ onConfirm, from }: { onConfirm: () => void; from?: string }) {
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-xl bg-stone-100 p-2 pl-3 dark:bg-stone-800">
       <span className="flex-1 text-sm font-semibold">
-        Aus Standard-Ausrüstung vorbelegt – bitte prüfen
+        {from ? `Von ${from} übernommen` : 'Aus Standard-Ausrüstung vorbelegt'} – bitte prüfen
       </span>
       <button
         type="button"

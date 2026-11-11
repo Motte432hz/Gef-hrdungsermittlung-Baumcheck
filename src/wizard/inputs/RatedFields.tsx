@@ -34,7 +34,9 @@ export function CheckpointField({ item, answer, noteLabel, onChange }: Props<Che
         onChange={(v) => onChange({ value: v, note: answer?.note })}
         tones={{ yes: 'good', no: 'bad', na: 'muted' }}
       />
-      {answer?.prefilled && <PrefilledBadge onConfirm={() => onChange(confirm(answer))} />}
+      {answer?.prefilled && (
+        <PrefilledBadge from={answer.prefilledFrom} onConfirm={() => onChange(confirm(answer))} />
+      )}
       {value === 'no' && (
         <>
           <Notice level="warning">Nicht erfüllt. Bitte Maßnahme oder Begründung eintragen.</Notice>
@@ -68,7 +70,9 @@ export function HazardField({ item, answer, noteLabel, onChange }: Props<HazardI
         onChange={(v) => onChange({ value: v, note: answer?.note })}
         tones={{ absent: 'good', present: 'bad' }}
       />
-      {answer?.prefilled && <PrefilledBadge onConfirm={() => onChange(confirm(answer))} />}
+      {answer?.prefilled && (
+        <PrefilledBadge from={answer.prefilledFrom} onConfirm={() => onChange(confirm(answer))} />
+      )}
       {value === 'present' && (
         <BufferedText
           multiline

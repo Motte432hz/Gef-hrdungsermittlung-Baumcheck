@@ -265,8 +265,9 @@ function validateItem(def: FormDefinition, item: FormItem, scope: ItemScope): Is
 function validateGate(section: FormSection, scope: ItemScope): Issue[] {
   const gate = section.gate
   if (!gate) return []
-  const v = scope.answers[gate.id]?.value
-  if (v === 'none' || v === 'some') return []
+  const a = scope.answers[gate.id]
+  const v = a?.value
+  if ((v === 'none' || v === 'some') && !a?.prefilled) return []
   return [
     {
       key: `${scope.tree ? `${scope.tree.id}:` : ''}${gate.id}:missing`,
@@ -275,7 +276,9 @@ function validateGate(section: FormSection, scope: ItemScope): Issue[] {
       itemId: gate.id,
       treeId: scope.tree?.id,
       treeIndex: scope.tree?.index,
-      message: `„${gate.label}“ ist noch nicht beantwortet.`,
+      message: a?.prefilled
+        ? `Vorbelegt, noch nicht vor Ort bestätigt: ${gate.label}`
+        : `„${gate.label}“ ist noch nicht beantwortet.`,
     },
   ]
 }
@@ -406,6 +409,14 @@ export function collectFindings({ definition, assessment, trees }: ValidationInp
       visit(step, assessment.answers, makeLookup(assessment.answers))
     }
   }
+  return out
+}
+
+/** The answer without its "prefilled" marks (= confirmed). */
+export function confirmed(a: Answer): Answer {
+  const out = { ...a }
+  delete out.prefilled
+  delete out.prefilledFrom
   return out
 }
 

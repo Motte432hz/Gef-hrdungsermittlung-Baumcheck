@@ -82,3 +82,35 @@ test('archive search and template for a recurring job', async ({ page }) => {
   await page.getByRole('button', { name: 'Weiter ›' }).click()
   await expect(page.getByRole('group', { name: 'Rollen von Anna Ast' })).toBeVisible()
 })
+
+test('next job at the same customer shows the last visit and takes over location data', async ({
+  page,
+}) => {
+  await page.goto('/profile/kunden/neu')
+  await page.getByLabel(/^Name/).fill('Hausverwaltung Müller')
+  await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+
+  await fillCompleteAssessment(page, { customer: 'Hausverwaltung Müller' })
+  await signEveryone(page)
+  page.once('dialog', (d) => void d.accept())
+  await page.getByRole('button', { name: 'Abschließen & PDF erstellen' }).click()
+  await expect(page).toHaveURL(/\/protokoll\//, { timeout: 20_000 })
+
+  await page.goto('/')
+  await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
+  await expect(page).toHaveURL(/\/job$/)
+  await page
+    .getByRole('combobox', { name: 'Kunde / Objekt' })
+    .selectOption({ label: 'Hausverwaltung Müller' })
+  const card = page.getByRole('region', { name: 'Letzter Einsatz an diesem Objekt' })
+  await expect(card).toContainText('Letzter Einsatz hier:')
+  await expect(card).toContainText('Damals keine Gefahren oder Abweichungen festgestellt.')
+  await card.getByRole('button', { name: 'Standort und Rettungsweg übernehmen' }).click()
+  await expect(card.getByRole('button')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByRole('textbox', { name: /Adresse/ })).toHaveValue(
+    'Lindenstraße 4, 60311 Frankfurt',
+  )
+  await expect(page.getByRole('textbox', { name: /Zufahrt/ })).toHaveValue('Einfahrt Hofseite')
+})

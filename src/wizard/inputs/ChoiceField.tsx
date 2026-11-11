@@ -3,7 +3,7 @@ import type { Answer } from '../../domain/types'
 import type { ChoiceItem } from '../../form/schema'
 import { selectedOptions } from '../../form/validation'
 import { ItemLabel } from './InfoButton'
-import { ItemCard } from './ItemCard'
+import { ItemCard, PrefilledBadge } from './ItemCard'
 import { Notice } from './Notice'
 import { BufferedText } from './BufferedText'
 
@@ -28,13 +28,15 @@ export function ChoiceField({
   const noteOption = selected.find((o) => o.requiresNote)
   const otherOption = selected.find((o) => o.isOther)
 
+  // Any change by the user confirms a prefilled answer.
+  const base = answer ? { note: answer.note, otherText: answer.otherText } : {}
   const toggle = (v: string, checked: boolean) => {
-    if (!multi) return onChange({ ...answer, value: v })
+    if (!multi) return onChange({ ...base, value: v })
     // Keep the option order of the definition.
     const next = item.options
       .map((o) => o.value)
       .filter((x) => (x === v ? checked : values.includes(x)))
-    onChange(next.length ? { ...answer, value: next } : undefined)
+    onChange(next.length ? { ...base, value: next } : undefined)
   }
 
   return (
@@ -100,6 +102,12 @@ export function ChoiceField({
           label={noteOption.noteLabel ?? 'Begründung'}
           initial={answer?.note ?? ''}
           onSave={(note) => onChange({ ...answer!, note })}
+        />
+      )}
+      {answer?.prefilled && (
+        <PrefilledBadge
+          from={answer.prefilledFrom}
+          onConfirm={() => onChange({ ...base, value: answer.value })}
         />
       )}
     </ItemCard>
