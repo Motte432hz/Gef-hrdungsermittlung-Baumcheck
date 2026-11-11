@@ -162,10 +162,12 @@ test('tree result "Nein" is a danger and jumps from the summary to the right tre
 })
 
 test.describe('camera', () => {
+  // Firefox in Playwright does not know the camera permission; the fake camera is Chromium-only.
+  test.skip(({ browserName }) => browserName !== 'chromium', 'camera emulation needs Chromium')
   test.use({ permissions: ['camera'] })
 
-  test('laptop: in-app camera takes photos', async ({ page, browserName }) => {
-    test.skip(browserName !== 'chromium', 'fake camera only configured for Chromium')
+  test('laptop: in-app camera takes photos', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'phones use the native camera app (next test)')
     const base = await start(page)
     await addFirstTree(page, base)
     // Desktop browsers get the in-app camera instead of a file dialog.
