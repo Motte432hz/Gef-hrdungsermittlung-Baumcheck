@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { db } from '../../db/db'
@@ -11,14 +11,22 @@ import { TextField } from '../../components/form/Field'
 import { Notice } from '../../wizard/inputs/Notice'
 import { useCloudSession, type CloudUser } from '../../cloud/useCloudSession'
 import { META_CLOUD, syncNow, useSyncStatus, type CloudLink } from '../../cloud/syncManager'
+import { getDeviceCode, META_DEVICE_CODE } from '../../db/repo'
 import {
   adoptOrganization,
+  decideMembership,
+  ensureOwnProfile,
+  loadMembers,
+  registerDevice,
+  transferOwnership,
+  type Member,
   cloudErrorMessage,
   createCloudOrganization,
   createInvite,
   loadMemberships,
   requestJoin,
   ROLE_LABELS_CLOUD,
+  deviceLabel,
   sendLoginCode,
   verifyLoginCode,
   type Membership,
@@ -195,28 +203,58 @@ function SignedIn({ client, user }: { client: SupabaseClient; user: CloudUser })
     memberships?.find((m) => m.status === 'active' && m.organizationId === org?.id) ??
     memberships?.find((m) => m.status === 'active')
 
-  // After approval this device switches to the cloud company.
+  // After approval this device switches to the cloud company, gets its own device code for
+  // protocol numbers and the person their own profile. Runs once at a time.
+  const busy = useRef(false)
   useEffect(() => {
-    if (!active || !org) return
-    const link: CloudLink = {
-      organizationId: active.organizationId,
-      userId: user.id,
-      role: active.role,
-    }
+    if (!active || !org || busy.current) return
+    busy.current = true
     void (async () => {
       try {
-        if (active.organizationId !== org.id)
+        if (active.organizationId !== org.id) {
           await adoptOrganization(db, active.organizationId, active.organizationName)
+          const code = await registerDevice(
+            client,
+            active.organizationId,
+            await getDeviceCode(db),
+            active.displayName,
+          )
+          await db.meta.put({ key: META_DEVICE_CODE, value: code })
+        }
         const old = (await db.meta.get(META_CLOUD))?.value as CloudLink | undefined
+        let link: CloudLink = {
+          organizationId: active.organizationId,
+          userId: user.id,
+          role: active.role,
+          workerId:
+            active.workerId ??
+            (old?.organizationId === active.organizationId ? old.workerId : undefined),
+        }
         if (JSON.stringify(old) !== JSON.stringify(link)) {
           await db.meta.put({ key: META_CLOUD, value: link })
-          void syncNow(db)
+          // First sync before looking for the own profile (it may exist in the company).
+          await syncNow(db)
+        }
+        if (!link.workerId) {
+          const workerId = await ensureOwnProfile(
+            db,
+            client,
+            active.organizationId,
+            active.displayName,
+          )
+          if (workerId) {
+            link = { ...link, workerId }
+            await db.meta.put({ key: META_CLOUD, value: link })
+            void syncNow(db)
+          }
         }
       } catch (e) {
         setError(cloudErrorMessage(e))
+      } finally {
+        busy.current = false
       }
     })()
-  }, [active, org, user.id])
+  }, [active, org, user.id, client])
 
   const signOut = async () => {
     await db.meta.delete(META_CLOUD)
@@ -240,7 +278,7 @@ function SignedIn({ client, user }: { client: SupabaseClient; user: CloudUser })
       {memberships === undefined ? (
         !error && <p>Lädt …</p>
       ) : active ? (
-        <ActiveCard client={client} membership={active} />
+        <ActiveCard client={client} membership={active} onChanged={refresh} />
       ) : pending ? (
         <PendingCard membership={pending} onRefresh={refresh} />
       ) : (
@@ -254,7 +292,15 @@ function SignedIn({ client, user }: { client: SupabaseClient; user: CloudUser })
   )
 }
 
-function ActiveCard({ client, membership }: { client: SupabaseClient; membership: Membership }) {
+function ActiveCard({
+  client,
+  membership,
+  onChanged,
+}: {
+  client: SupabaseClient
+  membership: Membership
+  onChanged: () => void
+}) {
   const [code, setCode] = useState<string>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string>()
@@ -280,6 +326,9 @@ function ActiveCard({ client, membership }: { client: SupabaseClient; membership
           {ROLE_LABELS_CLOUD[membership.role]}
         </p>
         <SyncStatusLine />
+        {canInvite && (
+          <MembersSection client={client} membership={membership} onChanged={onChanged} />
+        )}
         {canInvite && (
           <div className="space-y-3 rounded-xl bg-stone-100 p-3 dark:bg-stone-800">
             <p className="font-semibold">Mitarbeiter oder weiteres Gerät einladen</p>
@@ -516,6 +565,183 @@ function SyncStatusLine() {
       <Button variant="secondary" disabled={s.state === 'syncing'} onClick={() => void syncNow(db)}>
         Jetzt abgleichen
       </Button>
+    </div>
+  )
+}
+
+function MembersSection({
+  client,
+  membership,
+  onChanged,
+}: {
+  client: SupabaseClient
+  membership: Membership
+  /** The own role may have changed (e.g. ownership transferred). */
+  onChanged: () => void
+}) {
+  const { user } = useCloudSession()
+  const [members, setMembers] = useState<Member[]>()
+  const [tick, setTick] = useState(0)
+  const [error, setError] = useState<string>()
+  const [busy, setBusy] = useState(false)
+  const org = membership.organizationId
+  const isOwner = membership.role === 'owner'
+
+  useEffect(() => {
+    let cancelled = false
+    loadMembers(client, org)
+      .then((m) => !cancelled && setMembers(m))
+      .catch((e) => !cancelled && setError(cloudErrorMessage(e)))
+    return () => {
+      cancelled = true
+    }
+  }, [client, org, tick])
+
+  const act = async (fn: () => Promise<void>, confirmText?: string) => {
+    if (confirmText && !window.confirm(confirmText)) return
+    setBusy(true)
+    setError(undefined)
+    try {
+      await fn()
+      setTick((t) => t + 1)
+      onChanged()
+    } catch (e) {
+      setError(cloudErrorMessage(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (!members) return error ? <ErrorText text={error} /> : <p>Lädt Mitglieder …</p>
+  const pending = members.filter((m) => m.status === 'pending')
+  const active = members.filter((m) => m.status === 'active')
+  // Admins may manage members; only the owner may change admins.
+  const manageable = (m: Member) =>
+    m.userId !== user?.id && m.role !== 'owner' && (isOwner || m.role === 'member')
+
+  return (
+    <div className="space-y-4">
+      <section aria-label="Beitrittsanfragen" className="space-y-2">
+        <h3 className="font-bold">
+          Beitrittsanfragen {pending.length > 0 && `(${pending.length})`}
+        </h3>
+        {pending.length === 0 ? (
+          <p className="text-sm text-stone-600 dark:text-stone-400">Keine offenen Anfragen.</p>
+        ) : (
+          <ul className="space-y-2">
+            {pending.map((m) => (
+              <li
+                key={m.userId}
+                aria-label={`Anfrage von ${m.displayName}`}
+                className="space-y-2 rounded-xl border-2 border-amber-500 p-3"
+              >
+                <p className="font-semibold">{m.displayName || 'Ohne Namen'}</p>
+                <p className="text-sm text-stone-600 dark:text-stone-400">
+                  {[m.email, m.deviceInfo && deviceLabel(m.deviceInfo)].filter(Boolean).join(' · ')}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    disabled={busy}
+                    onClick={() =>
+                      void act(() => decideMembership(client, org, m.userId, true, 'member'))
+                    }
+                  >
+                    Freigeben
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() =>
+                      void act(() => decideMembership(client, org, m.userId, true, 'admin'))
+                    }
+                  >
+                    Als Admin freigeben
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() =>
+                      void act(
+                        () => decideMembership(client, org, m.userId, false, 'member'),
+                        `Anfrage von ${m.displayName} ablehnen?`,
+                      )
+                    }
+                  >
+                    Ablehnen
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section aria-label="Mitglieder" className="space-y-2">
+        <h3 className="font-bold">Mitglieder ({active.length})</h3>
+        <ul className="divide-y divide-stone-200 rounded-xl border border-stone-200 dark:divide-stone-700 dark:border-stone-700">
+          {active.map((m) => (
+            <li key={m.userId} aria-label={`Mitglied ${m.displayName}`} className="space-y-2 p-3">
+              <p>
+                <span className="font-semibold">{m.displayName || m.email}</span>
+                {m.userId === user?.id && ' (du)'}
+                <span className="ml-2 rounded-md bg-stone-100 px-1.5 py-0.5 text-sm dark:bg-stone-800">
+                  {ROLE_LABELS_CLOUD[m.role]}
+                </span>
+              </p>
+              {m.email && <p className="text-sm text-stone-600 dark:text-stone-400">{m.email}</p>}
+              {manageable(m) && (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    onClick={() =>
+                      void act(() =>
+                        decideMembership(
+                          client,
+                          org,
+                          m.userId,
+                          true,
+                          m.role === 'admin' ? 'member' : 'admin',
+                        ),
+                      )
+                    }
+                  >
+                    {m.role === 'admin' ? 'Zu Mitarbeiter/in machen' : 'Zum Admin machen'}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={busy}
+                    className="text-red-700 dark:text-red-400"
+                    onClick={() =>
+                      void act(
+                        () => decideMembership(client, org, m.userId, false, 'member'),
+                        `${m.displayName} aus der Firma entfernen? Die Person kann dann keine Daten der Firma mehr sehen.`,
+                      )
+                    }
+                  >
+                    Entfernen
+                  </Button>
+                  {isOwner && (
+                    <Button
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() =>
+                        void act(
+                          () => transferOwnership(client, org, m.userId),
+                          `${m.displayName} zur Inhaberin oder zum Inhaber machen? Du bleibst Admin, darfst dann aber nicht mehr endgültig löschen.`,
+                        )
+                      }
+                    >
+                      Inhaberschaft übertragen
+                    </Button>
+                  )}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+      <ErrorText text={error} />
     </div>
   )
 }

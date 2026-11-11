@@ -11,6 +11,9 @@ import { Button } from '../../components/Button'
 import { SaveStatus } from '../../components/SaveStatus'
 import { useAutosave } from '../../components/useAutosave'
 import { useRecordRoute } from '../../components/useRecordRoute'
+import { useCloudRights } from '../../cloud/useCloudRights'
+import { ReadOnlyNotice } from '../../components/ReadOnlyNotice'
+
 import type { CustomerSite } from '../../domain/types'
 import { email, postalCode, required } from '../../domain/validate'
 
@@ -38,10 +41,12 @@ function CustomerLoader({ id, formKey }: { id?: string; formKey: string }) {
   const [recordId] = useState(() => id ?? newId())
   // null = not found, undefined = loading
   const [initial, setInitial] = useState<CustomerInput | null>()
+  const [createdBy, setCreatedBy] = useState<string>()
   useEffect(() => {
     void (async () => {
       if (!id) return setInitial(emptyCustomer())
       const c = await db.customers.get(id)
+      setCreatedBy(c?.createdBy)
       setInitial(
         !c || c.deletedAt
           ? null
@@ -64,7 +69,15 @@ function CustomerLoader({ id, formKey }: { id?: string; formKey: string }) {
   if (initial === null)
     return <PageHeader title="Nicht gefunden" back="/profile/kunden" backLabel="Kunden" />
   if (initial === undefined) return <p>Lädt …</p>
-  return <CustomerForm recordId={recordId} isNew={!id} formKey={formKey} initial={initial} />
+  return (
+    <CustomerForm
+      recordId={recordId}
+      isNew={!id}
+      formKey={formKey}
+      initial={initial}
+      createdBy={createdBy}
+    />
+  )
 }
 
 function validate(form: CustomerInput): Errors {
@@ -85,13 +98,17 @@ function CustomerForm({
   isNew,
   formKey,
   initial,
+  createdBy,
 }: {
   recordId: string
   isNew: boolean
   formKey: string
   initial: CustomerInput
+  createdBy?: string
 }) {
   const org = useOrganization()
+  const rights = useCloudRights()
+  const readOnly = !rights.canEdit({ createdBy })
   const navigate = useNavigate()
   const [form, setForm] = useState<CustomerInput>(initial)
   const [created, setCreated] = useState(!isNew)
@@ -163,7 +180,7 @@ function CustomerForm({
         navigate(`/profile/kunden/${recordId}`, { replace: true, state: { formKey } })
       }
     },
-    { enabled: !!org && valid },
+    { enabled: !!org && valid && !readOnly },
   )
 
   const remove = async () => {
@@ -185,82 +202,86 @@ function CustomerForm({
         backLabel="Kunden"
       />
       <div className="space-y-4">
-        <Card title="Kunde">
-          <div className="space-y-4">
-            <TextField
-              label="Name"
-              required
-              hint="z. B. Hausverwaltung Müller GmbH"
-              {...field('name')}
-            />
-            <TextField label="Ansprechpartner/in" {...field('contactPerson')} />
-            <TextField label="Telefon" type="tel" {...field('phone')} />
-            <TextField label="E-Mail" type="email" {...field('email')} />
-            <TextField label="Straße und Hausnummer" {...field('street')} />
-            <div className="grid grid-cols-[7rem_1fr] gap-3">
-              <TextField label="PLZ" inputMode="numeric" {...field('postalCode')} />
-              <TextField label="Ort" {...field('city')} />
+        {readOnly && (
+          <ReadOnlyNotice text="Diesen Kunden hat jemand anderes angelegt. Ändern können ihn Admins der Firma." />
+        )}
+        <fieldset disabled={readOnly} className="space-y-4">
+          <Card title="Kunde">
+            <div className="space-y-4">
+              <TextField
+                label="Name"
+                required
+                hint="z. B. Hausverwaltung Müller GmbH"
+                {...field('name')}
+              />
+              <TextField label="Ansprechpartner/in" {...field('contactPerson')} />
+              <TextField label="Telefon" type="tel" {...field('phone')} />
+              <TextField label="E-Mail" type="email" {...field('email')} />
+              <TextField label="Straße und Hausnummer" {...field('street')} />
+              <div className="grid grid-cols-[7rem_1fr] gap-3">
+                <TextField label="PLZ" inputMode="numeric" {...field('postalCode')} />
+                <TextField label="Ort" {...field('city')} />
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        <Card title="Objekte">
-          <p className="mb-3 text-sm text-stone-600 dark:text-stone-400">
-            Grundstücke oder Liegenschaften, an denen gearbeitet wird. Die Adresse wird beim Einsatz
-            übernommen.
-          </p>
-          <div className="space-y-4">
-            {form.sites.map((s, i) => (
-              <fieldset
-                key={s.id}
-                className="space-y-3 rounded-xl border border-stone-200 p-3 dark:border-stone-700"
-              >
-                <legend className="px-1 font-semibold">Objekt {i + 1}</legend>
-                <TextField
-                  label="Bezeichnung"
-                  required
-                  hint="z. B. Wohnanlage Lindenstraße"
-                  value={s.name}
-                  onChange={(e) => updateSite(s.id, { name: e.target.value })}
-                  error={errors[`site:${s.id}:name`]}
-                />
-                <TextField
-                  label="Straße und Hausnummer"
-                  value={s.street ?? ''}
-                  onChange={(e) => updateSite(s.id, { street: e.target.value })}
-                />
-                <div className="grid grid-cols-[7rem_1fr] gap-3">
+          <Card title="Objekte">
+            <p className="mb-3 text-sm text-stone-600 dark:text-stone-400">
+              Grundstücke oder Liegenschaften, an denen gearbeitet wird. Die Adresse wird beim
+              Einsatz übernommen.
+            </p>
+            <div className="space-y-4">
+              {form.sites.map((s, i) => (
+                <fieldset
+                  key={s.id}
+                  className="space-y-3 rounded-xl border border-stone-200 p-3 dark:border-stone-700"
+                >
+                  <legend className="px-1 font-semibold">Objekt {i + 1}</legend>
                   <TextField
-                    label="PLZ"
-                    inputMode="numeric"
-                    value={s.postalCode ?? ''}
-                    onChange={(e) => updateSite(s.id, { postalCode: e.target.value })}
-                    error={errors[`site:${s.id}:postalCode`]}
+                    label="Bezeichnung"
+                    required
+                    hint="z. B. Wohnanlage Lindenstraße"
+                    value={s.name}
+                    onChange={(e) => updateSite(s.id, { name: e.target.value })}
+                    error={errors[`site:${s.id}:name`]}
                   />
                   <TextField
-                    label="Ort"
-                    value={s.city ?? ''}
-                    onChange={(e) => updateSite(s.id, { city: e.target.value })}
+                    label="Straße und Hausnummer"
+                    value={s.street ?? ''}
+                    onChange={(e) => updateSite(s.id, { street: e.target.value })}
                   />
-                </div>
-                <TextArea
-                  label="Hinweise"
-                  hint="z. B. Zufahrt, Schlüssel, Ansprechpartner vor Ort"
-                  value={s.notes ?? ''}
-                  onChange={(e) => updateSite(s.id, { notes: e.target.value })}
-                />
-                <Button variant="secondary" onClick={() => removeSite(s.id)}>
-                  Objekt entfernen
-                </Button>
-              </fieldset>
-            ))}
-            <Button variant="secondary" onClick={addSite} className="w-full">
-              + Objekt hinzufügen
-            </Button>
-          </div>
-        </Card>
-
-        {created && (
+                  <div className="grid grid-cols-[7rem_1fr] gap-3">
+                    <TextField
+                      label="PLZ"
+                      inputMode="numeric"
+                      value={s.postalCode ?? ''}
+                      onChange={(e) => updateSite(s.id, { postalCode: e.target.value })}
+                      error={errors[`site:${s.id}:postalCode`]}
+                    />
+                    <TextField
+                      label="Ort"
+                      value={s.city ?? ''}
+                      onChange={(e) => updateSite(s.id, { city: e.target.value })}
+                    />
+                  </div>
+                  <TextArea
+                    label="Hinweise"
+                    hint="z. B. Zufahrt, Schlüssel, Ansprechpartner vor Ort"
+                    value={s.notes ?? ''}
+                    onChange={(e) => updateSite(s.id, { notes: e.target.value })}
+                  />
+                  <Button variant="secondary" onClick={() => removeSite(s.id)}>
+                    Objekt entfernen
+                  </Button>
+                </fieldset>
+              ))}
+              <Button variant="secondary" onClick={addSite} className="w-full">
+                + Objekt hinzufügen
+              </Button>
+            </div>
+          </Card>
+        </fieldset>
+        {created && rights.canDelete({ createdBy }, 'record') && (
           <Button
             variant="secondary"
             onClick={() => void remove()}

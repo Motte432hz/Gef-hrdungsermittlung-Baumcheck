@@ -12,10 +12,12 @@ import { Card, PageTitle } from '../components/Card'
 import { InstallHint } from '../components/InstallHint'
 import { BackupReminder } from '../components/BackupReminder'
 import { startAssessment } from '../wizard/start'
+import { useCloudRights } from '../cloud/useCloudRights'
 import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
 
 export function HomePage() {
   const org = useOrganization()
+  const rights = useCloudRights()
   const navigate = useNavigate()
   const [starting, setStarting] = useState(false)
 
@@ -41,6 +43,7 @@ export function HomePage() {
           title: assessmentTitle(a, customers),
           date: formatDateDe(a.date),
           open: issues.filter((i) => i.level === 'blocking').length,
+          createdBy: a.createdBy,
         }
       }),
     )
@@ -87,14 +90,16 @@ export function HomePage() {
                     {d.date} · {d.open === 0 ? 'bereit zum Abschluss' : `${d.open} offene Punkte`}
                   </span>
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => void remove(d.id, d.title)}
-                  aria-label={`Entwurf ${d.title} löschen`}
-                  className="flex size-12 items-center justify-center rounded-full text-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800"
-                >
-                  🗑
-                </button>
+                {rights.canDelete(d, 'draft') && (
+                  <button
+                    type="button"
+                    onClick={() => void remove(d.id, d.title)}
+                    aria-label={`Entwurf ${d.title} löschen`}
+                    className="flex size-12 items-center justify-center rounded-full text-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    🗑
+                  </button>
+                )}
               </li>
             ))}
           </ul>

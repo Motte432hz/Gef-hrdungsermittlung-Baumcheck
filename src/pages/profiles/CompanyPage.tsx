@@ -4,6 +4,9 @@ import { Link } from 'react-router'
 import { db } from '../../db/db'
 import { getDefaultEquipmentPreset, saveOrganization } from '../../db/profiles'
 import { equipmentItems } from './equipmentItems'
+import { useCloudRights } from '../../cloud/useCloudRights'
+import { usePendingRequests } from '../../cloud/usePendingRequests'
+import { ReadOnlyNotice } from '../../components/ReadOnlyNotice'
 import { useOrganization } from '../../app/useOrganization'
 import { PageHeader } from '../../components/PageHeader'
 import { TextArea, TextField } from '../../components/form/Field'
@@ -83,6 +86,8 @@ function CompanyForm({ org }: { org: Organization }) {
   const [logoError, setLogoError] = useState<string>()
   const logoUrl = useObjectUrl(form.logo)
   const preset = useLiveQuery(() => getDefaultEquipmentPreset(db, org.id), [org.id])
+  const readOnly = !useCloudRights().isAdmin
+  const requests = usePendingRequests()
 
   const allErrors = validate(form)
   const valid = !Object.values(allErrors).some(Boolean)
@@ -122,7 +127,7 @@ function CompanyForm({ org }: { org: Organization }) {
         logo: f.logo,
         ...f.appearance,
       }),
-    { enabled: valid },
+    { enabled: valid && !readOnly },
   )
 
   return (
@@ -138,123 +143,132 @@ function CompanyForm({ org }: { org: Organization }) {
             <span className="block text-sm text-stone-600 dark:text-stone-400">
               Daten mit allen Geräten der Firma teilen, Mitarbeiter einladen
             </span>
+            {requests > 0 && (
+              <span className="mt-1 inline-block rounded-md bg-amber-500 px-2 py-0.5 text-sm font-semibold text-black">
+                {requests} {requests === 1 ? 'Beitrittsanfrage wartet' : 'Beitrittsanfragen warten'}
+              </span>
+            )}
           </span>
           <span aria-hidden="true" className="text-2xl text-stone-400">
             ›
           </span>
         </Link>
-        <Card title="Logo">
-          <div className="space-y-3">
-            {logoUrl ? (
-              <img
-                src={logoUrl}
-                alt="Firmenlogo"
-                className="h-24 max-w-full rounded-lg bg-white object-contain p-2"
-              />
-            ) : (
-              <p className="text-stone-600 dark:text-stone-400">
-                Noch kein Logo. Es erscheint oben auf jedem PDF.
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2">
-              <label className="inline-flex min-h-12 cursor-pointer items-center rounded-xl border-2 border-stone-300 bg-white px-5 font-semibold has-focus-visible:outline-3 dark:border-stone-600 dark:bg-stone-800">
-                {form.logo ? 'Logo ändern' : 'Logo auswählen'}
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                  className="sr-only"
-                  onChange={(e) => void onLogo(e.target.files?.[0])}
+        {readOnly && (
+          <ReadOnlyNotice text="Firmendaten, Logo und Nummern können nur Admins der Firma ändern." />
+        )}
+        <fieldset disabled={readOnly} className="space-y-4">
+          <Card title="Logo">
+            <div className="space-y-3">
+              {logoUrl ? (
+                <img
+                  src={logoUrl}
+                  alt="Firmenlogo"
+                  className="h-24 max-w-full rounded-lg bg-white object-contain p-2"
                 />
-              </label>
-              {form.logo && (
-                <Button
-                  variant="secondary"
-                  onClick={() => setForm((f) => ({ ...f, logo: undefined }))}
-                >
-                  Logo entfernen
-                </Button>
+              ) : (
+                <p className="text-stone-600 dark:text-stone-400">
+                  Noch kein Logo. Es erscheint oben auf jedem PDF.
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <label className="inline-flex min-h-12 cursor-pointer items-center rounded-xl border-2 border-stone-300 bg-white px-5 font-semibold has-focus-visible:outline-3 dark:border-stone-600 dark:bg-stone-800">
+                  {form.logo ? 'Logo ändern' : 'Logo auswählen'}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="sr-only"
+                    onChange={(e) => void onLogo(e.target.files?.[0])}
+                  />
+                </label>
+                {form.logo && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setForm((f) => ({ ...f, logo: undefined }))}
+                  >
+                    Logo entfernen
+                  </Button>
+                )}
+              </div>
+              {logoError && (
+                <p className="font-semibold text-red-700 dark:text-red-400">{logoError}</p>
               )}
             </div>
-            {logoError && (
-              <p className="font-semibold text-red-700 dark:text-red-400">{logoError}</p>
-            )}
-          </div>
-        </Card>
+          </Card>
 
-        <Card title="Firmendaten">
-          <div className="space-y-4">
-            <TextField
-              label="Firmenname"
-              required
-              value={form.name}
-              onChange={set('name')}
-              error={errors.name}
-              autoComplete="organization"
-            />
-            <TextField
-              label="Kürzel für Protokollnummern"
-              required
-              hint="Wird vor jede Protokollnummer gesetzt, z. B. ZW → ZW-2026-0001. Vorschau unten."
-              value={form.numberPrefix}
-              onChange={set('numberPrefix')}
-              error={errors.numberPrefix}
-              maxLength={6}
-              autoCapitalize="characters"
-            />
-            <TextField
-              label="Straße und Hausnummer"
-              value={form.street}
-              onChange={set('street')}
-              autoComplete="street-address"
-            />
-            <div className="grid grid-cols-[7rem_1fr] gap-3">
+          <Card title="Firmendaten">
+            <div className="space-y-4">
               <TextField
-                label="PLZ"
-                value={form.postalCode}
-                onChange={set('postalCode')}
-                error={errors.postalCode}
-                inputMode="numeric"
-                autoComplete="postal-code"
+                label="Firmenname"
+                required
+                value={form.name}
+                onChange={set('name')}
+                error={errors.name}
+                autoComplete="organization"
               />
               <TextField
-                label="Ort"
-                value={form.city}
-                onChange={set('city')}
-                autoComplete="address-level2"
+                label="Kürzel für Protokollnummern"
+                required
+                hint="Wird vor jede Protokollnummer gesetzt, z. B. ZW → ZW-2026-0001. Vorschau unten."
+                value={form.numberPrefix}
+                onChange={set('numberPrefix')}
+                error={errors.numberPrefix}
+                maxLength={6}
+                autoCapitalize="characters"
+              />
+              <TextField
+                label="Straße und Hausnummer"
+                value={form.street}
+                onChange={set('street')}
+                autoComplete="street-address"
+              />
+              <div className="grid grid-cols-[7rem_1fr] gap-3">
+                <TextField
+                  label="PLZ"
+                  value={form.postalCode}
+                  onChange={set('postalCode')}
+                  error={errors.postalCode}
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                />
+                <TextField
+                  label="Ort"
+                  value={form.city}
+                  onChange={set('city')}
+                  autoComplete="address-level2"
+                />
+              </div>
+              <TextField
+                label="Telefon"
+                type="tel"
+                value={form.phone}
+                onChange={set('phone')}
+                autoComplete="tel"
+              />
+              <TextField
+                label="E-Mail"
+                type="email"
+                value={form.email}
+                onChange={set('email')}
+                error={errors.email}
+                autoComplete="email"
+              />
+              <TextField
+                label="Steuer- oder Betriebsnummer"
+                value={form.taxNumber}
+                onChange={set('taxNumber')}
               />
             </div>
-            <TextField
-              label="Telefon"
-              type="tel"
-              value={form.phone}
-              onChange={set('phone')}
-              autoComplete="tel"
-            />
-            <TextField
-              label="E-Mail"
-              type="email"
-              value={form.email}
-              onChange={set('email')}
-              error={errors.email}
-              autoComplete="email"
-            />
-            <TextField
-              label="Steuer- oder Betriebsnummer"
-              value={form.taxNumber}
-              onChange={set('taxNumber')}
-            />
-          </div>
-        </Card>
+          </Card>
 
-        <AppearanceCard
-          org={org}
-          logo={form.logo}
-          value={form.appearance}
-          onChange={(appearance) => setForm((f) => ({ ...f, appearance }))}
-        />
+          <AppearanceCard
+            org={org}
+            logo={form.logo}
+            value={form.appearance}
+            onChange={(appearance) => setForm((f) => ({ ...f, appearance }))}
+          />
 
-        <NumberingCard prefix={form.numberPrefix} savedPrefix={org.numberPrefix} />
-
+          <NumberingCard prefix={form.numberPrefix} savedPrefix={org.numberPrefix} />
+        </fieldset>
         <Card title="Standard-Ausrüstung">
           <p className="mb-3 text-stone-700 dark:text-stone-300">
             Wird bei jedem neuen Einsatz vorbelegt und vor Ort bestätigt.

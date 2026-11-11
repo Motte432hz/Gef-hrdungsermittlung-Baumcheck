@@ -8,8 +8,19 @@ const SB = 'https://fjrhcvgiyivanikgazyk.supabase.co'
 const USER = { id: 'aaaaaaaa-0000-0000-0000-000000000001', email: 'anna@example.de' }
 const CLOUD_ORG = 'cccccccc-0000-0000-0000-000000000001'
 
+interface FakeMembership {
+  organization_id: string
+  user_id?: string
+  role: string
+  status: string
+  display_name: string
+  email?: string
+  worker_id?: string | null
+  requested_at?: string
+}
+
 interface Server {
-  memberships: { organization_id: string; role: string; status: string; display_name: string }[]
+  memberships: FakeMembership[]
   orgName: Record<string, string>
   calls: string[]
 }
@@ -47,7 +58,38 @@ async function fakeServer(page: Page): Promise<Server> {
       )
     }
     if (path === '/auth/v1/logout') return route.fulfill({ status: 204 })
-    if (path === '/rest/v1/memberships') return route.fulfill(json(s.memberships))
+    if (path === '/rest/v1/memberships') {
+      if (route.request().method() === 'HEAD') {
+        const n = s.memberships.filter((m) => m.status === 'pending').length
+        // Like the real server: the count header is exposed to the app.
+        return route.fulfill({
+          status: 200,
+          headers: {
+            'content-range': `0-0/${n}`,
+            'access-control-allow-origin': '*',
+            'access-control-expose-headers': 'Content-Range',
+          },
+        })
+      }
+      return route.fulfill(
+        json(
+          s.memberships.map((m) => ({
+            user_id: USER.id,
+            requested_at: '2026-11-11T08:00:00Z',
+            worker_id: null,
+            ...m,
+          })),
+        ),
+      )
+    }
+    if (path === '/rest/v1/rpc/register_device') return route.fulfill(json('M1'))
+    if (path === '/rest/v1/rpc/set_my_worker') return route.fulfill({ status: 204 })
+    if (path === '/rest/v1/rpc/decide_membership') {
+      const m = s.memberships.find((x) => x.user_id === body!.p_user)!
+      m.status = body!.p_approve ? 'active' : 'rejected'
+      m.role = body!.p_role as string
+      return route.fulfill({ status: 204 })
+    }
     if (
       path === '/rest/v1/organizations' &&
       route.request().method() === 'GET' &&
@@ -62,9 +104,11 @@ async function fakeServer(page: Page): Promise<Server> {
       s.memberships = [
         {
           organization_id: id,
+          user_id: USER.id,
           role: 'owner',
           status: 'active',
           display_name: body!.p_display_name as string,
+          email: USER.email,
         },
       ]
       return route.fulfill({ status: 204 })
@@ -134,6 +178,25 @@ test('owner puts the company into the cloud and invites someone', async ({ page 
 
   await page.getByRole('button', { name: 'Einladungs-Code erstellen' }).click()
   await expect(page.getByTestId('invite-code')).toHaveText('K7P3-9QXM')
+  await expect(page.getByRole('listitem', { name: 'Mitglied Anna Ast' })).toContainText('(du)')
+
+  // Someone asks to join; the owner sees it on the company page and approves.
+  server.memberships.push({
+    organization_id: server.memberships[0]!.organization_id,
+    user_id: 'bbbbbbbb-0000-0000-0000-000000000002',
+    role: 'member',
+    status: 'pending',
+    display_name: 'Mia',
+    email: 'mia@example.de',
+  })
+  await page.getByRole('link', { name: 'Firma', exact: true }).click()
+  await expect(page.getByText('1 Beitrittsanfrage wartet')).toBeVisible()
+  await page.getByRole('link', { name: /Firmen-Kartei/ }).click()
+  const request = page.getByRole('listitem', { name: 'Anfrage von Mia' })
+  await expect(request).toContainText('mia@example.de')
+  await request.getByRole('button', { name: 'Freigeben', exact: true }).click()
+  await expect(page.getByRole('listitem', { name: 'Mitglied Mia' })).toContainText('Mitarbeiter/in')
+  expect(server.calls).toContain('POST /rest/v1/rpc/decide_membership')
 })
 
 test('new device joins with a code and switches to the company after approval', async ({
@@ -161,7 +224,15 @@ test('new device joins with a code and switches to the company after approval', 
   await expect(page.getByText('Zwieselwiesel · Mitarbeiter/in')).toBeVisible()
   // Members cannot invite.
   await expect(page.getByRole('button', { name: 'Einladungs-Code erstellen' })).toHaveCount(0)
-  // This device now works for the cloud company.
+  // This device now works for the cloud company – members only look at the company data.
   await page.getByRole('link', { name: 'Firma', exact: true }).click()
   await expect(page.getByLabel('Firmenname')).toHaveValue('Zwieselwiesel')
+  await expect(page.getByText('Firmendaten, Logo und Nummern können nur Admins')).toBeVisible()
+  await expect(page.getByLabel('Firmenname')).toBeDisabled()
+  // Own device code for protocol numbers and an own profile in the company.
+  await expect.poll(() => server.calls.includes('POST /rest/v1/rpc/set_my_worker')).toBe(true)
+  await page.goto('/einstellungen')
+  await expect(page.getByTestId('device-code')).toContainText('Gerätekürzel: M1')
+  await page.goto('/profile/team')
+  await expect(page.getByRole('link', { name: /Mia/ })).toBeVisible()
 })

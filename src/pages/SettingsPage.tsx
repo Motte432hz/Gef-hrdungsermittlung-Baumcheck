@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useCloudRights } from '../cloud/useCloudRights'
 import { Card, PageTitle } from '../components/Card'
 import { setThemePreference, useThemePreference, type ThemePreference } from '../lib/theme'
 import {
@@ -27,6 +28,7 @@ export function SettingsPage() {
 
   const [deviceCode, setDeviceCode] = useState<string>()
   const [deviceSaved, setDeviceSaved] = useState(false)
+  const cloudLinked = useCloudRights().cloud
 
   useEffect(() => {
     void getStorageStatus().then(setStorage)
@@ -104,6 +106,11 @@ export function SettingsPage() {
       <Card title="Dieses Gerät">
         {deviceCode === undefined ? (
           <p>Lädt …</p>
+        ) : cloudLinked ? (
+          <p className="text-stone-700 dark:text-stone-300" data-testid="device-code">
+            Gerätekürzel: <strong>{deviceCode || 'keins (erstes Gerät der Firma)'}</strong> –
+            vergeben von der Firmen-Kartei, damit jede Protokollnummer nur einmal vorkommt.
+          </p>
         ) : (
           <div className="space-y-3">
             <TextField

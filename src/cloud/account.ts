@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { markRemote, type BaumCheckDB } from '../db/db'
 import { META_CURRENT_ORG } from '../db/repo'
+import { saveWorker } from '../db/profiles'
 import type { ID, Organization } from '../domain/types'
 
 export type MembershipRole = 'owner' | 'admin' | 'member'
@@ -12,6 +13,18 @@ export interface Membership {
   role: MembershipRole
   status: MembershipStatus
   displayName: string
+  workerId?: ID
+}
+
+/** A person of the company as the admins see it. */
+export interface Member {
+  userId: string
+  role: MembershipRole
+  status: MembershipStatus
+  displayName: string
+  email?: string
+  deviceInfo?: string
+  requestedAt: string
 }
 
 export const ROLE_LABELS_CLOUD: Record<MembershipRole, string> = {
@@ -56,7 +69,7 @@ export async function verifyLoginCode(sb: SupabaseClient, email: string, code: s
 export async function loadMemberships(sb: SupabaseClient, userId: string): Promise<Membership[]> {
   const { data, error } = await sb
     .from('memberships')
-    .select('organization_id, role, status, display_name')
+    .select('organization_id, role, status, display_name, worker_id')
     .eq('user_id', userId)
   if (error) throw error
   const rows = (data ?? []) as {
@@ -64,6 +77,7 @@ export async function loadMemberships(sb: SupabaseClient, userId: string): Promi
     role: MembershipRole
     status: MembershipStatus
     display_name: string
+    worker_id: string | null
   }[]
   const active = rows.filter((r) => r.status === 'active').map((r) => r.organization_id)
   const names = new Map<string, string>()
@@ -82,7 +96,90 @@ export async function loadMemberships(sb: SupabaseClient, userId: string): Promi
     role: r.role,
     status: r.status,
     displayName: r.display_name,
+    workerId: r.worker_id ?? undefined,
   }))
+}
+
+export async function loadMembers(sb: SupabaseClient, organizationId: ID): Promise<Member[]> {
+  const { data, error } = await sb
+    .from('memberships')
+    .select('user_id, role, status, display_name, email, device_info, requested_at')
+    .eq('organization_id', organizationId)
+    .order('requested_at')
+  if (error) throw error
+  return (
+    (data ?? []) as {
+      user_id: string
+      role: MembershipRole
+      status: MembershipStatus
+      display_name: string
+      email: string | null
+      device_info: string | null
+      requested_at: string
+    }[]
+  ).map((m) => ({
+    userId: m.user_id,
+    role: m.role,
+    status: m.status,
+    displayName: m.display_name,
+    email: m.email ?? undefined,
+    deviceInfo: m.device_info ?? undefined,
+    requestedAt: m.requested_at,
+  }))
+}
+
+/** Approve (with a role), change the role, reject or remove (approve = false). */
+export async function decideMembership(
+  sb: SupabaseClient,
+  organizationId: ID,
+  userId: string,
+  approve: boolean,
+  role: 'admin' | 'member',
+) {
+  const { error } = await sb.rpc('decide_membership', {
+    p_org: organizationId,
+    p_user: userId,
+    p_approve: approve,
+    p_role: role,
+  })
+  if (error) throw error
+}
+
+export async function transferOwnership(sb: SupabaseClient, organizationId: ID, userId: string) {
+  const { error } = await sb.rpc('transfer_ownership', { p_org: organizationId, p_user: userId })
+  if (error) throw error
+}
+
+/** Reserves this device's code for protocol numbers (unique within the company). */
+export async function registerDevice(
+  sb: SupabaseClient,
+  organizationId: ID,
+  wanted: string | undefined,
+  name: string,
+): Promise<string> {
+  const { data, error } = await sb.rpc('register_device', {
+    p_org: organizationId,
+    p_wanted: wanted ?? '',
+    p_name: name,
+    p_label: deviceLabel(),
+  })
+  if (error) throw error
+  return data as string
+}
+
+/** Short description of this device, e.g. "iPhone" or "Windows-PC". */
+export function deviceLabel(ua = navigator.userAgent): string {
+  if (/iPad/.test(ua)) return 'iPad'
+  if (/iPhone/.test(ua)) return 'iPhone'
+  if (/Android/.test(ua)) return /Mobile/.test(ua) ? 'Android-Handy' : 'Android-Tablet'
+  if (/Windows/.test(ua)) return 'Windows-PC'
+  if (/Macintosh/.test(ua)) return 'Mac'
+  return 'Gerät'
+}
+
+export async function setMyWorker(sb: SupabaseClient, organizationId: ID, workerId: ID) {
+  const { error } = await sb.rpc('set_my_worker', { p_org: organizationId, p_worker: workerId })
+  if (error) throw error
 }
 
 /** Company data shown before the first full sync (the rest follows with the sync). */
@@ -205,4 +302,32 @@ export async function adoptOrganization(db: BaumCheckDB, toId: ID, name?: string
       await db.meta.put({ key: META_CURRENT_ORG, value: toId })
     },
   )
+}
+
+/**
+ * The signed-in person's own profile in the company: an existing employee with the same name
+ * is linked, otherwise a new profile is created (it reaches the company with the next sync).
+ */
+export async function ensureOwnProfile(
+  db: BaumCheckDB,
+  sb: SupabaseClient,
+  organizationId: ID,
+  displayName: string,
+): Promise<ID | undefined> {
+  const name = displayName.trim()
+  if (!name) return undefined
+  const key = name.toLocaleLowerCase('de')
+  const existing = (await db.workers.where('organizationId').equals(organizationId).toArray()).find(
+    (w) => !w.deletedAt && w.kind === 'employee' && w.name.trim().toLocaleLowerCase('de') === key,
+  )
+  const workerId =
+    existing?.id ??
+    (await saveWorker(db, organizationId, {
+      kind: 'employee',
+      name,
+      qualifications: [],
+      active: true,
+    }))
+  await setMyWorker(sb, organizationId, workerId)
+  return workerId
 }

@@ -8,6 +8,8 @@ import { Segmented } from '../../components/form/Segmented'
 import { SaveStatus } from '../../components/SaveStatus'
 import { useAutosave } from '../../components/useAutosave'
 import { equipmentItems } from './equipmentItems'
+import { useCloudRights } from '../../cloud/useCloudRights'
+import { ReadOnlyNotice } from '../../components/ReadOnlyNotice'
 import type { Condition } from '../../form/schema'
 
 type PresetValue = 'yes' | 'no' | 'na' | 'none'
@@ -49,6 +51,7 @@ function EquipmentForm({
   initial: Record<string, PresetValue>
 }) {
   const [values, setValues] = useState(initial)
+  const readOnly = !useCloudRights().isAdmin
   const state = useAutosave(
     values,
     async (v) => {
@@ -56,7 +59,7 @@ function EquipmentForm({
       for (const [id, x] of Object.entries(v)) if (x !== 'none') answers[id] = x
       await saveDefaultEquipmentPreset(db, orgId, answers)
     },
-    { enabled: true },
+    { enabled: !readOnly },
   )
 
   const setAll = (v: PresetValue) =>
@@ -65,57 +68,64 @@ function EquipmentForm({
   return (
     <div>
       <PageHeader title="Standard-Ausrüstung" back="/profile/firma" backLabel="Firma" />
-      <div className="space-y-4">
-        <Card>
-          <p className="text-stone-700 dark:text-stone-300">
-            Diese Antworten werden bei jedem neuen Einsatz vorbelegt. Vor Ort muss die Aufsicht sie
-            trotzdem prüfen und bestätigen.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="min-h-12 rounded-xl px-3 font-semibold text-brand-700 underline dark:text-brand-300"
-              onClick={() => setAll('yes')}
-            >
-              Alle auf „Ja“
-            </button>
-            <button
-              type="button"
-              className="min-h-12 rounded-xl px-3 font-semibold text-brand-700 underline dark:text-brand-300"
-              onClick={() => setAll('none')}
-            >
-              Alle zurücksetzen
-            </button>
-          </div>
-        </Card>
-        <Card>
-          <ul className="divide-y divide-stone-200 dark:divide-stone-800">
-            {equipmentItems.map((item) => {
-              const hint = conditionHint(item.visibleIf)
-              const options = [
-                { value: 'yes' as const, label: 'Ja' },
-                ...(item.allowNotRelevant === false
-                  ? []
-                  : [{ value: 'na' as const, label: 'n. r.' }]),
-                { value: 'none' as const, label: 'leer' },
-              ]
-              return (
-                <li key={item.id} className="space-y-2 py-4 first:pt-0 last:pb-0">
-                  <p className="font-semibold">{item.label}</p>
-                  {hint && <p className="text-sm text-stone-600 dark:text-stone-400">{hint}</p>}
-                  <Segmented<PresetValue>
-                    label={item.label}
-                    options={options}
-                    value={values[item.id]}
-                    onChange={(v) => setValues((x) => ({ ...x, [item.id]: v }))}
-                    tones={{ na: 'muted', none: 'muted' }}
-                  />
-                </li>
-              )
-            })}
-          </ul>
-        </Card>
-      </div>
+      {readOnly && (
+        <div className="mb-4">
+          <ReadOnlyNotice text="Die Standard-Ausrüstung können nur Admins der Firma ändern." />
+        </div>
+      )}
+      <fieldset disabled={readOnly}>
+        <div className="space-y-4">
+          <Card>
+            <p className="text-stone-700 dark:text-stone-300">
+              Diese Antworten werden bei jedem neuen Einsatz vorbelegt. Vor Ort muss die Aufsicht
+              sie trotzdem prüfen und bestätigen.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="min-h-12 rounded-xl px-3 font-semibold text-brand-700 underline dark:text-brand-300"
+                onClick={() => setAll('yes')}
+              >
+                Alle auf „Ja“
+              </button>
+              <button
+                type="button"
+                className="min-h-12 rounded-xl px-3 font-semibold text-brand-700 underline dark:text-brand-300"
+                onClick={() => setAll('none')}
+              >
+                Alle zurücksetzen
+              </button>
+            </div>
+          </Card>
+          <Card>
+            <ul className="divide-y divide-stone-200 dark:divide-stone-800">
+              {equipmentItems.map((item) => {
+                const hint = conditionHint(item.visibleIf)
+                const options = [
+                  { value: 'yes' as const, label: 'Ja' },
+                  ...(item.allowNotRelevant === false
+                    ? []
+                    : [{ value: 'na' as const, label: 'n. r.' }]),
+                  { value: 'none' as const, label: 'leer' },
+                ]
+                return (
+                  <li key={item.id} className="space-y-2 py-4 first:pt-0 last:pb-0">
+                    <p className="font-semibold">{item.label}</p>
+                    {hint && <p className="text-sm text-stone-600 dark:text-stone-400">{hint}</p>}
+                    <Segmented<PresetValue>
+                      label={item.label}
+                      options={options}
+                      value={values[item.id]}
+                      onChange={(v) => setValues((x) => ({ ...x, [item.id]: v }))}
+                      tones={{ na: 'muted', none: 'muted' }}
+                    />
+                  </li>
+                )
+              })}
+            </ul>
+          </Card>
+        </div>
+      </fieldset>
       <SaveStatus state={state} />
     </div>
   )

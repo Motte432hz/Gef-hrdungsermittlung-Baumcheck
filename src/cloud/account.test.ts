@@ -64,3 +64,35 @@ describe('cloudErrorMessage', () => {
     )
   })
 })
+
+describe('ensureOwnProfile', () => {
+  const sb = (calls: unknown[]) =>
+    ({
+      rpc: async (fn: string, args: unknown) => {
+        calls.push([fn, args])
+        return { error: null }
+      },
+    }) as never
+
+  it('links an existing employee with the same name', async () => {
+    const org = await ensureOrganization(db)
+    const w = await saveWorker(db, org.id, {
+      kind: 'employee',
+      name: 'Mia Muster',
+      qualifications: [],
+      active: true,
+    })
+    const calls: unknown[] = []
+    const { ensureOwnProfile } = await import('./account')
+    expect(await ensureOwnProfile(db, sb(calls), org.id, ' mia muster ')).toBe(w)
+    expect(calls).toEqual([['set_my_worker', { p_org: org.id, p_worker: w }]])
+    expect(await db.workers.count()).toBe(1)
+  })
+
+  it('creates a profile when there is none', async () => {
+    const org = await ensureOrganization(db)
+    const { ensureOwnProfile } = await import('./account')
+    const id = await ensureOwnProfile(db, sb([]), org.id, 'Neu Person')
+    expect((await db.workers.get(id!))?.name).toBe('Neu Person')
+  })
+})

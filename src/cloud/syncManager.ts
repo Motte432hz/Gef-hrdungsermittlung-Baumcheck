@@ -12,7 +12,9 @@ export const META_CLOUD = 'cloud'
 export interface CloudLink {
   organizationId: string
   userId: string
-  role: string
+  role: 'owner' | 'admin' | 'member'
+  /** The user's own person profile in the company. */
+  workerId?: string
 }
 export const META_LAST_SYNC = 'sync:lastAt'
 

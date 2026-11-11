@@ -16,6 +16,8 @@ import { useAutosave } from '../../components/useAutosave'
 import { personLabel } from '../../domain/people'
 import { qualificationSummary } from '../../domain/qualifications'
 import { companyPath, personPath, TEAM_PATH } from './teamPaths'
+import { useCloudRights } from '../../cloud/useCloudRights'
+import { ReadOnlyNotice } from '../../components/ReadOnlyNotice'
 
 /** Same form-key logic as for people: the first automatic save does not reset the form. */
 export function SubcompanyRoute() {
@@ -26,10 +28,12 @@ export function SubcompanyRoute() {
 function SubcompanyPage({ id, formKey }: { id?: string; formKey: string }) {
   const [recordId] = useState(() => id ?? newId())
   const [initial, setInitial] = useState<CompanyInput | null>()
+  const [createdBy, setCreatedBy] = useState<string>()
   useEffect(() => {
     void (async () => {
       if (!id) return setInitial({ name: '' })
       const c = await db.companies.get(id)
+      setCreatedBy(c?.createdBy)
       setInitial(
         !c || c.deletedAt
           ? null
@@ -48,7 +52,15 @@ function SubcompanyPage({ id, formKey }: { id?: string; formKey: string }) {
   if (initial === null)
     return <PageHeader title="Nicht gefunden" back={TEAM_PATH} backLabel="Team & Partner" />
   if (initial === undefined) return <p>Lädt …</p>
-  return <SubcompanyForm recordId={recordId} isNew={!id} formKey={formKey} initial={initial} />
+  return (
+    <SubcompanyForm
+      recordId={recordId}
+      isNew={!id}
+      formKey={formKey}
+      initial={initial}
+      createdBy={createdBy}
+    />
+  )
 }
 
 function SubcompanyForm({
@@ -56,13 +68,17 @@ function SubcompanyForm({
   isNew,
   formKey,
   initial,
+  createdBy,
 }: {
   recordId: string
   isNew: boolean
   formKey: string
   initial: CompanyInput
+  createdBy?: string
 }) {
   const org = useOrganization()
+  const rights = useCloudRights()
+  const readOnly = !rights.canEdit({ createdBy })
   const navigate = useNavigate()
   const [form, setForm] = useState(initial)
   const [created, setCreated] = useState(!isNew)
@@ -97,7 +113,7 @@ function SubcompanyForm({
         navigate(companyPath(recordId), { replace: true, state: { formKey } })
       }
     },
-    { enabled: !!org && form.name.trim().length > 0 },
+    { enabled: !!org && form.name.trim().length > 0 && !readOnly },
   )
 
   const remove = async () => {
@@ -120,41 +136,45 @@ function SubcompanyForm({
         backLabel="Team & Partner"
       />
       <div className="space-y-4">
-        <Card>
-          <div className="space-y-4">
-            <TextField
-              label="Firmenname"
-              required
-              value={form.name}
-              onChange={(e) => update({ name: e.target.value })}
-              autoComplete="organization"
-              autoFocus={isNew}
-            />
-            <TextField
-              label="Ansprechpartner/in"
-              value={form.contactPerson ?? ''}
-              onChange={(e) => update({ contactPerson: e.target.value })}
-            />
-            <TextField
-              label="Telefon"
-              type="tel"
-              value={form.phone ?? ''}
-              onChange={(e) => update({ phone: e.target.value })}
-            />
-            <TextField
-              label="E-Mail"
-              type="email"
-              value={form.email ?? ''}
-              onChange={(e) => update({ email: e.target.value })}
-            />
-            <TextArea
-              label="Hinweise"
-              value={form.notes ?? ''}
-              onChange={(e) => update({ notes: e.target.value })}
-            />
-          </div>
-        </Card>
-
+        {readOnly && (
+          <ReadOnlyNotice text="Diese Firma hat jemand anderes angelegt. Ändern können sie Admins der Firma." />
+        )}
+        <fieldset disabled={readOnly}>
+          <Card>
+            <div className="space-y-4">
+              <TextField
+                label="Firmenname"
+                required
+                value={form.name}
+                onChange={(e) => update({ name: e.target.value })}
+                autoComplete="organization"
+                autoFocus={isNew}
+              />
+              <TextField
+                label="Ansprechpartner/in"
+                value={form.contactPerson ?? ''}
+                onChange={(e) => update({ contactPerson: e.target.value })}
+              />
+              <TextField
+                label="Telefon"
+                type="tel"
+                value={form.phone ?? ''}
+                onChange={(e) => update({ phone: e.target.value })}
+              />
+              <TextField
+                label="E-Mail"
+                type="email"
+                value={form.email ?? ''}
+                onChange={(e) => update({ email: e.target.value })}
+              />
+              <TextArea
+                label="Hinweise"
+                value={form.notes ?? ''}
+                onChange={(e) => update({ notes: e.target.value })}
+              />
+            </div>
+          </Card>
+        </fieldset>
         {created && (
           <Card title={`Personen (${people?.length ?? 0})`}>
             <div className="space-y-3">
@@ -180,7 +200,7 @@ function SubcompanyForm({
           </Card>
         )}
 
-        {created && (
+        {created && rights.canDelete({ createdBy }, 'record') && (
           <Button
             variant="secondary"
             onClick={() => void remove()}

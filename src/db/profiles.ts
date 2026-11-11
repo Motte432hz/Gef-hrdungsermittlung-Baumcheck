@@ -13,7 +13,7 @@ import type {
 
 type Editable<T> = Omit<
   T,
-  'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'syncState'
+  'id' | 'organizationId' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'syncState' | 'createdBy'
 >
 
 export type OrganizationInput = Partial<Editable<Organization>>

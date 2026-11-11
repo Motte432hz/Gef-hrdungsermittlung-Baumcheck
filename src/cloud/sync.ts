@@ -23,6 +23,7 @@ export interface CloudRow {
   data: Record<string, unknown>
   status?: string
   assessment_id?: string
+  created_by?: string
 }
 
 export class RemoteError extends Error {
@@ -124,6 +125,7 @@ const filePath = (orgId: string, s: Spec, id: string, field: string, hash: strin
 export async function toRow(s: Spec, rec: LocalRecord, remote: Remote): Promise<CloudRow> {
   const data: Record<string, unknown> = { ...rec }
   delete data.syncState
+  delete data.createdBy // set by the server
   for (const field of s.files ?? []) {
     const f = data[field]
     if (!isStoredFile(f)) continue
@@ -157,6 +159,8 @@ export async function fromRow(
     organizationId: row.organization_id,
     syncState: 'synced',
   }
+  // Who created it (server side) – decides who may change or delete it.
+  if (row.created_by) rec.createdBy = row.created_by
   if (row.deleted_at) rec.deletedAt = row.deleted_at
   else delete rec.deletedAt
   rec.createdAt ??= row.created_at

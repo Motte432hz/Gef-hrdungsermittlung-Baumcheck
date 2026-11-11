@@ -1,6 +1,6 @@
 # Plan Phase 2 – Firmen-Kartei, Beitritt per Code, Abgleich zwischen Geräten
 
-Stand: 11.11.2026 · Status: in Umsetzung – Blöcke 1–3 fertig (Mail-Dienst für Anmelde-Codes steht noch aus)
+Stand: 11.11.2026 · Status: Blöcke 1–4 fertig – es fehlt nur der Mail-Dienst für die Anmelde-Codes
 
 ## Ablauf
 
@@ -75,7 +75,16 @@ Admins können also keine Daten endgültig löschen. Ein „Entfernen“ durch A
 - Konflikte: Die neuere Änderung gewinnt. Lehnt der Server eine Änderung oder Löschung ab (fehlende Rechte), übernimmt das Gerät wieder den Serverstand.
 - Tests: `src/cloud/sync.test.ts` (simulierter Server mit denselben Regeln), `npm run test:cloud` (gegen das echte Projekt mit zwei Test-Konten, räumt danach alles ab).
 
+### Mitglieder und Rechte (Block 4)
+
+- Firma → Firmen-Kartei: Beitrittsanfragen freigeben (als Mitarbeiter/in oder Admin) oder ablehnen, Rollen ändern, Mitglieder entfernen, Inhaberschaft übertragen. Admins können nur Mitarbeiter/innen verwalten.
+- Wartende Anfragen werden auf der Firmenseite angezeigt.
+- Beim Beitritt bekommt jedes Gerät ein eindeutiges Gerätekürzel (z. B. M1) für die Protokollnummern; das Gerät, das die Firma in die Cloud gebracht hat, nummeriert weiter ohne Kürzel.
+- Beim Beitritt wird die Person mit ihrem Profil verknüpft (gleicher Name) oder ein Profil angelegt.
+- In der Oberfläche: Firmendaten und Standard-Ausrüstung ändern nur Admins; Personen, Firmen und Kunden anderer nur Admins; Löschen nur die Inhaberin / der Inhaber (eigene Entwürfe ausgenommen). Ohne Cloud darf das Gerät alles.
+
 ### Offen
 
-- Mail-Dienst (SMTP) mit EU-Servern und eigener Domain für die Anmelde-Codes; danach deutsche Code-E-Mail (`supabase/auth/code-email.html`) und höhere Versandgrenze einstellen.
+- Mail-Dienst (SMTP) für die Anmelde-Codes: zum Testen Brevo mit privater Absender-Adresse; später eigene Domain mit dem endgültigen Produktnamen. Danach deutsche Code-E-Mail (`supabase/auth/code-email.html`) und höhere Versandgrenze einstellen.
+- Produktname und Branding stehen noch nicht fest („BaumCheck“ ist Arbeitstitel).
 - App-Adresse (Cloudflare) als `site_url` bei Supabase eintragen.

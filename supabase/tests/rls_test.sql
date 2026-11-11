@@ -229,6 +229,18 @@ begin
   v := pg_temp.scalar_as(m, 'select count(*) from public.workers');
   if v <> '0' then raise exception 'FAILED [removed member sees nothing]: %', v; end if;
 
+  -- Device codes are unique per company.
+  v := pg_temp.scalar_as(a, format($q$select public.register_device(%L, '', 'Anton', 'iPad')$q$, org));
+  if v <> 'A1' then raise exception 'FAILED [first device code]: %', v; end if;
+  v := pg_temp.scalar_as(a, format($q$select public.register_device(%L, '', 'Anton', 'Handy')$q$, org));
+  if v <> 'A2' then raise exception 'FAILED [second device code]: %', v; end if;
+  v := pg_temp.scalar_as(a, format($q$select public.register_device(%L, 'a1', 'Anton', 'iPad')$q$, org));
+  if v <> 'A1' then raise exception 'FAILED [own code again]: %', v; end if;
+  v := pg_temp.scalar_as(o, format($q$select public.register_device(%L, 'A1', 'Olaf', 'PC')$q$, org));
+  if v <> 'O1' then raise exception 'FAILED [taken code is not given twice]: %', v; end if;
+  perform pg_temp.check_as(x, 'outsiders get no device code',
+    format($q$select public.register_device(%L, '', 'X', null)$q$, org), 'error');
+
   raise notice 'ALL RLS TESTS PASSED';
 end $$;
 

@@ -23,6 +23,8 @@ export interface BaseRecord {
   /** Soft delete, so deletions can be synced. */
   deletedAt?: ISODate
   syncState: SyncState
+  /** Cloud user who created the record (set by the server; absent for local-only records). */
+  createdBy?: string
 }
 
 export type PdfLayout = 'standard' | 'compact' | 'table' | 'modern' | 'sidebar'
