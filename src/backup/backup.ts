@@ -1,6 +1,7 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate'
 import type { BaumCheckDB } from '../db/db'
 import { audit, META_DEVICE_CODE, newId, nowIso } from '../db/repo'
+import { linkCompanies } from '../db/profiles'
 
 /**
  * Backup = ZIP with data.json (all tables) and the binary files (photos, signatures, logo,
@@ -15,6 +16,7 @@ const META_CURRENT_ORG = 'currentOrganizationId'
 const TABLES = [
   'organizations',
   'workers',
+  'companies',
   'equipmentPresets',
   'customers',
   'assessments',
@@ -224,6 +226,8 @@ export async function importBackup(db: BaumCheckDB, bytes: Uint8Array): Promise<
       }
     },
   )
+  // Backups from before subcontractor companies existed only have free-text company names.
+  await linkCompanies(db)
   const orgId = ((await db.meta.get(META_CURRENT_ORG))?.value as string | undefined) ?? ''
   if (orgId)
     await audit(

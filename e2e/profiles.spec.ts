@@ -51,51 +51,97 @@ test('company profile with logo is saved and survives reload', async ({ page }) 
   await expect(page.getByRole('main').getByText('Zwieselwiesel Baumpflege')).toBeVisible()
 })
 
-test('employee with qualification and stored signature', async ({ page }) => {
-  await page.goto('/profile/mitarbeiter')
-  await expect(page.getByText('Noch keine Mitarbeiter angelegt.')).toBeVisible()
-  await page.getByRole('link', { name: '+ Neu' }).click()
-
-  await save(page)
-  await expect(page.getByText('Name ist ein Pflichtfeld.')).toBeVisible()
+test('person: short form, saved automatically, extras folded away', async ({ page }) => {
+  await page.goto('/profile')
+  await page.getByRole('link', { name: /Team & Partner/ }).click()
+  await expect(page.getByText(/Noch niemand angelegt/)).toBeVisible()
+  await page.getByRole('link', { name: '+ Person' }).click()
+  await expect(page.getByText('Name eingeben – dann wird automatisch gespeichert.')).toBeVisible()
 
   await page.getByLabel(/^Name/).fill('Anna Ast')
+  await saved(page)
+  await expect(page).toHaveURL(/\/profile\/team\/person\/[0-9a-f-]{36}$/)
+  // The form keeps its input after the first save moved the address.
   await page.getByLabel('Rufname (optional)').fill('Änni')
   await page.getByText('SKT A', { exact: true }).click()
-  await page.getByLabel('Gültig bis (optional)').fill('2020-01-31')
   await page.getByText('AS-Baum II', { exact: true }).click()
+  await page.getByText('Weitere Angaben').click()
+  await page.getByLabel('SKT A gültig bis').fill('2020-01-31')
   await drawSignature(page)
   await page.getByRole('button', { name: 'Unterschrift übernehmen' }).click()
   await expect(page.getByRole('img', { name: 'Unterschrift (gespeichert)' })).toBeVisible()
-  await save(page)
   await saved(page)
-  await expect(page).toHaveURL(/\/profile\/mitarbeiter\/[0-9a-f-]{36}$/)
 
   await page.reload()
   await expect(page.getByLabel(/^Name/)).toHaveValue('Anna Ast')
+  await expect(page.getByLabel('Rufname (optional)')).toHaveValue('Änni')
+  // Extras are open when something is filled in.
   const sig = page.getByRole('img', { name: 'Unterschrift (gespeichert)' })
   await expect(sig).toBeVisible()
   expect(await sig.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0)
 
-  await page.getByRole('link', { name: 'Mitarbeiter' }).click()
-  await expect(page.getByText('Anna Ast „Änni“')).toBeVisible()
-  await expect(page.getByText('AS-Baum II · SKT A (abgelaufen)')).toBeVisible()
+  await page.getByRole('link', { name: 'Team & Partner' }).click()
+  const own = page.getByRole('region', { name: 'Eigene Firma' })
+  await expect(own.getByText('Anna Ast „Änni“')).toBeVisible()
+  await expect(own.getByText('AS-Baum II · SKT A (abgelaufen)')).toBeVisible()
 
   // Delete
-  await page.getByRole('link', { name: /Anna Ast/ }).click()
+  await own.getByRole('link', { name: /Anna Ast/ }).click()
   page.once('dialog', (d) => void d.accept())
-  await page.getByRole('button', { name: 'Mitarbeiter/in löschen' }).click()
-  await expect(page.getByText('Noch keine Mitarbeiter angelegt.')).toBeVisible()
+  await page.getByRole('button', { name: 'Person löschen' }).click()
+  await expect(page.getByText(/Noch niemand angelegt/)).toBeVisible()
 })
 
-test('subcontractor has a company field', async ({ page }) => {
-  await page.goto('/profile/subunternehmer/neu')
-  await page.getByLabel(/^Name/).fill('Karl Kletter')
-  await page.getByLabel('Firma').fill('Kletterteam Süd GmbH')
-  await save(page)
+test('subcontractor companies group their people; renaming updates everyone', async ({ page }) => {
+  await page.goto('/profile/team')
+  await page.getByRole('link', { name: '+ Subunternehmer' }).click()
+  await page.getByLabel(/^Firmenname/).fill('Kletterteam Süd')
+  await page.getByLabel('Telefon').fill('0171 123456')
   await saved(page)
-  await page.getByRole('link', { name: 'Subunternehmer' }).click()
-  await expect(page.getByText(/Kletterteam Süd GmbH/)).toBeVisible()
+
+  for (const name of ['Karl Kletter', 'Kim Krone']) {
+    await page.getByRole('link', { name: '+ Person bei Kletterteam Süd' }).click()
+    await expect(page.getByRole('radio', { name: 'Subunternehmer' })).toBeChecked()
+    await expect(page.getByLabel('Firma', { exact: true })).toHaveValue('Kletterteam Süd')
+    await page.getByLabel(/^Name/).fill(name)
+    await saved(page)
+    await page.goBack()
+    await expect(page.getByRole('heading', { name: 'Kletterteam Süd' })).toBeVisible()
+  }
+  await expect(page.getByRole('heading', { name: /^Personen/ })).toHaveText('Personen (2)')
+
+  // A person typed with a new company creates it.
+  await page.goto('/profile/team/person/neu?art=sub')
+  await page.getByLabel(/^Name/).fill('Solo Säge')
+  await page.getByLabel('Firma', { exact: true }).fill('Sägewerk Nord')
+  await page.getByLabel(/^Name/).click()
+  await saved(page)
+
+  await page.goto('/profile/team')
+  const group = page.getByRole('region', { name: 'Kletterteam Süd' })
+  await expect(group).toContainText('Subunternehmer · 2 Personen · 0171 123456')
+  await expect(group.getByRole('link', { name: /Karl Kletter/ })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Sägewerk Nord' })).toContainText('Solo Säge')
+
+  // Filter and search.
+  await page.getByRole('radio', { name: 'Eigene' }).check({ force: true })
+  await expect(page.getByRole('region', { name: 'Kletterteam Süd' })).toHaveCount(0)
+  await page.getByRole('radio', { name: 'Alle' }).check({ force: true })
+  await page.getByLabel('Suchen').fill('kim')
+  await expect(page.getByRole('link', { name: /Karl Kletter/ })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /Kim Krone/ })).toBeVisible()
+  await page.getByLabel('Suchen').fill('')
+
+  // Rename the company.
+  await group.getByRole('link', { name: /Kletterteam Süd/ }).click()
+  await page.getByLabel(/^Firmenname/).fill('Kletterteam Nord')
+  await saved(page)
+  await page.getByRole('link', { name: 'Team & Partner' }).click()
+  await expect(page.getByRole('region', { name: 'Kletterteam Nord' })).toContainText('Kim Krone')
+
+  // Old bookmarks lead to the new pages.
+  await page.goto('/profile/subunternehmer')
+  await expect(page).toHaveURL(/\/profile\/team$/)
 })
 
 test('customer with objects', async ({ page }) => {
@@ -179,8 +225,9 @@ test('protocol number preview and continuing a series', async ({ page }) => {
 test('PPE and gear per person with instant search, free entry and inspection warning', async ({
   page,
 }) => {
-  await page.goto('/profile/mitarbeiter/neu')
+  await page.goto('/profile/team/person/neu')
   await page.getByLabel(/^Name/).fill('Anna Ast')
+  await page.getByText('Weitere Angaben').click()
 
   const add = page.getByRole('combobox', { name: 'Ausrüstung hinzufügen' })
   await add.fill('spider')
@@ -197,7 +244,6 @@ test('PPE and gear per person with instant search, free entry and inspection war
   const list = page.getByRole('list', { name: 'Ausrüstung' })
   await expect(list.getByRole('listitem')).toHaveCount(2)
   await expect(list).toContainText('Prüfung überfällig')
-  await save(page)
   await saved(page)
 
   await page.reload()

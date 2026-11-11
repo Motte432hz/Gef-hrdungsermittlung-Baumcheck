@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router'
+import { createBrowserRouter, Navigate } from 'react-router'
 import { AppLayout } from './AppLayout'
 import { RootLayout } from './RootLayout'
 import { WizardPage } from '../wizard/WizardPage'
@@ -8,8 +8,10 @@ import { ProfilesPage } from '../pages/ProfilesPage'
 import { SettingsPage } from '../pages/SettingsPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { CompanyPage } from '../pages/profiles/CompanyPage'
-import { WorkerListPage } from '../pages/profiles/WorkerListPage'
-import { WorkerEditPage } from '../pages/profiles/WorkerEditPage'
+import { TeamPage } from '../pages/profiles/TeamPage'
+import { PersonRoute } from '../pages/profiles/PersonPage'
+import { SubcompanyRoute } from '../pages/profiles/SubcompanyPage'
+import { OldPersonRedirect } from './OldPersonRedirect'
 import { CustomerListPage } from '../pages/profiles/CustomerListPage'
 import { CustomerEditPage } from '../pages/profiles/CustomerEditPage'
 import { EquipmentPage } from '../pages/profiles/EquipmentPage'
@@ -29,18 +31,14 @@ export const routes = [
           { path: 'protokoll/:id', element: <ProtocolPage /> },
           { path: 'profile', element: <ProfilesPage /> },
           { path: 'profile/firma', element: <CompanyPage /> },
-          { path: 'profile/mitarbeiter', element: <WorkerListPage kind="employee" /> },
-          {
-            path: 'profile/mitarbeiter/neu',
-            element: <WorkerEditPage key="new-employee" kind="employee" />,
-          },
-          { path: 'profile/mitarbeiter/:id', element: <WorkerEditPage kind="employee" /> },
-          { path: 'profile/subunternehmer', element: <WorkerListPage kind="subcontractor" /> },
-          {
-            path: 'profile/subunternehmer/neu',
-            element: <WorkerEditPage key="new-subcontractor" kind="subcontractor" />,
-          },
-          { path: 'profile/subunternehmer/:id', element: <WorkerEditPage kind="subcontractor" /> },
+          { path: 'profile/team', element: <TeamPage /> },
+          { path: 'profile/team/person/:id', element: <PersonRoute /> },
+          { path: 'profile/team/firma/:id', element: <SubcompanyRoute /> },
+          // Old addresses (bookmarks, home screen) lead to the new pages.
+          { path: 'profile/mitarbeiter', element: <Navigate to="/profile/team" replace /> },
+          { path: 'profile/subunternehmer', element: <Navigate to="/profile/team" replace /> },
+          { path: 'profile/mitarbeiter/:id', element: <OldPersonRedirect kind="employee" /> },
+          { path: 'profile/subunternehmer/:id', element: <OldPersonRedirect kind="sub" /> },
           { path: 'profile/kunden', element: <CustomerListPage /> },
           { path: 'profile/kunden/neu', element: <CustomerEditPage key="new-customer" /> },
           { path: 'profile/kunden/:id', element: <CustomerEditPage /> },

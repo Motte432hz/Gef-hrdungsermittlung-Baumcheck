@@ -258,10 +258,9 @@ test('new customer and whole subcontractor company without leaving the wizard', 
   page,
 }) => {
   for (const name of ['Kim Krone', 'Lea Laub']) {
-    await page.goto('/profile/subunternehmer/neu')
+    await page.goto('/profile/team/person/neu?art=sub')
+    await page.getByLabel('Firma', { exact: true }).fill('Kletterteam Süd')
     await page.getByLabel(/^Name/).fill(name)
-    await page.getByLabel('Firma').fill('Kletterteam Süd')
-    await page.getByRole('button', { name: 'Speichern' }).click()
     await expect(page.getByText('✓ Gespeichert')).toBeVisible()
   }
 

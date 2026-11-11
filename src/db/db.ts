@@ -3,6 +3,7 @@ import type {
   Assessment,
   Attachment,
   AuditEntry,
+  Company,
   Customer,
   EquipmentPreset,
   MetaEntry,
@@ -12,6 +13,7 @@ import type {
   Worker,
 } from '../domain/types'
 import { canonicalJson } from '../lib/hash'
+import { groupCompanies } from './companies'
 
 /** Fields that may still change after an assessment has been completed. */
 const LOCKED_MUTABLE_FIELDS = new Set(['status', 'sentAt', 'syncState', 'updatedAt'])
@@ -44,6 +46,7 @@ export class LockedError extends Error {
 export class BaumCheckDB extends Dexie {
   organizations!: EntityTable<Organization, 'id'>
   workers!: EntityTable<Worker, 'id'>
+  companies!: EntityTable<Company, 'id'>
   equipmentPresets!: EntityTable<EquipmentPreset, 'id'>
   customers!: EntityTable<Customer, 'id'>
   assessments!: EntityTable<Assessment, 'id'>
@@ -68,6 +71,19 @@ export class BaumCheckDB extends Dexie {
       auditLog: 'id, organizationId, at, entityId, syncState',
       meta: 'key',
     })
+    // v2: subcontractor companies as own records; existing free-text companies are grouped.
+    this.version(2)
+      .stores({
+        workers: 'id, organizationId, kind, name, companyId, syncState',
+        companies: 'id, organizationId, name, syncState',
+      })
+      .upgrade(async (tx) => {
+        const workers = (await tx.table('workers').toArray()) as Worker[]
+        const { companies, links } = groupCompanies(workers, [])
+        await tx.table('companies').bulkAdd(companies)
+        for (const [id, c] of links)
+          await tx.table('workers').update(id, { companyId: c.id, company: c.name })
+      })
 
     // Immutability: once completed, only status/sentAt/sync metadata may change,
     // and the status can never go back to draft.

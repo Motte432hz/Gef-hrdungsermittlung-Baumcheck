@@ -1,6 +1,8 @@
 import type { BaumCheckDB } from './db'
 import { audit, baseRecord, nowIso } from './repo'
+import { groupCompanies, sameCompanyName } from './companies'
 import type {
+  Company,
   Customer,
   EquipmentPreset,
   ID,
@@ -17,6 +19,7 @@ type Editable<T> = Omit<
 export type OrganizationInput = Partial<Editable<Organization>>
 export type WorkerInput = Editable<Worker>
 export type CustomerInput = Editable<Customer>
+export type CompanyInput = Editable<Company>
 
 export async function saveOrganization(db: BaumCheckDB, id: ID, changes: OrganizationInput) {
   await db.transaction('rw', db.organizations, db.auditLog, async () => {
@@ -32,23 +35,99 @@ export async function listWorkers(db: BaumCheckDB, organizationId: ID, kind?: Pe
   return all.filter((w) => !w.deletedAt && (!kind || w.kind === kind)).sort(byName)
 }
 
-/** Creates (no id) or updates (id) a worker profile. Returns the id. */
+/**
+ * Creates or updates a worker profile (an `id` that does not exist yet creates the record with
+ * that id – used by forms that save automatically). Returns the id. The company name is taken
+ * from the company record; own employees never belong to a subcontractor company.
+ */
 export async function saveWorker(
   db: BaumCheckDB,
   organizationId: ID,
   input: WorkerInput,
   id?: ID,
 ): Promise<ID> {
-  return db.transaction('rw', db.workers, db.auditLog, async () => {
-    if (id) {
-      await db.workers.update(id, { ...input, updatedAt: nowIso(), syncState: 'pending' })
+  return db.transaction('rw', db.workers, db.companies, db.auditLog, async () => {
+    const data: WorkerInput = { ...input }
+    if (data.kind === 'employee') {
+      data.companyId = undefined
+      data.company = undefined
+    } else if (data.companyId) {
+      data.company = (await db.companies.get(data.companyId))?.name ?? data.company
+    }
+    if (id && (await db.workers.get(id))) {
+      await db.workers.update(id, { ...data, updatedAt: nowIso(), syncState: 'pending' })
       await audit(db, organizationId, 'updated', 'worker', id)
       return id
     }
-    const worker: Worker = { ...baseRecord(organizationId), ...input }
+    const worker: Worker = { ...baseRecord(organizationId), ...(id ? { id } : {}), ...data }
     await db.workers.add(worker)
     await audit(db, organizationId, 'created', 'worker', worker.id)
     return worker.id
+  })
+}
+
+export async function listCompanies(db: BaumCheckDB, organizationId: ID) {
+  const all = await db.companies.where('organizationId').equals(organizationId).toArray()
+  return all.filter((c) => !c.deletedAt).sort(byName)
+}
+
+/** Creates or updates a subcontractor company; a new name is copied to its people. */
+export async function saveCompany(
+  db: BaumCheckDB,
+  organizationId: ID,
+  input: CompanyInput,
+  id?: ID,
+): Promise<ID> {
+  return db.transaction('rw', db.companies, db.workers, db.auditLog, async () => {
+    const ts = nowIso()
+    if (id && (await db.companies.get(id))) {
+      await db.companies.update(id, { ...input, updatedAt: ts, syncState: 'pending' })
+      await db.workers
+        .where('companyId')
+        .equals(id)
+        .modify({ company: input.name, updatedAt: ts, syncState: 'pending' })
+      await audit(db, organizationId, 'updated', 'company', id)
+      return id
+    }
+    const company: Company = { ...baseRecord(organizationId), ...(id ? { id } : {}), ...input }
+    await db.companies.add(company)
+    await audit(db, organizationId, 'created', 'company', company.id)
+    return company.id
+  })
+}
+
+/** The company with this name (case-insensitive) – created if it does not exist yet. */
+export async function ensureCompany(db: BaumCheckDB, organizationId: ID, name: string) {
+  const found = (await listCompanies(db, organizationId)).find((c) => sameCompanyName(c.name, name))
+  if (found) return found
+  const id = await saveCompany(db, organizationId, { name: name.trim() })
+  return (await db.companies.get(id))!
+}
+
+/** Soft delete; its people stay as subcontractors without a company. */
+export async function deleteCompany(db: BaumCheckDB, id: ID) {
+  await db.transaction('rw', db.companies, db.workers, db.auditLog, async () => {
+    const c = await db.companies.get(id)
+    if (!c) return
+    const ts = nowIso()
+    await db.companies.update(id, { deletedAt: ts, updatedAt: ts, syncState: 'pending' })
+    await db.workers
+      .where('companyId')
+      .equals(id)
+      .modify({ companyId: undefined, company: undefined, updatedAt: ts, syncState: 'pending' })
+    await audit(db, c.organizationId, 'deleted', 'company', id)
+  })
+}
+
+/** Links subcontractors that only have a free-text company (e.g. from an old backup). */
+export async function linkCompanies(db: BaumCheckDB) {
+  await db.transaction('rw', db.companies, db.workers, async () => {
+    const { companies, links } = groupCompanies(
+      await db.workers.toArray(),
+      (await db.companies.toArray()).filter((c) => !c.deletedAt),
+    )
+    await db.companies.bulkAdd(companies)
+    for (const [id, c] of links) await db.workers.update(id, { companyId: c.id, company: c.name })
   })
 }
 

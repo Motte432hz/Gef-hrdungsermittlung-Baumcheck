@@ -79,11 +79,12 @@ test('stored profile signature can be used with confirmation by the supervisor',
   page,
 }) => {
   // Profile with stored signature.
-  await page.goto('/profile/mitarbeiter/neu')
+  await page.goto('/profile/team/person/neu')
   await page.getByLabel(/^Name/).fill('Carla Zapfen')
+  await page.getByText('Weitere Angaben').click()
   await drawSignature(page)
   await page.getByRole('button', { name: 'Unterschrift übernehmen' }).click()
-  await page.getByRole('button', { name: 'Speichern' }).click()
+  await expect(page.getByRole('img', { name: 'Unterschrift (gespeichert)' })).toBeVisible()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await fillCompleteAssessment(page, { newPeople: ['Anna Ast'], profilePeople: ['Carla Zapfen'] })

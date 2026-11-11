@@ -86,11 +86,23 @@ export interface GearItem {
 export type PersonKind = 'employee' | 'subcontractor'
 
 /** Saved person profile: own employee or subcontractor. */
+/** Subcontractor company with its people (workers with kind "subcontractor"). */
+export interface Company extends BaseRecord {
+  name: string
+  contactPerson?: string
+  phone?: string
+  email?: string
+  notes?: string
+}
+
 export interface Worker extends BaseRecord {
   kind: PersonKind
   name: string
   /** Call name used on site, e.g. "Kalle". */
   nickname?: string
+  /** Subcontractor company (kind "subcontractor"). */
+  companyId?: ID
+  /** Company name, kept in sync with the company record (display and team snapshots). */
   company?: string
   phone?: string
   qualifications: Qualification[]
@@ -249,7 +261,7 @@ export interface AuditEntry {
   organizationId: ID
   at: ISODate
   action: AuditAction
-  entity: 'assessment' | 'worker' | 'customer' | 'organization' | 'equipment' | 'backup'
+  entity: 'assessment' | 'worker' | 'company' | 'customer' | 'organization' | 'equipment' | 'backup'
   entityId?: ID
   actor?: string
   details?: string

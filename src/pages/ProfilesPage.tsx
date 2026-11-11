@@ -1,6 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
-import { getDefaultEquipmentPreset, listCustomers, listWorkers } from '../db/profiles'
+import {
+  getDefaultEquipmentPreset,
+  listCompanies,
+  listCustomers,
+  listWorkers,
+} from '../db/profiles'
 import { useOrganization } from '../app/useOrganization'
 import { PageHeader } from '../components/PageHeader'
 import { LinkList, ListLink } from '../components/ListLink'
@@ -13,15 +18,17 @@ export function ProfilesPage() {
   const org = useOrganization()
   const stats = useLiveQuery(async () => {
     if (!org) return undefined
-    const [employees, subs, customers, preset] = await Promise.all([
+    const [employees, subs, companies, customers, preset] = await Promise.all([
       listWorkers(db, org.id, 'employee'),
       listWorkers(db, org.id, 'subcontractor'),
+      listCompanies(db, org.id),
       listCustomers(db, org.id),
       getDefaultEquipmentPreset(db, org.id),
     ])
     return {
       employees: employees.length,
       subs: subs.length,
+      companies: companies.length,
       customers: customers.length,
       presetCount: preset ? Object.keys(preset.answers).length : 0,
     }
@@ -37,14 +44,15 @@ export function ProfilesPage() {
           meta={org?.name ? org.name : 'Noch nicht eingerichtet – Logo und Firmendaten für das PDF'}
         />
         <ListLink
-          to="/profile/mitarbeiter"
-          title="Mitarbeiter"
-          meta={count(stats?.employees, 'Person', 'Personen')}
-        />
-        <ListLink
-          to="/profile/subunternehmer"
-          title="Subunternehmer"
-          meta={count(stats?.subs, 'Person', 'Personen')}
+          to="/profile/team"
+          title="Team & Partner"
+          meta={
+            stats
+              ? stats.employees + stats.subs === 0
+                ? 'Mitarbeiter und Subunternehmer anlegen'
+                : `${stats.employees} eigene · ${stats.subs} Subunternehmer${stats.companies ? ` (${stats.companies} ${stats.companies === 1 ? 'Firma' : 'Firmen'})` : ''}`
+              : '…'
+          }
         />
         <ListLink
           to="/profile/ausruestung"
