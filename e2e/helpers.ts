@@ -2,9 +2,9 @@ import { expect, type Page } from '@playwright/test'
 
 /** Next step; waits until the new step is shown. */
 export async function next(page: Page) {
-  const before = await page.getByText(/^Schritt \d+ von 9$/).textContent()
+  const before = await page.getByText(/^Schritt \d+ von 7$/).textContent()
   await page.getByRole('button', { name: 'Weiter ›' }).click()
-  await expect(page.getByText(/^Schritt \d+ von 9$/)).not.toHaveText(before!)
+  await expect(page.getByText(/^Schritt \d+ von 7$/)).not.toHaveText(before!)
 }
 
 export async function drawSignature(page: Page, scope = page.locator('body')) {
@@ -63,6 +63,7 @@ export async function fillCompleteAssessment(
   await expect(page).toHaveURL(/\/job$/)
 
   await check(page, 'Baumarbeiten (allgemein)')
+  await check(page, 'Totholzentnahme')
   await next(page)
 
   await page.getByRole('textbox', { name: /Adresse/ }).fill('Lindenstraße 4, 60311 Frankfurt')
@@ -86,9 +87,6 @@ export async function fillCompleteAssessment(
   await answerAll(page, 'Ja')
   await next(page)
 
-  await check(page, 'Totholzentnahme')
-  await next(page)
-
   await page.getByRole('button', { name: '+ Ersten Baum erfassen' }).click()
   await page.getByRole('combobox').fill('Winter-Linde')
   await page.getByRole('option', { name: 'Winter-Linde Tilia cordata' }).click()
@@ -110,10 +108,7 @@ export async function fillCompleteAssessment(
   await answerAll(page, 'Ja')
   await answerAll(page, 'Nein, unauffällig')
   await next(page)
-
-  await answerAll(page, 'Ja')
-  await next(page)
-  await expect(page.getByText('Schritt 9 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 7 von 7')).toBeVisible()
 }
 
 /** Signs for every person on the summary step. */

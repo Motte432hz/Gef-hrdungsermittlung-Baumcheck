@@ -7,16 +7,14 @@ describe('form definition', () => {
     expect(checkDefinition(currentDefinition)).toEqual([])
   })
 
-  it('has the ten wizard topics in order (steps 1–8; summary and completion are not form steps)', () => {
+  it('has the wizard topics in order (summary and completion are not form steps)', () => {
     expect(currentDefinition.steps.map((s) => s.id)).toEqual([
       'job',
       'site',
       'team',
-      'work',
       'tree',
       'treeAssessment',
       'workplace',
-      'equipment',
     ])
   })
 

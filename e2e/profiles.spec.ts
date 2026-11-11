@@ -136,7 +136,7 @@ test('equipment preset', async ({ page }) => {
   await save(page)
   await saved(page)
   await page.getByRole('link', { name: 'Profile' }).first().click()
-  await expect(page.getByText('13 von 13 Punkten vorbelegt')).toBeVisible()
+  await expect(page.getByText('12 von 12 Punkten vorbelegt')).toBeVisible()
 })
 
 test('device code in settings', async ({ page }) => {

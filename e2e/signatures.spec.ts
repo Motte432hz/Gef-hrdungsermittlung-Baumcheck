@@ -55,7 +55,7 @@ test('summary shows all answers; everyone signs; changes invalidate signatures',
   const sidebar = page.locator('aside').getByRole('link', { name: /Prüfen & Abschließen/ })
   if (await sidebar.isVisible()) await sidebar.click()
   else {
-    await page.getByRole('button', { name: /Schritt 3 von 9/ }).click()
+    await page.getByRole('button', { name: /Schritt 3 von 7/ }).click()
     await page
       .locator('#step-menu')
       .getByRole('link', { name: /Prüfen & Abschließen/ })

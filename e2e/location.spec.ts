@@ -39,7 +39,7 @@ async function openSiteStep(page: Page) {
   await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
   await expect(page).toHaveURL(/job$/)
   await page.goto(page.url().replace(/job$/, 'site'))
-  await expect(page.getByText('Schritt 2 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 2 von 7')).toBeVisible()
 }
 
 test.describe('with GPS', () => {

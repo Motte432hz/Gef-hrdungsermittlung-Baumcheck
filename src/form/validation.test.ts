@@ -176,7 +176,6 @@ describe('validateAssessment', () => {
         'tree.crown.anchorOk',
         'equip.twoClimbingKits',
         'emergency.rescueRope',
-        'emergency.lineOfSight',
       ]),
     )
   })

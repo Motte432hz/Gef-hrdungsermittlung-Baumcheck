@@ -17,6 +17,24 @@ Grundlage ist der Inhalt des SVLFG-Formulars „Einsatzbezogene Gefährdungsermi
 
 Die Kennungen in `code`-Schrift sind interne Namen für die Programmierung. Du kannst sie ignorieren.
 
+**Aufbau im Assistenten (7 Schritte)**
+
+1. Einsatz – inkl. 4. Geplante Arbeiten
+2. Standort & Rettung
+3. Team
+4. Baum (je Baum)
+5. Baumbeurteilung (je Baum)
+6. Einsatzort & Ausrüstung – 7. Einsatzort und 8. Ausrüstung & Notfall
+7. Prüfen & Abschließen
+
+Die Nummerierung unten bleibt zur Durchsicht wie gehabt.
+
+**Abkürzungen beim Ausfüllen**
+
+- **Filterfragen**: Baumumfeld, Stamm, Krone und Gefahren am Einsatzort beginnen mit „Gibt es Auffälligkeiten …?“. Nur bei „Ja“ werden die einzelnen Merkmale abgefragt.
+- **„Alle offenen mit Ja beantworten“** je Abschnitt mit Kontrollpunkten.
+- Beantwortete Punkte ohne Befund werden zu einer Zeile eingeklappt („ändern“ öffnet sie wieder). Danach springt die Ansicht zum nächsten offenen Punkt.
+
 Bitte korrigiere direkt in dieser Datei oder schreib mir die Änderungen, z. B. „3.4 Text ändern in …“ oder „7.9 streichen“.
 
 ---
@@ -298,9 +316,11 @@ Info: Bei Fällungen mindestens die doppelte Baumlänge. Bei Kronenarbeiten den 
 
 Info: Schräg nach hinten, etwa 45° zur Fällrichtung, frei von Hindernissen und Stolperstellen, für alle am Baum Tätigen.
 
-**7.4 KP: Verständigung ist am Einsatzort möglich** · `site.communicationPossible`
+**7.4 KP: Ruf- und Sichtverbindung oder Funk ist zwischen allen möglich** · `site.communicationPossible`
 
-Info: Ruf- und Sichtverbindung oder Funk zwischen Kletterer, Bodenperson und Sicherungsposten, auch bei laufenden Maschinen.
+Info: Zwischen Kletterer bzw. Bühnenbediener, Bodenperson und Sicherungsposten – auch bei laufender Motorsäge oder laufendem Hacker. Wenn nicht: Funk einsetzen oder Sicherungsposten so stellen, dass Sichtkontakt besteht.
+
+(Ersetzt auch den früheren Punkt 8.12 „Ruf- und Sichtverbindung zum Kletterer bzw. Bühnenbediener“.)
 
 **Filterfrage: Gibt es besondere Gefahren am Einsatzort?** · `site.hazards.gate` (betrifft 7.5–7.9; 7.10 bleibt immer sichtbar)
 
@@ -373,7 +393,7 @@ Info: Ausrüstung, mit der eine verletzte Person aus dem Baum oder von der Bühn
 
 Info: Mindestens so lang, dass vom höchsten Arbeitspunkt bis zum Boden abgeseilt werden kann.
 
-**8.12 KP: Ruf- und Sichtverbindung zum Kletterer bzw. Bühnenbediener besteht** · nur bei SKT oder Hubarbeitsbühne · `emergency.lineOfSight`
+~~8.12~~ entfallen, zusammengelegt mit 7.4.
 
 **8.13 KP: Notfallablauf besprochen** · ohne „nicht relevant“ · `emergency.planBriefed`
 

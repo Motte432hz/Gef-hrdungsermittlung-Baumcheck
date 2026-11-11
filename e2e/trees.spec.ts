@@ -30,7 +30,6 @@ async function pickSpecies(page: Page, query: string, name: string) {
 test('species search shows typical hazards with advice for the planned work', async ({ page }) => {
   const base = await start(page)
   await check(page, 'Seilklettertechnik (SKT)')
-  await page.goto(base + 'work')
   await check(page, 'Kroneneinkürzung')
   await addFirstTree(page, base)
 
@@ -59,7 +58,6 @@ test('species search shows typical hazards with advice for the planned work', as
 
 test('felling plan shows felling advice (ash)', async ({ page }) => {
   const base = await start(page)
-  await page.goto(base + 'work')
   await check(page, 'Fällung')
   await addFirstTree(page, base)
   await pickSpecies(page, 'Fraxinus excelsior', 'Gemeine Esche')
@@ -112,16 +110,16 @@ test('several trees: next walks tree by tree; trees can be removed', async ({ pa
 
   const next = page.getByRole('button', { name: 'Weiter ›' })
   await next.click()
-  await expect(page.getByText('Schritt 6 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 5 von 7')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Baum 1 · Winter-Linde' })).toBeVisible()
   await next.click()
-  await expect(page.getByText('Schritt 5 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 4 von 7')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Baum 2 · Ahornblättrige Platane' })).toBeVisible()
   await next.click()
   await expect(page.getByRole('heading', { name: 'Baum 2 · Ahornblättrige Platane' })).toBeVisible()
-  await expect(page.getByText('Schritt 6 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 5 von 7')).toBeVisible()
   await next.click()
-  await expect(page.getByText('Schritt 7 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 6 von 7')).toBeVisible()
 
   await page.goto(base + 'tree')
   page.once('dialog', (d) => void d.accept())
@@ -142,7 +140,7 @@ test('tree result "Nein" is a danger and jumps from the summary to the right tre
   const tree2 = new URL(page.url()).searchParams.get('baum')!
 
   await page.getByRole('button', { name: 'Weiter ›' }).click()
-  await expect(page.getByText('Schritt 6 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 5 von 7')).toBeVisible()
   const result = page.locator('[id$="tree-result"]')
   await result.getByText('Nein', { exact: true }).click()
   await expect(

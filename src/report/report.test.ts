@@ -135,13 +135,11 @@ describe('buildSummary', () => {
       'Einsatz',
       'Standort & Rettung',
       'Team',
-      'Geplante Arbeiten',
       'Baum – Baum 1',
       'Baum – Baum 2',
       'Baumbeurteilung – Baum 1',
       'Baumbeurteilung – Baum 2',
-      'Einsatzort',
-      'Ausrüstung & Notfall',
+      'Einsatzort & Ausrüstung',
     ])
   })
 

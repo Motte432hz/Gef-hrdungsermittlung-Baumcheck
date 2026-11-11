@@ -4,7 +4,7 @@ async function start(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
   await expect(page).toHaveURL(/\/einsatz\/[0-9a-f-]{36}\/job$/)
-  await expect(page.getByText('Schritt 1 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 1 von 7')).toBeVisible()
 }
 
 const next = (page: Page) => page.getByRole('button', { name: 'Weiter ›' }).click()
@@ -27,7 +27,7 @@ const collapsed = (page: Page, label: string, value: string) =>
 async function gotoStep(page: Page, title: RegExp) {
   const sidebar = page.locator('aside').getByRole('link', { name: title })
   if (await sidebar.isVisible()) return sidebar.click()
-  await page.getByRole('button', { name: /Schritt \d+ von 9/ }).click()
+  await page.getByRole('button', { name: /Schritt \d+ von 7/ }).click()
   await page.locator('#step-menu').getByRole('link', { name: title }).click()
 }
 
@@ -42,7 +42,7 @@ test('walks through the steps and autosaves answers', async ({ page }) => {
   await page.getByLabel('Arbeitszeit von').fill('08:00')
 
   await next(page)
-  await expect(page.getByText('Schritt 2 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 2 von 7')).toBeVisible()
   await page.getByRole('textbox', { name: /Adresse/ }).fill('Lindenstraße 4, 60311 Frankfurt')
   await answer(page, 'Genauer Einsatzort und Zufahrt sind allen im Team bekannt', 'Ja')
 
@@ -120,13 +120,13 @@ test('team: new person with roles, SKT plausibility hint', async ({ page }) => {
 
 test('conditional items appear only for the matching job type', async ({ page }) => {
   await start(page)
-  await page.goto(page.url().replace(/job$/, 'equipment'))
+  await page.goto(page.url().replace(/job$/, 'workplace'))
   await expect(
     page.getByRole('group', { name: 'Zwei vollständige Kletterausrüstungen vor Ort' }),
   ).toHaveCount(0)
-  await page.goto(page.url().replace(/equipment$/, 'job'))
+  await page.goto(page.url().replace(/workplace$/, 'job'))
   await selectSkt(page)
-  await page.goto(page.url().replace(/job$/, 'equipment'))
+  await page.goto(page.url().replace(/job$/, 'workplace'))
   await expect(
     page.getByRole('group', { name: 'Zwei vollständige Kletterausrüstungen vor Ort' }),
   ).toBeVisible()
@@ -140,7 +140,7 @@ test('equipment preset is prefilled and must be confirmed', async ({ page }) => 
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await start(page)
-  await page.goto(page.url().replace(/job$/, 'equipment'))
+  await page.goto(page.url().replace(/job$/, 'workplace'))
   const ppe = item(page, 'PSA vor Benutzung auf Schäden geprüft')
   await expect(ppe.getByRole('radio', { name: 'Ja' })).toBeChecked()
   await expect(ppe.getByText(/vorbelegt – bitte prüfen/)).toBeVisible()
@@ -154,7 +154,6 @@ test('equipment preset is prefilled and must be confirmed', async ({ page }) => 
 
 test('tree result and growth form warnings come from the definition', async ({ page }) => {
   await start(page)
-  await page.goto(page.url().replace(/job$/, 'work'))
   await page.getByText('Sonstiges', { exact: true }).click()
   await expect(page.getByLabel('Sonstiges: bitte beschreiben')).toBeVisible()
 })
@@ -169,7 +168,7 @@ test('drafts are listed on the start page and can be deleted', async ({ page }) 
   await expect(draft).toBeVisible()
   await expect(draft).toContainText('offene Punkte')
   await draft.click()
-  await expect(page.getByText('Schritt 1 von 9')).toBeVisible()
+  await expect(page.getByText('Schritt 1 von 7')).toBeVisible()
   await page.getByRole('link', { name: 'Assistent schließen' }).click()
 
   page.once('dialog', (d) => void d.accept())
@@ -180,12 +179,12 @@ test('drafts are listed on the start page and can be deleted', async ({ page }) 
 test('step menu shows all steps and allows jumping', async ({ page, viewport }) => {
   test.skip((viewport?.width ?? 0) >= 768, 'menu toggle exists on phones only')
   await start(page)
-  await page.getByRole('button', { name: /Schritt 1 von 9/ }).click()
+  await page.getByRole('button', { name: /Schritt 1 von 7/ }).click()
   const menu = page.locator('#step-menu')
-  await expect(menu.getByRole('link')).toHaveCount(9)
-  await menu.getByRole('link', { name: /Ausrüstung & Notfall/ }).click()
-  await expect(page).toHaveURL(/\/equipment$/)
-  await expect(page.getByText('Schritt 8 von 9')).toBeVisible()
+  await expect(menu.getByRole('link')).toHaveCount(7)
+  await menu.getByRole('link', { name: /Einsatzort & Ausrüstung/ }).click()
+  await expect(page).toHaveURL(/\/workplace$/)
+  await expect(page.getByText('Schritt 6 von 7')).toBeVisible()
 })
 
 test('tree steps are not marked complete without a tree', async ({ page, viewport }) => {

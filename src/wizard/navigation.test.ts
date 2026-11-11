@@ -23,13 +23,11 @@ describe('wizard navigation', () => {
       'job',
       'site',
       'team',
-      'work',
       'tree:t1',
       'treeAssessment:t1',
       'tree:t2',
       'treeAssessment:t2',
       'workplace',
-      'equipment',
       'summary',
     ])
   })
@@ -39,11 +37,9 @@ describe('wizard navigation', () => {
       'job',
       'site',
       'team',
-      'work',
       'tree',
       'treeAssessment',
       'workplace',
-      'equipment',
       'summary',
     ])
   })
@@ -58,7 +54,7 @@ describe('wizard navigation', () => {
       treeId: 't1',
     })
     expect(neighbour(steps, { stepId: 'tree', treeId: 't1' }, ['t1', 't2'], -1)).toEqual({
-      stepId: 'work',
+      stepId: 'team',
     })
   })
 

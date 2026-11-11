@@ -321,7 +321,7 @@ export async function buildProtocolPdf(
   w.heading('Auf einen Blick')
   const glance: [string, string][] = [
     ['Einsatzart', find('job', 'job.types')?.value ?? '–'],
-    ['Geplante Arbeiten', find('work', 'work.types')?.value ?? '–'],
+    ['Geplante Arbeiten', find('job', 'work.types')?.value ?? '–'],
     ['Kunde / Objekt', find('job', 'job.customer')?.value ?? '–'],
     [
       'Arbeitszeit',

@@ -1,8 +1,9 @@
 import { currentDefinition } from '../../form/definition'
 import type { CheckpointItem } from '../../form/schema'
 
-/** Checkpoints of the "Ausrüstung & Notfall" step – these can be preset per organization. */
+/** Checkpoints of the equipment and emergency sections – these can be preset per organization. */
 export const equipmentItems: CheckpointItem[] = currentDefinition.steps
-  .filter((s) => s.id === 'equipment')
-  .flatMap((s) => s.sections.flatMap((sec) => sec.items))
+  .flatMap((s) => s.sections)
+  .filter((sec) => sec.id.startsWith('equipment.'))
+  .flatMap((sec) => sec.items)
   .filter((i): i is CheckpointItem => i.type === 'checkpoint')
