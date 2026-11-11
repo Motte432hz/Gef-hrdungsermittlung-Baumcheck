@@ -1,11 +1,12 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { db } from '../../db/db'
 import { getDefaultEquipmentPreset, saveDefaultEquipmentPreset } from '../../db/profiles'
 import { useOrganization } from '../../app/useOrganization'
 import { PageHeader } from '../../components/PageHeader'
 import { Card } from '../../components/Card'
 import { Segmented } from '../../components/form/Segmented'
-import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
+import { SaveStatus } from '../../components/SaveStatus'
+import { useAutosave } from '../../components/useAutosave'
 import { equipmentItems } from './equipmentItems'
 import type { Condition } from '../../form/schema'
 
@@ -25,43 +26,45 @@ function conditionHint(c: Condition | undefined): string | undefined {
 
 export function EquipmentPage() {
   const org = useOrganization()
-  const [values, setValues] = useState<Record<string, PresetValue>>()
-  const [saved, setSaved] = useState(false)
-  const [saveError, setSaveError] = useState<string>()
+  const [initial, setInitial] = useState<Record<string, PresetValue>>()
 
   useEffect(() => {
-    if (!org || values) return
+    if (!org || initial) return
     void getDefaultEquipmentPreset(db, org.id).then((p) => {
       const v: Record<string, PresetValue> = {}
       for (const item of equipmentItems) v[item.id] = (p?.answers[item.id] as PresetValue) ?? 'none'
-      setValues(v)
+      setInitial(v)
     })
-  }, [org, values])
+  }, [org, initial])
 
-  if (!org || !values) return <p>Lädt …</p>
+  if (!org || !initial) return <p>Lädt …</p>
+  return <EquipmentForm orgId={org.id} initial={initial} />
+}
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault()
-    const answers: Record<string, string> = {}
-    for (const [id, v] of Object.entries(values)) if (v !== 'none') answers[id] = v
-    setSaveError(undefined)
-    try {
-      await saveDefaultEquipmentPreset(db, org.id, answers)
-    } catch (err) {
-      console.error(err)
-      return setSaveError(SAVE_ERROR)
-    }
-    setSaved(true)
-  }
+function EquipmentForm({
+  orgId,
+  initial,
+}: {
+  orgId: string
+  initial: Record<string, PresetValue>
+}) {
+  const [values, setValues] = useState(initial)
+  const state = useAutosave(
+    values,
+    async (v) => {
+      const answers: Record<string, string> = {}
+      for (const [id, x] of Object.entries(v)) if (x !== 'none') answers[id] = x
+      await saveDefaultEquipmentPreset(db, orgId, answers)
+    },
+    { enabled: true },
+  )
 
-  const setAll = (v: PresetValue) => {
+  const setAll = (v: PresetValue) =>
     setValues(Object.fromEntries(equipmentItems.map((i) => [i.id, v])))
-    setSaved(false)
-  }
 
   return (
-    <form onSubmit={submit} noValidate>
-      <PageHeader title="Standard-Ausrüstung" back="/profile" backLabel="Profile" />
+    <div>
+      <PageHeader title="Standard-Ausrüstung" back="/profile/firma" backLabel="Firma" />
       <div className="space-y-4">
         <Card>
           <p className="text-stone-700 dark:text-stone-300">
@@ -104,10 +107,7 @@ export function EquipmentPage() {
                     label={item.label}
                     options={options}
                     value={values[item.id]}
-                    onChange={(v) => {
-                      setValues({ ...values, [item.id]: v })
-                      setSaved(false)
-                    }}
+                    onChange={(v) => setValues((x) => ({ ...x, [item.id]: v }))}
                     tones={{ na: 'muted', none: 'muted' }}
                   />
                 </li>
@@ -116,7 +116,7 @@ export function EquipmentPage() {
           </ul>
         </Card>
       </div>
-      <SaveBar saved={saved} error={saveError} />
-    </form>
+      <SaveStatus state={state} />
+    </div>
   )
 }

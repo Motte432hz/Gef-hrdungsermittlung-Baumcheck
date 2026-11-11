@@ -1,12 +1,16 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Link } from 'react-router'
 import { db } from '../../db/db'
-import { saveOrganization } from '../../db/profiles'
+import { getDefaultEquipmentPreset, saveOrganization } from '../../db/profiles'
+import { equipmentItems } from './equipmentItems'
 import { useOrganization } from '../../app/useOrganization'
 import { PageHeader } from '../../components/PageHeader'
 import { TextArea, TextField } from '../../components/form/Field'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
-import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
+import { SaveStatus } from '../../components/SaveStatus'
+import { useAutosave } from '../../components/useAutosave'
 import { NumberingCard } from './NumberingCard'
 import { AppearanceCard, type AppearanceValue } from './AppearanceCard'
 import {
@@ -62,17 +66,33 @@ export function CompanyPage() {
   return <CompanyForm key={org.id} org={org} />
 }
 
+function validate(form: FormState): Partial<Record<keyof FormState, string>> {
+  return {
+    name: required(form.name, 'Firmenname'),
+    numberPrefix: numberPrefix(form.numberPrefix),
+    postalCode: postalCode(form.postalCode),
+    email: email(form.email),
+    reportEmails: emailList(form.reportEmails),
+  }
+}
+
 function CompanyForm({ org }: { org: Organization }) {
   const [form, setForm] = useState<FormState>(() => fromOrg(org))
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
-  const [saved, setSaved] = useState(false)
-  const [saveError, setSaveError] = useState<string>()
+  // Errors are shown for fields the user has changed (not for an empty new profile).
+  const [touched, setTouched] = useState<Set<keyof FormState>>(new Set())
   const [logoError, setLogoError] = useState<string>()
   const logoUrl = useObjectUrl(form.logo)
+  const preset = useLiveQuery(() => getDefaultEquipmentPreset(db, org.id), [org.id])
+
+  const allErrors = validate(form)
+  const valid = !Object.values(allErrors).some(Boolean)
+  const errors = Object.fromEntries(
+    Object.entries(allErrors).filter(([k]) => touched.has(k as keyof FormState)),
+  ) as Partial<Record<keyof FormState, string>>
 
   const set = (key: keyof FormState) => (e: { target: { value: string } }) => {
-    setForm({ ...form, [key]: e.target.value })
-    setSaved(false)
+    setForm((f) => ({ ...f, [key]: e.target.value }))
+    setTouched((t) => new Set(t).add(key))
   }
 
   const onLogo = async (file: File | undefined) => {
@@ -80,48 +100,33 @@ function CompanyForm({ org }: { org: Organization }) {
     if (!file) return
     try {
       const logo = await toStoredFile(await resizeImage(file, 800, 'image/png'), 'image/png')
-      setForm({ ...form, logo })
-      setSaved(false)
+      setForm((f) => ({ ...f, logo }))
     } catch {
       setLogoError('Das Bild konnte nicht gelesen werden. Bitte PNG, JPG oder SVG verwenden.')
     }
   }
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault()
-    const next = {
-      name: required(form.name, 'Firmenname'),
-      numberPrefix: numberPrefix(form.numberPrefix),
-      postalCode: postalCode(form.postalCode),
-      email: email(form.email),
-      reportEmails: emailList(form.reportEmails),
-    }
-    setErrors(next)
-    if (Object.values(next).some(Boolean)) return
-    setSaveError(undefined)
-    try {
-      await saveOrganization(db, org.id, {
-        name: form.name.trim(),
-        numberPrefix: form.numberPrefix.trim().toUpperCase(),
-        street: form.street.trim() || undefined,
-        postalCode: form.postalCode.trim() || undefined,
-        city: form.city.trim() || undefined,
-        phone: form.phone.trim() || undefined,
-        email: form.email.trim() || undefined,
-        reportEmails: parseEmailList(form.reportEmails),
-        taxNumber: form.taxNumber.trim() || undefined,
-        logo: form.logo,
-        ...form.appearance,
-      })
-    } catch (err) {
-      console.error(err)
-      return setSaveError(SAVE_ERROR)
-    }
-    setSaved(true)
-  }
+  const state = useAutosave(
+    form,
+    (f) =>
+      saveOrganization(db, org.id, {
+        name: f.name.trim(),
+        numberPrefix: f.numberPrefix.trim().toUpperCase(),
+        street: f.street.trim() || undefined,
+        postalCode: f.postalCode.trim() || undefined,
+        city: f.city.trim() || undefined,
+        phone: f.phone.trim() || undefined,
+        email: f.email.trim() || undefined,
+        reportEmails: parseEmailList(f.reportEmails),
+        taxNumber: f.taxNumber.trim() || undefined,
+        logo: f.logo,
+        ...f.appearance,
+      }),
+    { enabled: valid },
+  )
 
   return (
-    <form onSubmit={submit} noValidate>
+    <div>
       <PageHeader title="Firma" back="/profile" backLabel="Profile" />
       <div className="space-y-4">
         <Card title="Logo">
@@ -148,7 +153,10 @@ function CompanyForm({ org }: { org: Organization }) {
                 />
               </label>
               {form.logo && (
-                <Button variant="secondary" onClick={() => setForm({ ...form, logo: undefined })}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setForm((f) => ({ ...f, logo: undefined }))}
+                >
                   Logo entfernen
                 </Button>
               )}
@@ -228,13 +236,25 @@ function CompanyForm({ org }: { org: Organization }) {
           org={org}
           logo={form.logo}
           value={form.appearance}
-          onChange={(appearance) => {
-            setForm((f) => ({ ...f, appearance }))
-            setSaved(false)
-          }}
+          onChange={(appearance) => setForm((f) => ({ ...f, appearance }))}
         />
 
         <NumberingCard prefix={form.numberPrefix} savedPrefix={org.numberPrefix} />
+
+        <Card title="Standard-Ausrüstung">
+          <p className="mb-3 text-stone-700 dark:text-stone-300">
+            Wird bei jedem neuen Einsatz vorbelegt und vor Ort bestätigt.
+          </p>
+          <Link
+            to="/profile/ausruestung"
+            className="flex min-h-12 items-center justify-between rounded-xl border-2 border-stone-300 px-4 font-semibold dark:border-stone-600"
+          >
+            {preset
+              ? `${Object.keys(preset.answers).length} von ${equipmentItems.length} Punkten vorbelegt`
+              : 'Noch nichts vorbelegt'}
+            <span aria-hidden="true">›</span>
+          </Link>
+        </Card>
 
         <Card title="Versand">
           <TextArea
@@ -247,7 +267,16 @@ function CompanyForm({ org }: { org: Organization }) {
           />
         </Card>
       </div>
-      <SaveBar saved={saved} error={saveError} />
-    </form>
+      <SaveStatus
+        state={state}
+        hint={
+          valid
+            ? undefined
+            : allErrors.name
+              ? 'Firmenname eingeben – dann wird automatisch gespeichert.'
+              : 'Bitte die markierten Felder korrigieren – dann wird gespeichert.'
+        }
+      />
+    </div>
   )
 }

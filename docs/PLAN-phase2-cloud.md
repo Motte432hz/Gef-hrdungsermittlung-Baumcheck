@@ -17,16 +17,16 @@ Stand: 11.11.2026 · Status: Plan abgestimmt, Umsetzung nach den Blöcken B und 
 - **Protokolle**: Alle Mitglieder sehen alle Protokolle der Firma.
 - **Rollen**:
 
-| Recht | Inhaber/in (genau 1) | Admin (mehrere) | Mitarbeiter |
-|---|---|---|---|
-| Firmendaten, Logo, Farben, Ausrüstung, Nummernkreis ändern | ✓ | ✓ | – |
-| Personen, Subunternehmer, Kunden neu anlegen | ✓ | ✓ | ✓ |
-| Bestehende Einträge ändern | ✓ | ✓ | nur selbst angelegte + eigenes Profil |
-| Einträge/Personen/Kunden **löschen** | ✓ | – | – |
-| Protokolle/Entwürfe anderer löschen | ✓ | – | – |
-| Backups löschen, Firma löschen | ✓ | – | – |
-| Mitglieder freigeben / Rollen vergeben | ✓ | ✓ (nicht Inhaber/in) | – |
-| Inhaberschaft übertragen | ✓ | – | – |
+| Recht                                                      | Inhaber/in (genau 1) | Admin (mehrere)      | Mitarbeiter                           |
+| ---------------------------------------------------------- | -------------------- | -------------------- | ------------------------------------- |
+| Firmendaten, Logo, Farben, Ausrüstung, Nummernkreis ändern | ✓                    | ✓                    | –                                     |
+| Personen, Subunternehmer, Kunden neu anlegen               | ✓                    | ✓                    | ✓                                     |
+| Bestehende Einträge ändern                                 | ✓                    | ✓                    | nur selbst angelegte + eigenes Profil |
+| Einträge/Personen/Kunden **löschen**                       | ✓                    | –                    | –                                     |
+| Protokolle/Entwürfe anderer löschen                        | ✓                    | –                    | –                                     |
+| Backups löschen, Firma löschen                             | ✓                    | –                    | –                                     |
+| Mitglieder freigeben / Rollen vergeben                     | ✓                    | ✓ (nicht Inhaber/in) | –                                     |
+| Inhaberschaft übertragen                                   | ✓                    | –                    | –                                     |
 
 Admins können also keine Daten endgültig löschen. Ein „Entfernen“ durch Admins ist höchstens ein Ausblenden/Deaktivieren, das die Inhaberin/der Inhaber rückgängig machen kann.
 

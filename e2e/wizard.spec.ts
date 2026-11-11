@@ -144,7 +144,6 @@ test('conditional items appear only for the matching job type', async ({ page })
 test('equipment preset is prefilled and must be confirmed', async ({ page }) => {
   await page.goto('/profile/ausruestung')
   await page.getByRole('button', { name: 'Alle auf „Ja“' }).click()
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await start(page)

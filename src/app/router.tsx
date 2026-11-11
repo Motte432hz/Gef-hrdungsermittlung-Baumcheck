@@ -40,7 +40,6 @@ export const routes = [
           { path: 'profile/mitarbeiter/:id', element: <OldPersonRedirect kind="employee" /> },
           { path: 'profile/subunternehmer/:id', element: <OldPersonRedirect kind="sub" /> },
           { path: 'profile/kunden', element: <CustomerListPage /> },
-          { path: 'profile/kunden/neu', element: <CustomerEditPage key="new-customer" /> },
           { path: 'profile/kunden/:id', element: <CustomerEditPage /> },
           { path: 'profile/ausruestung', element: <EquipmentPage /> },
           { path: 'einstellungen', element: <SettingsPage /> },

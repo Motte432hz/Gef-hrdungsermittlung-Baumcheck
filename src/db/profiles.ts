@@ -163,12 +163,12 @@ export async function saveCustomer(
   id?: ID,
 ): Promise<ID> {
   return db.transaction('rw', db.customers, db.auditLog, async () => {
-    if (id) {
+    if (id && (await db.customers.get(id))) {
       await db.customers.update(id, { ...input, updatedAt: nowIso(), syncState: 'pending' })
       await audit(db, organizationId, 'updated', 'customer', id)
       return id
     }
-    const customer: Customer = { ...baseRecord(organizationId), ...input }
+    const customer: Customer = { ...baseRecord(organizationId), ...(id ? { id } : {}), ...input }
     await db.customers.add(customer)
     await audit(db, organizationId, 'created', 'customer', customer.id)
     return customer.id

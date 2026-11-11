@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { db } from '../../db/db'
 import { deleteCompany, listWorkers, saveCompany, type CompanyInput } from '../../db/profiles'
 import { newId } from '../../db/repo'
 import { useOrganization } from '../../app/useOrganization'
+import { useRecordRoute } from '../../components/useRecordRoute'
 import { PageHeader } from '../../components/PageHeader'
 import { TextArea, TextField } from '../../components/form/Field'
 import { Card } from '../../components/Card'
@@ -18,11 +19,8 @@ import { companyPath, personPath, TEAM_PATH } from './teamPaths'
 
 /** Same form-key logic as for people: the first automatic save does not reset the form. */
 export function SubcompanyRoute() {
-  const { id } = useParams()
-  const location = useLocation()
-  const formKey =
-    (location.state as { formKey?: string } | null)?.formKey ?? (id === 'neu' ? location.key : id!)
-  return <SubcompanyPage key={formKey} id={id === 'neu' ? undefined : id} formKey={formKey} />
+  const { id, formKey } = useRecordRoute()
+  return <SubcompanyPage key={formKey} id={id} formKey={formKey} />
 }
 
 function SubcompanyPage({ id, formKey }: { id?: string; formKey: string }) {

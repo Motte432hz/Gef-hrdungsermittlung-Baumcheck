@@ -88,7 +88,6 @@ test('next job at the same customer shows the last visit and takes over location
 }) => {
   await page.goto('/profile/kunden/neu')
   await page.getByLabel(/^Name/).fill('Hausverwaltung Müller')
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await fillCompleteAssessment(page, { customer: 'Hausverwaltung Müller' })

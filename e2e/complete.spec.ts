@@ -14,7 +14,6 @@ test('complete: PDF is created, locked, downloadable and listed in the archive',
   await page.goto('/profile/firma')
   await page.getByLabel('Firmenname').fill('Zwieselwiesel Baumpflege')
   await page.getByLabel('Kürzel für Protokollnummern').fill('ZW')
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await fillCompleteAssessment(page)

@@ -125,6 +125,14 @@ describe('customers', () => {
     await deleteCustomer(db, id)
     expect((await listCustomers(db, org.id)).map((c) => c.name)).toEqual(['Ärztehaus'])
   })
+
+  it('creates a customer under a given id (automatic saving of a new form)', async () => {
+    await saveCustomer(db, org.id, { name: 'Kita', sites: [] }, 'given-id')
+    await saveCustomer(db, org.id, { name: 'Kita Sonnenschein', sites: [] }, 'given-id')
+    expect((await listCustomers(db, org.id)).map((c) => [c.id, c.name])).toEqual([
+      ['given-id', 'Kita Sonnenschein'],
+    ])
+  })
 })
 
 describe('equipment preset', () => {

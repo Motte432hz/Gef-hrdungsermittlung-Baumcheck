@@ -55,8 +55,8 @@ export function NumberingCard({ prefix, savedPrefix }: { prefix: string; savedPr
         </div>
         {changed && (
           <p className="font-semibold text-amber-800 dark:text-amber-300">
-            Neues Kürzel: Nach dem Speichern beginnt eine neue Nummernreihe. Bereits vergebene
-            Nummern bleiben unverändert.
+            Neues Kürzel: Es beginnt eine neue Nummernreihe. Bereits vergebene Nummern bleiben
+            unverändert.
           </p>
         )}
         <details>
@@ -74,7 +74,7 @@ export function NumberingCard({ prefix, savedPrefix }: { prefix: string; savedPr
             <Button variant="secondary" disabled={!start || !!changed} onClick={() => void apply()}>
               Übernehmen
             </Button>
-            {changed && <p className="text-sm">Bitte zuerst das neue Kürzel speichern.</p>}
+            {changed && <p className="text-sm">Das neue Kürzel wird gerade gespeichert …</p>}
             {message && (
               <p
                 role="status"

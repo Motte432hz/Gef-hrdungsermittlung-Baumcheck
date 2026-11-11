@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { db } from '../../db/db'
 import {
   deleteWorker,
@@ -11,6 +11,7 @@ import {
 } from '../../db/profiles'
 import { newId } from '../../db/repo'
 import { useOrganization } from '../../app/useOrganization'
+import { useRecordRoute } from '../../components/useRecordRoute'
 import { PageHeader } from '../../components/PageHeader'
 import { TextField, Toggle } from '../../components/form/Field'
 import { Segmented } from '../../components/form/Segmented'
@@ -30,11 +31,8 @@ import { personPath, TEAM_PATH } from './teamPaths'
  * from ".../neu" to the real id (same form key), other navigation starts a fresh form.
  */
 export function PersonRoute() {
-  const { id } = useParams()
-  const location = useLocation()
-  const formKey =
-    (location.state as { formKey?: string } | null)?.formKey ?? (id === 'neu' ? location.key : id!)
-  return <PersonPage key={formKey} id={id === 'neu' ? undefined : id} formKey={formKey} />
+  const { id, formKey } = useRecordRoute()
+  return <PersonPage key={formKey} id={id} formKey={formKey} />
 }
 
 function PersonPage({ id, formKey }: { id?: string; formKey: string }) {

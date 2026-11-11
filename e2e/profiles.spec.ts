@@ -1,6 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const save = (page: Page) => page.getByRole('button', { name: 'Speichern' }).click()
 const saved = (page: Page) => expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
 async function drawSignature(page: Page) {
@@ -21,9 +20,11 @@ test('company profile with logo is saved and survives reload', async ({ page }) 
 
   // Validation
   await page.getByLabel('Kürzel für Protokollnummern').fill('Z-W')
-  await save(page)
-  await expect(page.getByText('Firmenname ist ein Pflichtfeld.')).toBeVisible()
+  // Errors appear while typing; nothing is saved until the profile is valid.
   await expect(page.getByText(/Kürzel: 1 bis 6/)).toBeVisible()
+  await expect(
+    page.getByText('Firmenname eingeben – dann wird automatisch gespeichert.'),
+  ).toBeVisible()
 
   await page.getByLabel('Firmenname').fill('Zwieselwiesel Baumpflege')
   await page.getByLabel('Kürzel für Protokollnummern').fill('ZW')
@@ -34,7 +35,6 @@ test('company profile with logo is saved and survives reload', async ({ page }) 
     .fill('buero@example.de\nchef@example.de')
   await page.locator('input[type=file]').setInputFiles('public/pwa-192x192.png')
   await expect(page.getByRole('img', { name: 'Firmenlogo' })).toBeVisible()
-  await save(page)
   await saved(page)
 
   await page.reload()
@@ -149,8 +149,10 @@ test('customer with objects', async ({ page }) => {
   await page.getByLabel(/^Name/).fill('Hausverwaltung Müller')
   await page.getByLabel('Ort').fill('Frankfurt')
   await page.getByRole('button', { name: '+ Objekt hinzufügen' }).click()
-  await save(page)
   await expect(page.getByText('Bezeichnung ist ein Pflichtfeld.')).toBeVisible()
+  await expect(
+    page.getByText('Bitte die markierten Felder ausfüllen – dann wird gespeichert.'),
+  ).toBeVisible()
 
   const site = page.getByRole('group', { name: 'Objekt 1' })
   await site.getByLabel('Bezeichnung').fill('Wohnanlage Lindenstraße')
@@ -161,7 +163,6 @@ test('customer with objects', async ({ page }) => {
     .getByRole('group', { name: 'Objekt 2' })
     .getByLabel('Bezeichnung')
     .fill('Kita Sonnenschein')
-  await save(page)
   await saved(page)
 
   await page.reload()
@@ -179,9 +180,8 @@ test('equipment preset', async ({ page }) => {
     .getByRole('group', { name: 'Funkgeräte geprüft' })
     .getByText('n. r.', { exact: true })
     .click()
-  await save(page)
   await saved(page)
-  await page.getByRole('link', { name: 'Profile' }).first().click()
+  await page.getByRole('link', { name: 'Firma', exact: true }).click()
   await expect(page.getByText('12 von 12 Punkten vorbelegt')).toBeVisible()
 })
 
@@ -202,10 +202,7 @@ test('protocol number preview and continuing a series', async ({ page }) => {
   await page.getByLabel('Kürzel für Protokollnummern').fill('zw')
   // Live preview while typing.
   await expect(page.getByTestId('next-number')).toHaveText(`ZW-${year}-0001`)
-  await expect(
-    page.getByText(/Neues Kürzel: Nach dem Speichern beginnt eine neue Nummernreihe/),
-  ).toBeVisible()
-  await save(page)
+  await expect(page.getByText(/Neues Kürzel: Es beginnt eine neue Nummernreihe/)).toBeVisible()
   await saved(page)
   await expect(page.getByText(/Neues Kürzel/)).toHaveCount(0)
 
@@ -286,7 +283,6 @@ test('logo colours are detected and applied to the app; company logo and name in
   await expect(page.getByRole('checkbox', { name: /Farbe im PDF verwenden/ })).toBeChecked()
 
   await page.getByText('Tabelle', { exact: true }).click()
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   // The app now uses a red tone instead of the default green (applied right after saving).
@@ -307,7 +303,6 @@ test('logo colours are detected and applied to the app; company logo and name in
 
   // Back to the standard colour.
   await page.getByRole('button', { name: 'Standardfarbe' }).click()
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
   await expect
     .poll(() =>
@@ -357,7 +352,6 @@ test('two brand colours from a two-colour logo; experimental layout can be chose
 
   await page.getByRole('radio', { name: /Seitenleiste/ }).check()
   await expect(page.getByRole('radio', { name: /Seitenleiste/ })).toBeChecked()
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await expect
@@ -401,7 +395,6 @@ test('settings: switch between BaumCheck and company colours (colours taken from
     .setInputFiles({ name: 'l.svg', mimeType: 'image/svg+xml', buffer: Buffer.from(logo) })
   await expect(page.getByRole('button', { name: /^Farbe #/ }).first()).toBeVisible()
   await page.getByRole('button', { name: 'Standardfarbe' }).click()
-  await page.getByRole('button', { name: 'Speichern' }).click()
   await expect(page.getByText('✓ Gespeichert')).toBeVisible()
 
   await page.goto('/einstellungen')

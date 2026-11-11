@@ -1,6 +1,5 @@
-import { useState, type FormEvent } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { db } from '../../db/db'
 import { deleteCustomer, saveCustomer, type CustomerInput } from '../../db/profiles'
 import { newId } from '../../db/repo'
@@ -9,7 +8,9 @@ import { PageHeader } from '../../components/PageHeader'
 import { TextArea, TextField } from '../../components/form/Field'
 import { Card } from '../../components/Card'
 import { Button } from '../../components/Button'
-import { SAVE_ERROR, SaveBar } from '../../components/SaveBar'
+import { SaveStatus } from '../../components/SaveStatus'
+import { useAutosave } from '../../components/useAutosave'
+import { useRecordRoute } from '../../components/useRecordRoute'
 import type { CustomerSite } from '../../domain/types'
 import { email, postalCode, required } from '../../domain/validate'
 
@@ -29,57 +30,98 @@ const trimOrUndef = (v: string | undefined) => v?.trim() || undefined
 type Errors = Record<string, string | undefined>
 
 export function CustomerEditPage() {
-  const { id } = useParams()
+  const { id, formKey } = useRecordRoute()
+  return <CustomerLoader key={formKey} id={id} formKey={formKey} />
+}
+
+function CustomerLoader({ id, formKey }: { id?: string; formKey: string }) {
+  const [recordId] = useState(() => id ?? newId())
   // null = not found, undefined = loading
-  const initial = useLiveQuery(async (): Promise<CustomerInput | null> => {
-    if (!id) return emptyCustomer()
-    const c = await db.customers.get(id)
-    if (!c || c.deletedAt) return null
-    return {
-      name: c.name,
-      contactPerson: c.contactPerson ?? '',
-      phone: c.phone ?? '',
-      email: c.email ?? '',
-      street: c.street ?? '',
-      postalCode: c.postalCode ?? '',
-      city: c.city ?? '',
-      sites: c.sites,
-    }
-  }, [id])
+  const [initial, setInitial] = useState<CustomerInput | null>()
+  useEffect(() => {
+    void (async () => {
+      if (!id) return setInitial(emptyCustomer())
+      const c = await db.customers.get(id)
+      setInitial(
+        !c || c.deletedAt
+          ? null
+          : {
+              name: c.name,
+              contactPerson: c.contactPerson ?? '',
+              phone: c.phone ?? '',
+              email: c.email ?? '',
+              street: c.street ?? '',
+              postalCode: c.postalCode ?? '',
+              city: c.city ?? '',
+              sites: c.sites,
+            },
+      )
+    })()
+    // Loaded once per form; later changes come from this form itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (initial === null)
     return <PageHeader title="Nicht gefunden" back="/profile/kunden" backLabel="Kunden" />
   if (initial === undefined) return <p>Lädt …</p>
-  return <CustomerForm key={id ?? 'new'} id={id} initial={initial} />
+  return <CustomerForm recordId={recordId} isNew={!id} formKey={formKey} initial={initial} />
 }
 
-function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) {
-  const isNew = !id
+function validate(form: CustomerInput): Errors {
+  const out: Errors = {
+    name: required(form.name, 'Name'),
+    email: email(form.email),
+    postalCode: postalCode(form.postalCode),
+  }
+  for (const s of form.sites) {
+    out[`site:${s.id}:name`] = required(s.name, 'Bezeichnung')
+    out[`site:${s.id}:postalCode`] = postalCode(s.postalCode)
+  }
+  return out
+}
+
+function CustomerForm({
+  recordId,
+  isNew,
+  formKey,
+  initial,
+}: {
+  recordId: string
+  isNew: boolean
+  formKey: string
+  initial: CustomerInput
+}) {
   const org = useOrganization()
   const navigate = useNavigate()
   const [form, setForm] = useState<CustomerInput>(initial)
-  const [errors, setErrors] = useState<Errors>({})
-  const location = useLocation()
-  // After creating, we navigate to the new URL; carry the confirmation over.
-  const [saved, setSaved] = useState(!!(location.state as { saved?: boolean } | null)?.saved)
-  const [saveError, setSaveError] = useState<string>()
+  const [created, setCreated] = useState(!isNew)
+  const [touched, setTouched] = useState<Set<string>>(new Set())
+  const allErrors = validate(form)
+  const valid = !Object.values(allErrors).some(Boolean)
+  // New objects show their missing name right away; other fields once changed.
+  const errors = Object.fromEntries(
+    Object.entries(allErrors).filter(([k]) => touched.has(k) || k.endsWith(':name')),
+  ) as Errors
 
-  if (!org) return <p>Lädt …</p>
-
-  const update = (changes: Partial<CustomerInput>) => {
-    setForm({ ...form, ...changes })
-    setSaved(false)
+  const update = (changes: Partial<CustomerInput>, key?: string) => {
+    setForm((f) => ({ ...f, ...changes }))
+    if (key) setTouched((t) => new Set(t).add(key))
   }
   const field = (
     key: 'name' | 'contactPerson' | 'phone' | 'email' | 'street' | 'postalCode' | 'city',
   ) => ({
     value: form[key] ?? '',
-    onChange: (e: { target: { value: string } }) => update({ [key]: e.target.value }),
+    onChange: (e: { target: { value: string } }) => update({ [key]: e.target.value }, key),
     error: errors[key],
   })
 
-  const updateSite = (siteId: string, changes: Partial<CustomerSite>) =>
-    update({ sites: form.sites.map((s) => (s.id === siteId ? { ...s, ...changes } : s)) })
+  const updateSite = (siteId: string, changes: Partial<CustomerSite>) => {
+    setForm((f) => ({
+      ...f,
+      sites: f.sites.map((s) => (s.id === siteId ? { ...s, ...changes } : s)),
+    }))
+    for (const k of Object.keys(changes)) setTouched((t) => new Set(t).add(`site:${siteId}:${k}`))
+  }
   const addSite = () =>
     update({
       sites: [
@@ -90,64 +132,55 @@ function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) 
   const removeSite = (siteId: string) =>
     update({ sites: form.sites.filter((s) => s.id !== siteId) })
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault()
-    const next: Errors = {
-      name: required(form.name, 'Name'),
-      email: email(form.email),
-      postalCode: postalCode(form.postalCode),
-    }
-    for (const s of form.sites) {
-      next[`site:${s.id}:name`] = required(s.name, 'Bezeichnung')
-      next[`site:${s.id}:postalCode`] = postalCode(s.postalCode)
-    }
-    setErrors(next)
-    if (Object.values(next).some(Boolean)) return
-    const input: CustomerInput = {
-      name: form.name.trim(),
-      contactPerson: trimOrUndef(form.contactPerson),
-      phone: trimOrUndef(form.phone),
-      email: trimOrUndef(form.email),
-      street: trimOrUndef(form.street),
-      postalCode: trimOrUndef(form.postalCode),
-      city: trimOrUndef(form.city),
-      sites: form.sites.map((s) => ({
-        id: s.id,
-        name: s.name.trim(),
-        street: trimOrUndef(s.street),
-        postalCode: trimOrUndef(s.postalCode),
-        city: trimOrUndef(s.city),
-        notes: trimOrUndef(s.notes),
-      })),
-    }
-    setSaveError(undefined)
-    let savedId: string
-    try {
-      savedId = await saveCustomer(db, org.id, input, id)
-    } catch (err) {
-      console.error(err)
-      return setSaveError(SAVE_ERROR)
-    }
-    setSaved(true)
-    if (isNew) navigate(`/profile/kunden/${savedId}`, { replace: true, state: { saved: true } })
-  }
+  const state = useAutosave(
+    form,
+    async (f) => {
+      if (!org) return
+      await saveCustomer(
+        db,
+        org.id,
+        {
+          name: f.name.trim(),
+          contactPerson: trimOrUndef(f.contactPerson),
+          phone: trimOrUndef(f.phone),
+          email: trimOrUndef(f.email),
+          street: trimOrUndef(f.street),
+          postalCode: trimOrUndef(f.postalCode),
+          city: trimOrUndef(f.city),
+          sites: f.sites.map((x) => ({
+            id: x.id,
+            name: x.name.trim(),
+            street: trimOrUndef(x.street),
+            postalCode: trimOrUndef(x.postalCode),
+            city: trimOrUndef(x.city),
+            notes: trimOrUndef(x.notes),
+          })),
+        },
+        recordId,
+      )
+      if (!created) {
+        setCreated(true)
+        navigate(`/profile/kunden/${recordId}`, { replace: true, state: { formKey } })
+      }
+    },
+    { enabled: !!org && valid },
+  )
 
   const remove = async () => {
-    if (!id) return
     if (
       !window.confirm(
         `${form.name || 'Diesen Kunden'} wirklich löschen? Bereits abgeschlossene Protokolle bleiben unverändert.`,
       )
     )
       return
-    await deleteCustomer(db, id)
+    await deleteCustomer(db, recordId)
     navigate('/profile/kunden')
   }
 
   return (
-    <form onSubmit={submit} noValidate>
+    <div>
       <PageHeader
-        title={isNew ? 'Kunde anlegen' : form.name || 'Kunde'}
+        title={form.name.trim() || 'Neuer Kunde'}
         back="/profile/kunden"
         backLabel="Kunden"
       />
@@ -227,7 +260,7 @@ function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) 
           </div>
         </Card>
 
-        {!isNew && (
+        {created && (
           <Button
             variant="secondary"
             onClick={() => void remove()}
@@ -237,7 +270,16 @@ function CustomerForm({ id, initial }: { id?: string; initial: CustomerInput }) 
           </Button>
         )}
       </div>
-      <SaveBar saved={saved} error={saveError} />
-    </form>
+      <SaveStatus
+        state={state}
+        hint={
+          valid
+            ? undefined
+            : allErrors.name
+              ? 'Namen eingeben – dann wird automatisch gespeichert.'
+              : 'Bitte die markierten Felder ausfüllen – dann wird gespeichert.'
+        }
+      />
+    </div>
   )
 }
