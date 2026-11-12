@@ -103,6 +103,7 @@ export function checkDefinition(def: FormDefinition): string[] {
   for (const { item, step } of located) {
     for (const field of conditionFields(item.visibleIf)) {
       // Derived from the species (tree steps only).
+      if (field === 'job.season') continue // derived from the job date
       if (field === 'tree.species.group') {
         if (step.repeat !== 'tree') problems.push(`${item.id}: species group only in tree steps`)
         continue

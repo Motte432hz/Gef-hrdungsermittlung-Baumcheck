@@ -414,3 +414,20 @@ test('settings: switch between BaumCheck and company colours (colours taken from
   await expect.poll(readBrand).toBe('#1f5130')
   await expect(header).not.toHaveClass(/bg-brand-700/)
 })
+
+test('deadlines: expired certificates and due PPE inspections are listed', async ({ page }) => {
+  await page.goto('/profile/team/person/neu')
+  await page.getByLabel(/^Name/).fill('Anna Ast')
+  await page.getByText('SKT A', { exact: true }).click()
+  await page.getByText('Weitere Angaben').click()
+  await page.getByLabel('SKT A gültig bis').fill('2020-01-31')
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+
+  await page.goto('/')
+  await page.getByRole('link', { name: /Fristen: 1 überfällig/ }).click()
+  const overdue = page.getByRole('region', { name: 'Überfällig' })
+  await expect(overdue).toContainText('Anna Ast · Nachweis SKT A')
+  await expect(overdue).toContainText('31.01.2020')
+  await overdue.getByRole('link', { name: /Anna Ast/ }).click()
+  await expect(page.getByLabel(/^Name/)).toHaveValue('Anna Ast')
+})

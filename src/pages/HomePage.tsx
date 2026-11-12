@@ -11,6 +11,7 @@ import { Button } from '../components/Button'
 import { Card, PageTitle } from '../components/Card'
 import { InstallHint } from '../components/InstallHint'
 import { BackupReminder } from '../components/BackupReminder'
+import { DueNotice } from './profiles/DueDatesPage'
 import { startAssessment } from '../wizard/start'
 import { useCloudRights } from '../cloud/useCloudRights'
 import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
@@ -66,6 +67,7 @@ export function HomePage() {
       <PageTitle>Gefährdungsermittlung</PageTitle>
 
       <BackupReminder />
+      <DueNotice />
 
       <Button
         className="min-h-16 w-full text-lg"

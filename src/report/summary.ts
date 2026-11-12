@@ -218,7 +218,7 @@ export function buildSummary(ctx: SummaryContext): SummarySection[] {
   for (const step of definition.steps) {
     if (step.repeat === 'tree') {
       for (const t of [...trees].sort((a, b) => a.index - b.index)) {
-        const lookup = makeLookup(assessment.answers, t.answers)
+        const lookup = makeLookup(assessment.answers, t.answers, assessment.date)
         const rows = step.sections.flatMap((sec) => sectionRows(sec, t.answers, lookup, ctx, t.id))
         out.push({
           stepId: step.id,
@@ -228,7 +228,7 @@ export function buildSummary(ctx: SummaryContext): SummarySection[] {
         })
       }
     } else {
-      const lookup = makeLookup(assessment.answers)
+      const lookup = makeLookup(assessment.answers, undefined, assessment.date)
       const rows = step.sections.flatMap((sec) => sectionRows(sec, assessment.answers, lookup, ctx))
       out.push({ stepId: step.id, title: step.title, rows })
     }

@@ -43,7 +43,7 @@ export function TreeStepView({ step }: { step: FormStep }) {
     )
   }
 
-  const lookup = makeLookup(assessment.answers, tree.answers)
+  const lookup = makeLookup(assessment.answers, tree.answers, assessment.date)
   const speciesAnswer = tree.answers['tree.species']?.value
   const species = getSpecies(typeof speciesAnswer === 'string' ? speciesAnswer : undefined)
 

@@ -13,6 +13,7 @@ import { personLabel } from '../../domain/people'
 import { qualificationSummary } from '../../domain/qualifications'
 import { searchKey } from '../../wizard/special/teamOps'
 import { companyPath, personPath } from './teamPaths'
+import { DueNotice } from './DueDatesPage'
 
 type Filter = 'all' | 'own' | 'sub'
 
@@ -67,6 +68,13 @@ export function TeamPage() {
   return (
     <div className="space-y-4">
       <PageHeader title="Team & Partner" back="/profile" backLabel="Profile" />
+      <DueNotice within={60} />
+      <Link
+        to="/profile/team/fristen"
+        className="inline-flex min-h-12 items-center font-semibold text-brand-700 underline dark:text-brand-300"
+      >
+        Fristen: Nachweise & PSA-Prüfungen ›
+      </Link>
       <div className="flex gap-2">
         <Link to={personPath('neu')} className={`${actionClass} bg-brand-700 text-white`}>
           + Person

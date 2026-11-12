@@ -362,3 +362,29 @@ test('notes can be dictated where the browser supports it', async ({ page }) => 
   await page.locator('[id$="site-otherHazards"]').getByRole('button', { name: 'Sprechen' }).click()
   await expect(other).toHaveValue('Astabbruch über dem weg')
 })
+
+test('felling in the closed season asks for the legal reason', async ({ page }) => {
+  await start(page)
+  await page.getByText('Fällung', { exact: true }).click()
+  await page.getByLabel(/^Datum/).fill('2026-05-10')
+  // In-app navigation: a reload could come before the date is saved.
+  await gotoStep(page, /Einsatzort & Ausrüstung/)
+  const nature = page.getByRole('region', { name: 'Naturschutz' })
+  await expect(nature).toContainText('Schonzeit (1. März – 30. September)')
+  await expect(nature).toContainText('Baumschutzsatzung geprüft')
+  await nature.getByText('Keine Ausnahme', { exact: true }).click()
+  await expect(nature.getByText(/In der Schonzeit ist diese Arbeit nicht zulässig/)).toBeVisible()
+  await nature
+    .getByRole('group', { name: 'Vorschläge zum Antippen' })
+    .getByRole('button', { name: '+ Fällung auf Oktober verschoben' })
+    .click()
+  await expect(nature.getByRole('textbox', { name: 'Maßnahme' })).toHaveValue(
+    'Fällung auf Oktober verschoben',
+  )
+
+  // In October the question is gone.
+  await gotoStep(page, /^.*Einsatz$/)
+  await page.getByLabel(/^Datum/).fill('2026-10-05')
+  await gotoStep(page, /Einsatzort & Ausrüstung/)
+  await expect(page.getByRole('region', { name: 'Naturschutz' })).not.toContainText('Schonzeit')
+})

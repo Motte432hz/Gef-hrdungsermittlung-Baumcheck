@@ -806,3 +806,25 @@ Bei „Nein“ bzw. „vorhanden“ (und bei Auswahlen mit Pflicht-Maßnahme) bi
 - **Standort des Baums** (`tree.position`, Schritt „Baum“, optional): „Standort am Stamm übernehmen“ speichert die GPS-Position des Baums (Ziel ± 8 m). Sie steht in Zusammenfassung und PDF und ist Teil dessen, was unterschrieben wird.
 - **Bäume vom letzten Einsatz hier:** Beim nächsten Einsatz am selben Kunden/Objekt listet die App die Bäume des letzten abgeschlossenen Protokolls – mit Ergebnis und damaligen Befunden, nach Entfernung sortiert, wenn Positionen bekannt sind. „Diesen Baum übernehmen“ übernimmt Baum-Nr., Art, Höhe, Durchmesser, Wuchsform und Standort; die Beurteilung wird neu gemacht.
 - **Letzter Befund** (Schritt „Baumbeurteilung“): zeigt bei übernommenen Bäumen, was damals festgestellt wurde – zum Vergleich.
+
+## Naturschutz (Schritt „Einsatzort & Ausrüstung“)
+
+**KP: Bäume auf Nester, Höhlen und Fledermausquartiere abgesucht** · immer · ohne „nicht relevant“ · `nature.wildlifeChecked`
+
+Info: § 44 BNatSchG – Fortpflanzungs- und Ruhestätten geschützter Arten dürfen das ganze Jahr nicht beschädigt werden. Achte auf besetzte Nester, Spechthöhlen, Rindentaschen, Kot- und Fraßspuren. Bei einem Fund die Arbeiten in dem Bereich stoppen und mit der Unteren Naturschutzbehörde klären.
+
+**Schonzeit: Warum ist die Fällung oder der starke Rückschnitt zulässig?** · nur vom 1.3. bis 30.9. (nach Einsatzdatum) **und** bei Fällung oder Kroneneinkürzung · `nature.closedSeason`
+
+- Gärtnerisch genutzte Grundfläche (z. B. Hausgarten)
+- Nur schonender Form- und Pflegeschnitt
+- Verkehrssicherung, nicht aufschiebbar → Pflichtfeld „Begründung“
+- Befreiung oder Genehmigung der Naturschutzbehörde liegt vor → Pflichtfeld „Aktenzeichen / Datum“
+- Keine Ausnahme → deutliche Warnung „nicht zulässig“ + Pflichtfeld „Maßnahme“
+
+Info: § 39 Abs. 5 BNatSchG (Wortlaut sinngemäß, siehe Infotext in der App). ❓ Bitte fachlich prüfen, ob die Ausnahmen so für euch passen (insbesondere „gärtnerisch genutzte Grundfläche“ – die Auslegung ist je nach Bundesland unterschiedlich).
+
+**KP: Baumschutzsatzung geprüft – Fällgenehmigung liegt vor oder ist nicht nötig** · nur bei Fällungen · `nature.treeProtection`
+
+## Fristen
+
+Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 60 Tagen ablaufende Nachweise (z. B. SKT) und fällige PSA-Prüfungen aller aktiven Personen. Auf der Startseite erscheint ein Hinweis, wenn etwas überfällig oder in den nächsten 30 Tagen fällig ist.

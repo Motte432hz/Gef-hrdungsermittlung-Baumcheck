@@ -10,6 +10,7 @@ import { NotFoundPage } from '../pages/NotFoundPage'
 import { CompanyPage } from '../pages/profiles/CompanyPage'
 import { CloudPage } from '../pages/profiles/CloudPage'
 import { TeamPage } from '../pages/profiles/TeamPage'
+import { DueDatesPage } from '../pages/profiles/DueDatesPage'
 import { PersonRoute } from '../pages/profiles/PersonPage'
 import { SubcompanyRoute } from '../pages/profiles/SubcompanyPage'
 import { OldPersonRedirect } from './OldPersonRedirect'
@@ -34,6 +35,7 @@ export const routes = [
           { path: 'profile/firma', element: <CompanyPage /> },
           { path: 'profile/firma/cloud', element: <CloudPage /> },
           { path: 'profile/team', element: <TeamPage /> },
+          { path: 'profile/team/fristen', element: <DueDatesPage /> },
           { path: 'profile/team/person/:id', element: <PersonRoute /> },
           { path: 'profile/team/firma/:id', element: <SubcompanyRoute /> },
           // Old addresses (bookmarks, home screen) lead to the new pages.

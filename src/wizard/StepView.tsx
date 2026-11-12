@@ -27,7 +27,7 @@ export function StepView({ step }: { step: FormStep }) {
 
   if (step.repeat === 'tree') return <TreeStepView step={step} />
 
-  const lookup = makeLookup(assessment.answers)
+  const lookup = makeLookup(assessment.answers, undefined, assessment.date)
   const visible = step.sections.map((s) => ({
     ...s,
     items: s.items.filter((i) => isItemVisible(i, lookup)),

@@ -998,6 +998,105 @@
           }
         },
         {
+          "id": "workplace.nature",
+          "title": "Naturschutz",
+          "items": [
+            {
+              "id": "nature.wildlifeChecked",
+              "type": "checkpoint",
+              "allowNotRelevant": false,
+              "label": "Bäume auf Nester, Höhlen und Fledermausquartiere abgesucht",
+              "info": "§ 44 BNatSchG: Fortpflanzungs- und Ruhestätten geschützter Arten dürfen das ganze Jahr nicht beschädigt werden. Achte auf besetzte Nester, Spechthöhlen, Rindentaschen, Kot- und Fraßspuren. Bei einem Fund die Arbeiten in dem Bereich stoppen und mit der Unteren Naturschutzbehörde klären.",
+              "measures": [
+                "Arbeiten im Bereich verschoben",
+                "Fachperson für Artenschutz hinzugezogen",
+                "Untere Naturschutzbehörde informiert",
+                "Höhlenbaum markiert und ausgespart"
+              ]
+            },
+            {
+              "id": "nature.closedSeason",
+              "type": "single",
+              "required": true,
+              "label": "Schonzeit (1. März – 30. September): Warum ist die Fällung oder der starke Rückschnitt zulässig?",
+              "info": "§ 39 Abs. 5 BNatSchG: Vom 1. März bis 30. September ist es verboten, Bäume außerhalb des Waldes, von Kurzumtriebsplantagen oder gärtnerisch genutzten Grundflächen abzuschneiden oder auf den Stock zu setzen. Erlaubt bleiben schonende Form- und Pflegeschnitte, nicht aufschiebbare Maßnahmen der Verkehrssicherung sowie behördlich angeordnete oder genehmigte Maßnahmen. Im Zweifel die Untere Naturschutzbehörde fragen.",
+              "visibleIf": {
+                "all": [
+                  {
+                    "field": "job.season",
+                    "equals": "nesting"
+                  },
+                  {
+                    "field": "work.types",
+                    "includesAny": [
+                      "felling",
+                      "felling_rigging",
+                      "felling_crane",
+                      "crown_reduction"
+                    ]
+                  }
+                ]
+              },
+              "options": [
+                {
+                  "value": "garden",
+                  "label": "Gärtnerisch genutzte Grundfläche (z. B. Hausgarten)"
+                },
+                {
+                  "value": "care",
+                  "label": "Nur schonender Form- und Pflegeschnitt"
+                },
+                {
+                  "value": "safety",
+                  "label": "Verkehrssicherung, nicht aufschiebbar",
+                  "requiresNote": true,
+                  "noteLabel": "Begründung",
+                  "measures": [
+                    "Akute Bruchgefahr über Gehweg/Straße – mit Fotos dokumentiert",
+                    "Baum nach Sturm umsturzgefährdet",
+                    "Behördliche Anordnung liegt vor"
+                  ]
+                },
+                {
+                  "value": "permit",
+                  "label": "Befreiung oder Genehmigung der Naturschutzbehörde liegt vor",
+                  "requiresNote": true,
+                  "noteLabel": "Aktenzeichen / Datum"
+                },
+                {
+                  "value": "none",
+                  "label": "Keine Ausnahme",
+                  "severity": "danger",
+                  "warning": "In der Schonzeit ist diese Arbeit nicht zulässig. Verschieben oder eine Befreiung beantragen.",
+                  "requiresNote": true,
+                  "noteLabel": "Maßnahme",
+                  "measures": [
+                    "Fällung auf Oktober verschoben",
+                    "Befreiung bei der Naturschutzbehörde beantragt",
+                    "Auf schonenden Pflegeschnitt beschränkt"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "nature.treeProtection",
+              "type": "checkpoint",
+              "allowNotRelevant": false,
+              "label": "Baumschutzsatzung geprüft – Fällgenehmigung liegt vor oder ist nicht nötig",
+              "info": "Viele Städte und Gemeinden schützen Bäume ab einem bestimmten Stammumfang (oft 60–80 cm in 1 m Höhe) mit einer Baumschutzsatzung. Ohne nötige Genehmigung drohen Bußgelder – für den Auftraggeber und oft auch für den ausführenden Betrieb.",
+              "visibleIf": {
+                "field": "work.types",
+                "includesAny": ["felling", "felling_rigging", "felling_crane"]
+              },
+              "measures": [
+                "Genehmigung beim Kunden angefordert",
+                "Bei der Gemeinde nachgefragt",
+                "Fällung bis zur Genehmigung verschoben"
+              ]
+            }
+          ]
+        },
+        {
           "id": "equipment.main",
           "title": "Ausrüstung",
           "items": [

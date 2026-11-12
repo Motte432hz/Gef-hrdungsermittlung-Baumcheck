@@ -7,6 +7,14 @@ import { getSpecies } from './species'
 
 /** Derived field for conditions: "laub" or "nadel" from the chosen tree species. */
 export const SPECIES_GROUP_FIELD = 'tree.species.group'
+/** Derived field for conditions: "nesting" from 1 March to 30 September (§ 39 BNatSchG). */
+export const SEASON_FIELD = 'job.season'
+
+/** Closed season for cutting trees (1 March – 30 September), from a YYYY-MM-DD date. */
+export const isNestingSeason = (date: string) => {
+  const md = date.slice(5, 10)
+  return md >= '03-01' && md <= '09-30'
+}
 
 /**
  * blocking = must be fixed before the protocol can be completed
@@ -48,8 +56,15 @@ const isEmpty = (v: unknown) =>
 
 const hasNote = (a: Answer | undefined) => !!a?.note && a.note.trim() !== ''
 
-export function makeLookup(assessmentAnswers: Answers, treeAnswers?: Answers): ValueLookup {
+export function makeLookup(
+  assessmentAnswers: Answers,
+  treeAnswers?: Answers,
+  /** Date of the job (YYYY-MM-DD), for date-based conditions. */
+  date?: string,
+): ValueLookup {
   return (field) => {
+    if (field === SEASON_FIELD)
+      return date ? (isNestingSeason(date) ? 'nesting' : 'outside') : undefined
     if (field === SPECIES_GROUP_FIELD) {
       const id = treeAnswers?.['tree.species']?.value
       return getSpecies(typeof id === 'string' ? id : undefined)?.group
@@ -322,7 +337,7 @@ export function validateAssessment({ definition, assessment, trees }: Validation
         }
       }
     } else {
-      const lookup = makeLookup(assessment.answers)
+      const lookup = makeLookup(assessment.answers, undefined, assessment.date)
       for (const section of step.sections) {
         issues.push(...validateGate(section, { step, answers: assessment.answers, assessment }))
         for (const item of section.items) {
@@ -416,7 +431,7 @@ export function collectFindings({ definition, assessment, trees }: ValidationInp
       for (const t of sortedTrees)
         visit(step, t.answers, makeLookup(assessment.answers, t.answers), t)
     } else {
-      visit(step, assessment.answers, makeLookup(assessment.answers))
+      visit(step, assessment.answers, makeLookup(assessment.answers, undefined, assessment.date))
     }
   }
   return out

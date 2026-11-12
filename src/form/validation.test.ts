@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { currentDefinition as def } from './definition'
-import { applyPreset, canComplete, collectFindings, validateAssessment } from './validation'
+import {
+  applyPreset,
+  canComplete,
+  collectFindings,
+  isNestingSeason,
+  validateAssessment,
+} from './validation'
 import { validInput } from '../test/fixtures'
 
 const levels = (input = validInput(def)) => validateAssessment(input)
@@ -298,5 +304,46 @@ describe('applyPreset', () => {
         key: 'equip.ppeChecked:prefilled',
       }),
     ])
+  })
+})
+
+describe('nature protection', () => {
+  it('closed season is 1 March to 30 September', () => {
+    expect(['2026-02-28', '2026-03-01', '2026-09-30', '2026-10-01'].map(isNestingSeason)).toEqual([
+      false,
+      true,
+      true,
+      false,
+    ])
+  })
+
+  it('felling in the closed season needs a reason; outside it does not', () => {
+    const input = validInput(def)
+    input.assessment.answers['work.types'] = { value: ['felling'] }
+    input.assessment.answers['site.escapeRoute'] = { value: 'yes' } // asked for fellings
+    input.assessment.date = '2026-05-10'
+    const ids = () => validateAssessment(input).map((i) => i.itemId)
+    expect(ids()).toEqual(expect.arrayContaining(['nature.closedSeason', 'nature.treeProtection']))
+
+    input.assessment.answers['nature.closedSeason'] = { value: 'none' }
+    input.assessment.answers['nature.treeProtection'] = { value: 'yes' }
+    expect(validateAssessment(input)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ itemId: 'nature.closedSeason', level: 'danger' }),
+      ]),
+    )
+    input.assessment.answers['nature.closedSeason'] = { value: 'garden' }
+    expect(validateAssessment(input)).toEqual([])
+
+    // October: no closed-season question.
+    input.assessment.date = '2026-10-05'
+    delete input.assessment.answers['nature.closedSeason']
+    expect(validateAssessment(input)).toEqual([])
+  })
+
+  it('care work (dead wood) never asks the closed-season question', () => {
+    const input = validInput(def)
+    input.assessment.date = '2026-05-10'
+    expect(validateAssessment(input).map((i) => i.itemId)).not.toContain('nature.closedSeason')
   })
 })
