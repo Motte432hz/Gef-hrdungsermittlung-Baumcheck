@@ -5,6 +5,8 @@ import { useWizard } from './WizardContext'
 import { itemAnchor } from './anchors'
 import { OPEN_ATTR, scrollToNextOpen } from './nextOpen'
 import { CollapsedItem } from './inputs/CollapsedItem'
+import { HospitalAssist } from './assist/HospitalAssist'
+import { WeatherAssist } from './assist/WeatherAssist'
 import { CheckpointField, HazardField } from './inputs/RatedFields'
 import { ChoiceField } from './inputs/ChoiceField'
 import { NumberItemField, TextItemField, TimeItemField } from './inputs/SimpleFields'
@@ -93,6 +95,15 @@ export function ItemField({ item, treeId }: { item: FormItem; treeId?: string })
   return (
     <div id={anchor} className="scroll-mt-40" {...(isOpen ? { [OPEN_ATTR]: '' } : {})}>
       {field}
+      {item.assist && (
+        <div className="mt-2 rounded-2xl border border-dashed border-stone-300 p-3 dark:border-stone-700">
+          {item.assist === 'hospital' ? (
+            <HospitalAssist itemId={item.id} treeId={treeId} />
+          ) : (
+            <WeatherAssist />
+          )}
+        </div>
+      )}
     </div>
   )
 }

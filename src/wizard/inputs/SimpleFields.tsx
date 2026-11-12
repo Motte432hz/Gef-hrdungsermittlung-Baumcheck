@@ -12,38 +12,49 @@ const inputClass =
 
 export function TextItemField({ item, answer, onChange }: Props<TextItem>) {
   const id = useId()
-  const [text, setText] = useState(typeof answer?.value === 'string' ? answer.value : '')
+  const stored = typeof answer?.value === 'string' ? answer.value : ''
+  const [text, setText] = useState(stored)
+  // A value written from elsewhere (e.g. a suggestion taken over) is shown unless the person
+  // is typing in this field right now.
+  const [focused, setFocused] = useState(false)
+  const [lastStored, setLastStored] = useState(stored)
+  if (stored !== lastStored) {
+    setLastStored(stored)
+    if (!focused && stored !== text) setText(stored)
+  }
   const change = (v: string) => {
     setText(v)
     onChange(v.trim() ? { value: v } : undefined)
   }
   return (
     <ItemCard>
-      <ItemLabel
-        as="label"
-        htmlFor={id}
-        label={item.label}
-        info={item.info}
-        required={item.required}
-      />
-      {item.multiline ? (
-        <textarea
-          id={id}
-          rows={3}
-          className={inputClass}
-          placeholder={item.placeholder}
-          value={text}
-          onChange={(e) => change(e.target.value)}
+      <div className="space-y-3" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
+        <ItemLabel
+          as="label"
+          htmlFor={id}
+          label={item.label}
+          info={item.info}
+          required={item.required}
         />
-      ) : (
-        <input
-          id={id}
-          className={inputClass}
-          placeholder={item.placeholder}
-          value={text}
-          onChange={(e) => change(e.target.value)}
-        />
-      )}
+        {item.multiline ? (
+          <textarea
+            id={id}
+            rows={3}
+            className={inputClass}
+            placeholder={item.placeholder}
+            value={text}
+            onChange={(e) => change(e.target.value)}
+          />
+        ) : (
+          <input
+            id={id}
+            className={inputClass}
+            placeholder={item.placeholder}
+            value={text}
+            onChange={(e) => change(e.target.value)}
+          />
+        )}
+      </div>
     </ItemCard>
   )
 }

@@ -34,6 +34,57 @@ test.beforeEach(async ({ page }) => {
   )
 })
 
+const cors = { 'Access-Control-Allow-Origin': '*' }
+
+/** Hospital search (Overpass) and weather (Bright Sky) – simulated. */
+async function fakeOnlineHelp(page: Page) {
+  await page.route('https://overpass-api.de/**', (r) =>
+    r.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: cors,
+      body: JSON.stringify({
+        elements: [
+          { lat: 50.115, lon: 8.69, tags: { name: 'Klinik ohne Notaufnahme' } },
+          {
+            lat: 50.095,
+            lon: 8.66,
+            tags: {
+              name: 'Uniklinik Frankfurt',
+              emergency: 'yes',
+              'addr:street': 'Theodor-Stern-Kai',
+              'addr:housenumber': '7',
+              'addr:postcode': '60590',
+              'addr:city': 'Frankfurt',
+              phone: '069 6301 0',
+            },
+          },
+        ],
+      }),
+    }),
+  )
+  await page.route('https://api.brightsky.dev/**', (r) =>
+    r.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: cors,
+      body: JSON.stringify(
+        r.request().url().includes('/alerts')
+          ? {
+              alerts: [
+                {
+                  event_de: 'STURMBÖEN',
+                  headline_de: 'Amtliche WARNUNG vor STURMBÖEN',
+                  severity: 'moderate',
+                },
+              ],
+            }
+          : { weather: { wind_speed_10: 25, wind_gust_speed_10: 62, condition: 'dry' } },
+      ),
+    }),
+  )
+}
+
 async function openSiteStep(page: Page) {
   await page.goto('/')
   await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
@@ -76,6 +127,27 @@ test.describe('with GPS', () => {
     await expect(page.getByRole('textbox', { name: /Adresse/ })).toHaveValue(
       'Lindenstraße 4, 60311 Frankfurt am Main',
     )
+  })
+
+  test('nearest emergency department and weather at the site', async ({ page }) => {
+    await fakeOnlineHelp(page)
+    await openSiteStep(page)
+    await page.getByRole('button', { name: /Standort bestimmen/ }).click()
+    await expect(page.getByTestId('gps-decimal')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Nächste Notaufnahme suchen' }).click()
+    const list = page.getByRole('list', { name: 'Krankenhäuser in der Nähe' })
+    await expect(list.getByRole('listitem').first()).toContainText('Uniklinik Frankfurt')
+    await expect(list.getByRole('listitem').first()).toContainText('✚ Notaufnahme')
+    await list.getByRole('listitem').first().getByRole('button', { name: 'Übernehmen' }).click()
+    await expect(page.getByRole('textbox', { name: 'Nächstes Krankenhaus' })).toHaveValue(
+      'Uniklinik Frankfurt, Theodor-Stern-Kai 7, 60590 Frankfurt, Tel. 069 6301 0',
+    )
+
+    await page.goto(page.url().replace(/site$/, 'workplace'))
+    const weather = page.getByRole('region', { name: 'Wetter am Einsatzort' })
+    await expect(weather).toContainText('Wind 25 km/h, Böen 62 km/h – starke Böen')
+    await expect(weather).toContainText('Amtliche WARNUNG vor STURMBÖEN')
   })
 
   test('offline: no map and no address lookup, coordinates still work', async ({

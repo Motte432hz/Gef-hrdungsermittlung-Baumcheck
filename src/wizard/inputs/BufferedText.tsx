@@ -4,7 +4,8 @@ import { toggleMeasure, hasMeasure } from './measures'
 
 /**
  * Text input with local state that writes through on every change (autosave).
- * Local state avoids cursor jumps while the database round-trip is in flight.
+ * Local state avoids cursor jumps while the database round-trip is in flight. A value written
+ * from elsewhere (e.g. a suggestion taken over) is shown as soon as the field is not focused.
  */
 export function BufferedText({
   label,
@@ -28,6 +29,12 @@ export function BufferedText({
   suggestions?: string[]
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'required'>) {
   const [value, setValue] = useState(initial)
+  const [focused, setFocused] = useState(false)
+  const [lastInitial, setLastInitial] = useState(initial)
+  if (initial !== lastInitial) {
+    setLastInitial(initial)
+    if (!focused && initial !== value) setValue(initial)
+  }
   const change = (v: string) => {
     setValue(v)
     onSave(v)
@@ -53,10 +60,15 @@ export function BufferedText({
       onChange={(e) => change(e.target.value)}
     />
   )
-  if (!suggestions?.length) return input
+  const tracked = (
+    <div onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
+      {input}
+    </div>
+  )
+  if (!suggestions?.length) return tracked
   return (
     <div className="space-y-2">
-      {input}
+      {tracked}
       <div role="group" aria-label="Vorschläge zum Antippen" className="flex flex-wrap gap-2">
         {suggestions.map((m) => {
           const on = hasMeasure(value, m)

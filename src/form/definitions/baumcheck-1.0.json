@@ -175,7 +175,9 @@
             {
               "id": "site.hospital",
               "type": "text",
-              "label": "Nächstes Krankenhaus"
+              "label": "Nächstes Krankenhaus",
+              "assist": "hospital",
+              "info": "Mit „Nächste Notaufnahme suchen“ schlägt die App Krankenhäuser in der Nähe vor (bei Internet und GPS-Position). Die Angaben stammen aus OpenStreetMap – im Zweifel die Leitstelle fragen. Im Notfall immer 112."
             },
             {
               "id": "site.locationKnown",
@@ -871,7 +873,8 @@
                 "Nur Bodenarbeiten",
                 "Windgeschwindigkeit laufend beobachten, Abbruch bei Böen",
                 "Pausen bei Gewitter/Starkregen"
-              ]
+              ],
+              "assist": "weather"
             },
             {
               "id": "site.dropZoneClear",

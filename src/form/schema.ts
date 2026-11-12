@@ -26,6 +26,8 @@ interface ItemBase {
   required?: boolean
   /** Not in the original SVLFG form; proposed addition awaiting confirmation. */
   proposal?: boolean
+  /** Online help shown with the item (needs the GPS position). */
+  assist?: 'hospital' | 'weather'
 }
 
 /** Control point: yes / no / not relevant. "No" → warning + required measure. */
