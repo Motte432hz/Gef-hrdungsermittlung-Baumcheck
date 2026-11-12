@@ -37,6 +37,8 @@ export function PhotoEditor({
     const img = image.current
     if (!c || !img) return
     const ctx = c.getContext('2d')!
+    // Clear first: transparent images would otherwise show earlier drawings.
+    ctx.clearRect(0, 0, c.width, c.height)
     ctx.drawImage(img, 0, 0, c.width, c.height)
     drawMarks(ctx, extra ? [...marks, extra] : marks, c.width)
   }

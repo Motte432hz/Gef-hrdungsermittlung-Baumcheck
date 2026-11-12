@@ -94,3 +94,45 @@ test('completing works offline', async ({ page, context, browserName }) => {
   await expect(page.getByTestId('pdf-integrity')).toHaveText('✓ PDF ist unverändert')
   await context.setOffline(false)
 })
+
+test('order confirmation and invoice can be attached after completion', async ({ page }) => {
+  await fillCompleteAssessment(page)
+  await signEveryone(page)
+  await completeNow(page)
+
+  const card = page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: 'Auftrag & Rechnung' }) })
+  await expect(card.getByText('Noch kein Dokument angehängt.', { exact: false })).toBeVisible()
+
+  // Photo of a paper → crop editor → saved as a cleaned-up scan.
+  await card.getByTestId('document-file').setInputFiles('public/pwa-512x512.png')
+  const editor = page.getByRole('dialog', { name: 'Dokument zuschneiden' })
+  const canvas = editor.getByRole('img', { name: 'Dokument mit Zuschnitt' })
+  await expect(canvas).toBeVisible()
+  const box = (await canvas.boundingBox())!
+  // Drag the top-left corner inwards.
+  await page.mouse.move(box.x + box.width * 0.05, box.y + box.height * 0.05)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.2, { steps: 4 })
+  await page.mouse.up()
+  await editor.getByRole('button', { name: 'Übernehmen' }).click()
+  await expect(editor).toHaveCount(0)
+
+  // An invoice as PDF.
+  await card.getByText('Rechnung', { exact: true }).click()
+  await card.getByTestId('document-file').setInputFiles({
+    name: 'Rechnung-2026-17.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('%PDF-1.4\n%%EOF'),
+  })
+  const docs = card.getByRole('list', { name: 'Dokumente' })
+  await expect(docs.getByRole('listitem')).toHaveCount(2)
+  await expect(docs).toContainText('Auftragsbestätigung')
+  await expect(docs).toContainText('Rechnung-2026-17.pdf')
+
+  // The protocol itself stays untouched.
+  await expect(page.getByTestId('pdf-integrity')).toHaveText('✓ PDF ist unverändert')
+  await page.reload()
+  await expect(docs.getByRole('listitem')).toHaveCount(2)
+})

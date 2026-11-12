@@ -546,6 +546,46 @@ export async function restoreOriginalPhoto(db: BaumCheckDB, id: ID): Promise<voi
   })
 }
 
+/** Documents that belong to a job (also after completion): not part of the signed content. */
+export const DOCUMENT_KINDS = ['order_confirmation', 'invoice', 'other'] as const
+export type DocumentKind = (typeof DOCUMENT_KINDS)[number]
+
+export async function addDocument(
+  db: BaumCheckDB,
+  assessmentId: ID,
+  kind: DocumentKind,
+  file: StoredFile,
+  fileName: string,
+): Promise<Attachment> {
+  const a = await db.assessments.get(assessmentId)
+  if (!a) throw new Error(`Assessment ${assessmentId} not found`)
+  const att: Attachment = {
+    ...baseRecord(a.organizationId),
+    assessmentId,
+    kind,
+    fileName,
+    file,
+    capturedAt: nowIso(),
+  }
+  await db.attachments.add(att)
+  await audit(db, a.organizationId, 'updated', 'assessment', assessmentId, `Dokument: ${fileName}`)
+  return att
+}
+
+export async function getDocuments(db: BaumCheckDB, assessmentId: ID): Promise<Attachment[]> {
+  const list = await db.attachments.where('assessmentId').equals(assessmentId).toArray()
+  return list
+    .filter((x) => (DOCUMENT_KINDS as readonly string[]).includes(x.kind))
+    .sort((x, y) => x.capturedAt.localeCompare(y.capturedAt))
+}
+
+/** Removes a document (never photos or the protocol PDF). */
+export async function removeDocument(db: BaumCheckDB, id: ID): Promise<void> {
+  const att = await db.attachments.get(id)
+  if (!att || !(DOCUMENT_KINDS as readonly string[]).includes(att.kind)) return
+  await db.attachments.delete(id)
+}
+
 export async function getTreePhotos(db: BaumCheckDB, treeId: ID): Promise<Attachment[]> {
   const list = await db.attachments.where('treeId').equals(treeId).toArray()
   return list

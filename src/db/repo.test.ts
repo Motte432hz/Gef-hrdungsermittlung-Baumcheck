@@ -12,6 +12,9 @@ import {
   getTreePhotos,
   removeAttachment,
   markPhoto,
+  addDocument,
+  getDocuments,
+  removeDocument,
   restoreOriginalPhoto,
   confirmPrefilled,
   deleteDraft,
@@ -315,6 +318,25 @@ describe('tree photos', () => {
     await restoreOriginalPhoto(db, p.id)
     att = (await db.attachments.get(p.id))!
     expect([new Uint8Array(att.file.data)[0], att.original]).toEqual([255, undefined])
+  })
+})
+
+describe('documents', () => {
+  const pdf = { type: 'application/pdf', data: new Uint8Array([37, 80, 68, 70]).buffer }
+
+  it('can be added and removed after completion; photos are never removed this way', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    const t = await addTree(db, a.id)
+    const photo = await addTreePhoto(db, t.id, pdf, 'foto.jpg')
+    await complete(a.id)
+    const doc = await addDocument(db, a.id, 'invoice', pdf, 'Rechnung.pdf')
+    expect((await getDocuments(db, a.id)).map((d) => [d.kind, d.fileName])).toEqual([
+      ['invoice', 'Rechnung.pdf'],
+    ])
+    await removeDocument(db, photo.id)
+    expect(await db.attachments.get(photo.id)).toBeTruthy()
+    await removeDocument(db, doc.id)
+    expect(await getDocuments(db, a.id)).toEqual([])
   })
 })
 

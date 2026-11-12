@@ -12,6 +12,7 @@ import { createFromTemplate } from '../wizard/template'
 import { PageHeader } from '../components/PageHeader'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
+import { DocumentsCard } from './DocumentsCard'
 
 const fmt = (iso?: string) =>
   iso
@@ -116,6 +117,8 @@ export function ProtocolPage() {
           <p>Kein PDF gespeichert.</p>
         )}
       </Card>
+
+      <DocumentsCard assessmentId={a.id} />
 
       <Card title="Nachweis">
         <dl className="space-y-2 text-sm">
