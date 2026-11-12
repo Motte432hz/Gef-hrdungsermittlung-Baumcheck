@@ -798,7 +798,7 @@ Bei „Nein“ bzw. „vorhanden“ (und bei Auswahlen mit Pflicht-Maßnahme) bi
 
 ## Online-Hilfen (nur mit Internet und GPS-Position)
 
-- **Nächstes Krankenhaus** (`site.hospital`): Knopf „Nächste Notaufnahme suchen“ – bis zu 3 Krankenhäuser im Umkreis von 40 km, Notaufnahmen zuerst, mit Entfernung (Luftlinie), Adresse und Telefon; „Übernehmen“ trägt sie ins Feld ein. Daten aus OpenStreetMap, ohne Gewähr.
+- **Nächstes Krankenhaus** (`site.hospital`): Knopf „Nächste Notaufnahme suchen“ – bis zu 3 Krankenhäuser im Umkreis von 40 km, Notaufnahmen zuerst, mit Entfernung (Luftlinie), Adresse und Telefon; „Übernehmen“ trägt sie ins Feld ein. Daten aus OpenStreetMap (Nominatim, ersatzweise Photon oder Overpass – die erste Quelle, die antwortet), ohne Gewähr.
 - **Witterung** (`site.weatherOk`): aktueller Wind und Böen sowie amtliche Warnungen des Deutschen Wetterdienstes für den Einsatzort. Ab etwa 50 km/h Böen wird rot gewarnt. Die Antwort „Ja/Nein“ trifft weiterhin die Aufsicht.
 
 ## Baum wiederfinden

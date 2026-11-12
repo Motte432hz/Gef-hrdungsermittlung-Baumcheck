@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { findHospitals, hospitalText, parseHospitals } from './hospital'
+import { findHospitals, hospitalText, parseHospitals, parsePhoton } from './hospital'
 import { fetchSiteWeather } from './weather'
 
 const site = { lat: 50.11, lng: 8.68 }
@@ -38,14 +38,89 @@ describe('hospitals', () => {
     )
   })
 
-  it('asks Overpass around the site', async () => {
-    let body = ''
-    const fake = (async (_url: string, init: RequestInit) => {
-      body = decodeURIComponent(String(init.body))
-      return new Response(JSON.stringify({ elements: [] }))
+  it('Nominatim first: emergency departments and phone numbers from the extra tags', async () => {
+    const urls: string[] = []
+    const fake = (async (url: string) => {
+      urls.push(url)
+      return new Response(
+        JSON.stringify([
+          {
+            lat: '50.095',
+            lon: '8.66',
+            name: 'Uniklinik',
+            address: {
+              road: 'Theodor-Stern-Kai',
+              house_number: '7',
+              postcode: '60590',
+              city: 'Frankfurt am Main',
+            },
+            extratags: { emergency: 'yes', phone: '+49 69 6301 0' },
+          },
+          {
+            lat: '50.12',
+            lon: '8.69',
+            name: 'Tagesklinik',
+            address: { town: 'Bad Vilbel' },
+            extratags: null,
+          },
+        ]),
+      )
     }) as typeof fetch
-    expect(await findHospitals(site, fake)).toEqual([])
-    expect(body).toContain('around:40000,50.11,8.68')
+    const list = await findHospitals(site, fake)
+    expect(urls).toHaveLength(1)
+    expect(urls[0]).toContain('amenity=hospital')
+    expect(urls[0]).toContain('bounded=1')
+    expect(list.map((h) => [h.name, h.emergency, h.phone])).toEqual([
+      ['Uniklinik', true, '+49 69 6301 0'],
+      ['Tagesklinik', false, undefined],
+    ])
+    expect(list[0]!.address).toBe('Theodor-Stern-Kai 7, 60590 Frankfurt am Main')
+  })
+
+  it('falls back to Photon and Overpass when a service refuses or finds nothing', async () => {
+    const asked: string[] = []
+    const fake = (async (url: string) => {
+      asked.push(new URL(url).host)
+      if (url.includes('nominatim')) return new Response('Access denied', { status: 403 })
+      if (url.includes('photon')) return new Response(JSON.stringify({ features: [] }))
+      return new Response(
+        JSON.stringify({
+          elements: [{ lat: 50.12, lon: 8.68, tags: { name: 'Klinik', emergency: 'yes' } }],
+        }),
+      )
+    }) as typeof fetch
+    const list = await findHospitals(site, fake)
+    expect(asked).toEqual(['nominatim.openstreetmap.org', 'photon.komoot.io', 'overpass-api.de'])
+    expect(list.map((h) => h.name)).toEqual(['Klinik'])
+  })
+
+  it('reports when no service answers', async () => {
+    const fake = (async () => new Response('busy', { status: 429 })) as typeof fetch
+    await expect(findHospitals(site, fake)).rejects.toThrow(/nicht erreichbar/)
+  })
+
+  it('reads Photon results', () => {
+    const list = parsePhoton(
+      {
+        features: [
+          {
+            geometry: { coordinates: [8.66, 50.095] },
+            properties: {
+              name: 'Uniklinik',
+              street: 'Theodor-Stern-Kai',
+              housenumber: '7',
+              postcode: '60590',
+              city: 'Frankfurt',
+            },
+          },
+          { geometry: { coordinates: [11.5, 48.1] }, properties: { name: 'Weit weg' } },
+        ],
+      },
+      site,
+    )
+    expect(list.map((h) => [h.name, h.address])).toEqual([
+      ['Uniklinik', 'Theodor-Stern-Kai 7, 60590 Frankfurt'],
+    ])
   })
 })
 

@@ -38,6 +38,29 @@ const cors = { 'Access-Control-Allow-Origin': '*' }
 
 /** Hospital search (Overpass) and weather (Bright Sky) – simulated. */
 async function fakeOnlineHelp(page: Page) {
+  // Nominatim search (registered after the reverse lookup above, so it takes precedence).
+  await page.route('https://nominatim.openstreetmap.org/search**', (r) =>
+    r.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: cors,
+      body: JSON.stringify([
+        { lat: '50.115', lon: '8.69', name: 'Klinik ohne Notaufnahme', address: {}, extratags: {} },
+        {
+          lat: '50.095',
+          lon: '8.66',
+          name: 'Uniklinik Frankfurt',
+          address: {
+            road: 'Theodor-Stern-Kai',
+            house_number: '7',
+            postcode: '60590',
+            city: 'Frankfurt',
+          },
+          extratags: { emergency: 'yes', phone: '069 6301 0' },
+        },
+      ]),
+    }),
+  )
   await page.route('https://overpass-api.de/**', (r) =>
     r.fulfill({
       status: 200,
