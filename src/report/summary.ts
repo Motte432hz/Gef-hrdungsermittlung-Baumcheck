@@ -121,6 +121,16 @@ function row(
         value: speciesLabel(answer) ?? '–',
         tone: speciesLabel(answer) ? 'neutral' : 'empty',
       }
+    case 'treePosition': {
+      const p = ctx.trees.find((t) => t.id === treeId)?.position
+      return p
+        ? {
+            ...base,
+            value: `${formatDecimal(p)}${p.accuracy !== undefined ? ` (± ${p.accuracy} m)` : ''}`,
+            tone: 'neutral',
+          }
+        : { ...base, value: 'nicht erfasst', tone: 'empty' }
+    }
     case 'photos': {
       const n = treeId ? (ctx.photoCount?.[treeId] ?? 0) : 0
       return {

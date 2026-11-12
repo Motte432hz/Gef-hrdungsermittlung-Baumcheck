@@ -800,3 +800,9 @@ Bei „Nein“ bzw. „vorhanden“ (und bei Auswahlen mit Pflicht-Maßnahme) bi
 
 - **Nächstes Krankenhaus** (`site.hospital`): Knopf „Nächste Notaufnahme suchen“ – bis zu 3 Krankenhäuser im Umkreis von 40 km, Notaufnahmen zuerst, mit Entfernung (Luftlinie), Adresse und Telefon; „Übernehmen“ trägt sie ins Feld ein. Daten aus OpenStreetMap, ohne Gewähr.
 - **Witterung** (`site.weatherOk`): aktueller Wind und Böen sowie amtliche Warnungen des Deutschen Wetterdienstes für den Einsatzort. Ab etwa 50 km/h Böen wird rot gewarnt. Die Antwort „Ja/Nein“ trifft weiterhin die Aufsicht.
+
+## Baum wiederfinden
+
+- **Standort des Baums** (`tree.position`, Schritt „Baum“, optional): „Standort am Stamm übernehmen“ speichert die GPS-Position des Baums (Ziel ± 8 m). Sie steht in Zusammenfassung und PDF und ist Teil dessen, was unterschrieben wird.
+- **Bäume vom letzten Einsatz hier:** Beim nächsten Einsatz am selben Kunden/Objekt listet die App die Bäume des letzten abgeschlossenen Protokolls – mit Ergebnis und damaligen Befunden, nach Entfernung sortiert, wenn Positionen bekannt sind. „Diesen Baum übernehmen“ übernimmt Baum-Nr., Art, Höhe, Durchmesser, Wuchsform und Standort; die Beurteilung wird neu gemacht.
+- **Letzter Befund** (Schritt „Baumbeurteilung“): zeigt bei übernommenen Bäumen, was damals festgestellt wurde – zum Vergleich.

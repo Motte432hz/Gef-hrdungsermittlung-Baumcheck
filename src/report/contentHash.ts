@@ -22,7 +22,7 @@ export type HashableAssessment = Pick<
  */
 export async function assessmentContentHash(
   a: HashableAssessment,
-  trees: Pick<Tree, 'id' | 'index' | 'answers'>[],
+  trees: Pick<Tree, 'id' | 'index' | 'answers' | 'position'>[],
   photoIdsByTree: Record<string, string[]> = {},
 ): Promise<string> {
   const payload = {
@@ -44,6 +44,12 @@ export async function assessmentContentHash(
         id: t.id,
         index: t.index,
         answers: t.answers,
+        // Only for trees with a position, so older protocols keep their hash.
+        ...(t.position
+          ? {
+              position: { lat: t.position.lat, lng: t.position.lng, accuracy: t.position.accuracy },
+            }
+          : {}),
         photos: [...(photoIdsByTree[t.id] ?? [])].sort(),
       })),
   }

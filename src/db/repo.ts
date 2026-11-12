@@ -5,6 +5,8 @@ import type {
   Attachment,
   StoredFile,
   Answer,
+  Answers,
+  GeoPosition,
   Assessment,
   AuditAction,
   AuditEntry,
@@ -186,6 +188,52 @@ export async function addTree(db: BaumCheckDB, assessmentId: ID): Promise<Tree> 
     await db.trees.add(tree)
     return tree
   })
+}
+
+/** Position of a tree (taken at the trunk); undefined removes it. */
+export async function setTreePosition(
+  db: BaumCheckDB,
+  treeId: ID,
+  position: GeoPosition | undefined,
+): Promise<void> {
+  await db.transaction('rw', db.assessments, db.trees, async () => {
+    const tree = await db.trees.get(treeId)
+    if (!tree) throw new Error(`Tree ${treeId} not found`)
+    await requireDraft(db, tree.assessmentId)
+    await db.trees.update(treeId, { position, updatedAt: nowIso(), syncState: 'pending' })
+  })
+}
+
+/** Basic data of a tree that stays the same from visit to visit. */
+export const TREE_BASIC_IDS = [
+  'tree.number',
+  'tree.species',
+  'tree.height',
+  'tree.diameter',
+  'tree.growthForm',
+] as const
+
+/**
+ * The same tree as in an earlier assessment: basic data and position are taken over, the
+ * assessment is done anew (the earlier findings are shown for comparison).
+ */
+export async function addTreeFromPrevious(
+  db: BaumCheckDB,
+  assessmentId: ID,
+  earlier: Tree,
+): Promise<Tree> {
+  const previous = (await db.trees.get(earlier.id)) ?? earlier
+  const tree = await addTree(db, assessmentId)
+  const answers: Answers = {}
+  for (const id of TREE_BASIC_IDS)
+    if (previous.answers[id]) answers[id] = structuredClone(previous.answers[id]!)
+  const changes = {
+    answers,
+    position: previous.position ? structuredClone(previous.position) : undefined,
+    previousTreeId: previous.id,
+  }
+  await db.trees.update(tree.id, changes)
+  return { ...tree, ...changes }
 }
 
 export async function setTreeAnswer(

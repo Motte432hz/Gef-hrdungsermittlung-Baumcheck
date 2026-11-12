@@ -87,7 +87,16 @@ export interface TimeItem extends ItemBase {
 
 /** Items with dedicated widgets, stored in assessment fields rather than in answers. */
 export interface SpecialItem extends ItemBase {
-  type: 'customer' | 'date' | 'supervisor' | 'gps' | 'address' | 'team' | 'photos' | 'treeSpecies'
+  type:
+    | 'customer'
+    | 'date'
+    | 'supervisor'
+    | 'gps'
+    | 'address'
+    | 'team'
+    | 'photos'
+    | 'treeSpecies'
+    | 'treePosition'
 }
 
 export type FormItem =
@@ -158,6 +167,7 @@ export const SPECIAL_TYPES = new Set<FormItem['type']>([
   'team',
   'photos',
   'treeSpecies',
+  'treePosition',
 ])
 
 export function isSpecialItem(item: FormItem): item is SpecialItem {

@@ -10,6 +10,7 @@ import { TreeTabs } from './TreeTabs'
 import { SpeciesHazards } from './SpeciesHazards'
 import { treeLabel } from './treeLabel'
 import { addTreeLike } from './copyTree'
+import { LastFindings, PreviousTrees } from './PreviousTrees'
 import type { Answer } from '../../domain/types'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
@@ -23,19 +24,22 @@ export function TreeStepView({ step }: { step: FormStep }) {
 
   if (!tree) {
     return (
-      <Card>
-        <p className="mb-3 text-stone-700 dark:text-stone-300">Noch kein Baum erfasst.</p>
-        <Button
-          className="min-h-14 w-full"
-          onClick={() =>
-            void addTree(db, assessment.id).then((t) =>
-              navigate(`/einsatz/${assessment.id}/tree?baum=${t.id}`),
-            )
-          }
-        >
-          + Ersten Baum erfassen
-        </Button>
-      </Card>
+      <div className="space-y-4">
+        <PreviousTrees />
+        <Card>
+          <p className="mb-3 text-stone-700 dark:text-stone-300">Noch kein Baum erfasst.</p>
+          <Button
+            className="min-h-14 w-full"
+            onClick={() =>
+              void addTree(db, assessment.id).then((t) =>
+                navigate(`/einsatz/${assessment.id}/tree?baum=${t.id}`),
+              )
+            }
+          >
+            + Ersten Baum erfassen
+          </Button>
+        </Card>
+      </div>
     )
   }
 
@@ -68,6 +72,8 @@ export function TreeStepView({ step }: { step: FormStep }) {
     <div className="space-y-6">
       <TreeTabs stepId={step.id} currentTreeId={tree.id} />
       <h2 className="text-2xl font-bold">{treeLabel(tree)}</h2>
+      {step.id === 'tree' && <PreviousTrees />}
+      {step.id === 'treeAssessment' && <LastFindings tree={tree} />}
       {step.id === 'treeAssessment' && species && <SpeciesHazards species={species} compact />}
       {prefilled.length > 0 && (
         <Card>

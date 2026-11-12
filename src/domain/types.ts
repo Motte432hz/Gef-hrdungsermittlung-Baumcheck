@@ -223,6 +223,10 @@ export interface Tree extends BaseRecord {
   /** Order within the assessment. */
   index: number
   answers: Answers
+  /** Where the tree stands (taken at the trunk), to find it again next time. */
+  position?: GeoPosition
+  /** The same tree in the previous assessment at this object (its last findings). */
+  previousTreeId?: ID
 }
 
 export type SignatureMethod = 'drawn' | 'stored'

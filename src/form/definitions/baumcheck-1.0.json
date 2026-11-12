@@ -296,6 +296,12 @@
               "info": "Zum Beispiel die Nummer aus dem Baumkataster oder auf der Plakette."
             },
             {
+              "id": "tree.position",
+              "type": "treePosition",
+              "label": "Standort des Baums",
+              "info": "Am Stammfuß stehen und den Standort übernehmen. Beim nächsten Einsatz am selben Objekt findet die App den Baum wieder und zeigt den letzten Befund."
+            },
+            {
               "id": "tree.species",
               "type": "treeSpecies",
               "label": "Baumart",

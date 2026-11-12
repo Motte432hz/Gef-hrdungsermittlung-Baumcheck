@@ -112,4 +112,41 @@ test('next job at the same customer shows the last visit and takes over location
     'Lindenstraße 4, 60311 Frankfurt',
   )
   await expect(page.getByRole('textbox', { name: /Zufahrt/ })).toHaveValue('Einfahrt Hofseite')
+
+  // The tree from last time can be taken over; its last findings are shown for comparison.
+  await page.goto(page.url().replace(/site$/, 'tree'))
+  const earlier = page.getByRole('list', { name: 'Bäume vom letzten Einsatz' })
+  await expect(earlier.getByRole('listitem')).toHaveCount(1)
+  await expect(earlier).toContainText('Baum 1 · Winter-Linde')
+  await expect(earlier).toContainText('Ergebnis: Ja')
+  await earlier.getByRole('button', { name: 'Diesen Baum übernehmen' }).click()
+  await expect(page.getByRole('heading', { name: 'Baum 1 · Winter-Linde' })).toBeVisible()
+  await expect(page.getByRole('textbox', { name: /Baumhöhe/ })).toHaveValue('18')
+  await expect(page.getByRole('list', { name: 'Bäume vom letzten Einsatz' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Weiter ›' }).click()
+  await expect(page.getByRole('region', { name: 'Letzter Befund' })).toContainText(
+    'Damals keine Auffälligkeiten.',
+  )
+})
+
+test.describe('with GPS', () => {
+  test.use({
+    permissions: ['geolocation'],
+    geolocation: { latitude: 50.110924, longitude: 8.682127, accuracy: 4 },
+  })
+
+  test('the position of a tree is taken at the trunk', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
+    await expect(page).toHaveURL(/\/job$/)
+    await page.goto(page.url().replace(/job$/, 'tree'))
+    await page.getByRole('button', { name: '+ Ersten Baum erfassen' }).click()
+    await page.getByRole('button', { name: /Standort am Stamm übernehmen/ }).click()
+    await expect(page.getByTestId('tree-position')).toHaveText('50.110924, 8.682127')
+    await expect(page.getByText('± 4 m')).toBeVisible()
+    await page.reload()
+    await expect(page.getByTestId('tree-position')).toHaveText('50.110924, 8.682127')
+    await page.getByRole('button', { name: 'Entfernen', exact: true }).click()
+    await expect(page.getByTestId('tree-position')).toHaveCount(0)
+  })
 })
