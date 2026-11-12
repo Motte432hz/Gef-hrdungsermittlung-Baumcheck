@@ -38,7 +38,8 @@ const LOCAL_META_KEYS = new Set([
   'cloudJoinName',
 ])
 /** Device-specific: codes, cloud sign-in and sync progress (a new device starts its own). */
-const isLocalMeta = (key: string) => LOCAL_META_KEYS.has(key) || key.startsWith('sync:')
+const isLocalMeta = (key: string) =>
+  LOCAL_META_KEYS.has(key) || key.startsWith('sync:') || key.startsWith('outbox:')
 
 export class BackupError extends Error {
   constructor(message: string) {

@@ -6,6 +6,7 @@ import { cloudErrorMessage } from './account'
 import { getClient } from './client'
 import { supabaseRemote } from './supabaseRemote'
 import { syncOnce } from './sync'
+import { processOutbox, sendViaServer } from './outbox'
 
 /** Saved when this device works for a company in the cloud (cleared on sign-out). */
 export const META_CLOUD = 'cloud'
@@ -92,6 +93,8 @@ async function runOnce(db: BaumCheckDB) {
   set({ state: 'syncing', lastSyncAt, error: undefined })
   try {
     await syncOnce(db, orgId, supabaseRemote(sb))
+    // PDFs waiting for the office: sent once they are on the server.
+    if (await processOutbox(db, sendViaServer(sb))) await syncOnce(db, orgId, supabaseRemote(sb))
     const at = new Date().toISOString()
     await db.meta.put({ key: META_LAST_SYNC, value: at })
     set({ state: 'idle', lastSyncAt: at, pending: await countPending(db, orgId) })

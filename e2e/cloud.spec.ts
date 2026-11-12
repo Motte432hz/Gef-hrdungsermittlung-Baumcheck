@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
+import { fillCompleteAssessment, signEveryone } from './helpers'
 
 // The cloud server is simulated: no real e-mails, no real accounts.
 // Service workers would bypass page.route in WebKit, so they are blocked here.
@@ -36,7 +37,12 @@ async function fakeServer(page: Page): Promise<Server> {
     const url = new URL(route.request().url())
     const path = url.pathname
     s.calls.push(`${route.request().method()} ${path}`)
-    const body = route.request().postDataJSON?.() as Record<string, unknown> | undefined
+    let body: Record<string, unknown> | undefined
+    try {
+      body = route.request().postDataJSON() as Record<string, unknown> | undefined
+    } catch {
+      body = undefined // files (storage uploads) are not JSON
+    }
     if (path === '/auth/v1/otp') return route.fulfill(json({}))
     if (path === '/auth/v1/verify') {
       if (body?.token !== '123456')
@@ -131,6 +137,12 @@ async function fakeServer(page: Page): Promise<Server> {
         json([
           { organization_id: CLOUD_ORG, organization_name: 'Zwieselwiesel', status: 'pending' },
         ]),
+      )
+    }
+    if (path === '/functions/v1/send-protocol') {
+      s.calls.push(`send ${body!.assessmentId}`)
+      return route.fulfill(
+        json({ sent: true, to: ['buero@example.de'], sentAt: new Date().toISOString() }),
       )
     }
     // Sync: reading returns nothing new, writing is accepted.
@@ -235,4 +247,28 @@ test('new device joins with a code and switches to the company after approval', 
   await expect(page.getByTestId('device-code')).toContainText('Gerätekürzel: M1')
   await page.goto('/profile/team')
   await expect(page.getByRole('link', { name: /Mia/ })).toBeVisible()
+})
+
+test('completed protocols go to the office by e-mail automatically', async ({ page }) => {
+  const server = await fakeServer(page)
+  await page.goto('/profile/firma')
+  await page.getByLabel('Firmenname').fill('Zwieselwiesel')
+  await page.getByLabel('E-Mail-Adressen für fertige Protokolle').fill('buero@example.de')
+  await expect(page.getByText('✓ Gespeichert')).toBeVisible()
+  await page.getByRole('link', { name: /Firmen-Kartei/ }).click()
+  await signIn(page)
+  await page.getByRole('button', { name: 'Unsere Firma in die Cloud bringen' }).click()
+  await page.getByLabel('Dein Name').fill('Anna Ast')
+  await page.getByRole('button', { name: 'Firmen-Kartei anlegen' }).click()
+  await expect(page.getByText('Zwieselwiesel · Inhaber/in')).toBeVisible()
+
+  await fillCompleteAssessment(page)
+  await signEveryone(page)
+  page.once('dialog', (d) => void d.accept())
+  await page.getByRole('button', { name: 'Abschließen & PDF erstellen' }).click()
+  await expect(page).toHaveURL(/\/protokoll\//, { timeout: 20_000 })
+  // Sent by the server once protocol and PDF are uploaded.
+  await expect(page.getByText(/^versendet /)).toBeVisible({ timeout: 15_000 })
+  expect(server.calls.some((c) => c.startsWith('send '))).toBe(true)
+  expect(server.calls).toContain('sync POST /rest/v1/attachments')
 })

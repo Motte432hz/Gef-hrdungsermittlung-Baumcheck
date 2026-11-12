@@ -13,6 +13,7 @@ import { PageHeader } from '../components/PageHeader'
 import { Card } from '../components/Card'
 import { Button } from '../components/Button'
 import { DocumentsCard } from './DocumentsCard'
+import { SendStatus } from './SendStatus'
 
 const fmt = (iso?: string) =>
   iso
@@ -107,6 +108,7 @@ export function ProtocolPage() {
               </Button>
             </div>
             {shareInfo && <p className="text-sm">{shareInfo}</p>}
+            <SendStatus assessment={a} />
             {a.status !== 'sent' && (
               <Button variant="secondary" onClick={() => void markSent(db, a.id)}>
                 Als versendet markieren

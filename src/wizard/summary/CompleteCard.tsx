@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { db } from '../../db/db'
 import { finalizeAssessment, NotReadyError } from '../../report/finalize'
+import { queueSend } from '../../cloud/outbox'
+import { syncNow } from '../../cloud/syncManager'
 import { loadFonts } from '../../pdf/fonts'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
@@ -22,6 +24,8 @@ export function CompleteCard({ ready, assessmentId }: { ready: boolean; assessme
     setError(undefined)
     try {
       const done = await finalizeAssessment(db, assessmentId, await loadFonts())
+      // With the cloud: the PDF goes to the office as soon as it is uploaded.
+      if (await queueSend(db, done.id)) void syncNow(db)
       navigate(`/protokoll/${done.id}`, { replace: true })
     } catch (e) {
       console.error(e)

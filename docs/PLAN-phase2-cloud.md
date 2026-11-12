@@ -83,6 +83,13 @@ Admins können also keine Daten endgültig löschen. Ein „Entfernen“ durch A
 - Beim Beitritt wird die Person mit ihrem Profil verknüpft (gleicher Name) oder ein Profil angelegt.
 - In der Oberfläche: Firmendaten und Standard-Ausrüstung ändern nur Admins; Personen, Firmen und Kunden anderer nur Admins; Löschen nur die Inhaberin / der Inhaber (eigene Entwürfe ausgenommen). Ohne Cloud darf das Gerät alles.
 
+### PDF automatisch an die Firma (C1)
+
+- Beim Abschluss (mit Firmen-Kartei und eingetragener Versand-Adresse unter Firma → Versand) kommt das Protokoll in den Postausgang des Geräts – auch offline.
+- Nach dem Abgleich ruft das Gerät die Server-Funktion `send-protocol` auf (`supabase/functions/send-protocol`): Sie prüft die Mitgliedschaft, holt das PDF aus dem Speicher und sendet es über Brevo (Secret `BREVO_API_KEY`) an alle Versand-Adressen; danach steht das Protokoll auf „versendet“.
+- Absender: der erste bestätigte Absender im Brevo-Konto; Antwort-an: die E-Mail-Adresse der Firma.
+- Neu laden der Funktion: Management-API `functions/deploy?slug=send-protocol` (siehe Commit) oder Supabase CLI.
+
 ### Offen
 
 - Mail-Dienst (SMTP) für die Anmelde-Codes: zum Testen Brevo mit privater Absender-Adresse; später eigene Domain mit dem endgültigen Produktnamen. Danach deutsche Code-E-Mail (`supabase/auth/code-email.html`) und höhere Versandgrenze einstellen.

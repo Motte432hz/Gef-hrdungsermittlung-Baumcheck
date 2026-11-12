@@ -170,6 +170,33 @@ describe('sync with the real cloud', () => {
     await syncOnce(b, org.id, supabaseRemote(member))
     expect((await b.customers.get(c))?.name).toBe('Kita')
 
+    // E-mail to the office (server function, Brevo sandbox: nothing is really sent).
+    await a.organizations.update(org.id, { reportEmails: ['buero@baumcheck-test.invalid'] })
+    const done = await createAssessment(a, org.id, '1.0')
+    await a.assessments.update(done.id, { status: 'completed', protocolNumber: 'IT-2026-0001' })
+    await a.attachments.add({
+      id: crypto.randomUUID(),
+      organizationId: org.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      syncState: 'pending',
+      assessmentId: done.id,
+      kind: 'protocol_pdf',
+      fileName: 'IT-2026-0001.pdf',
+      file: { type: 'application/pdf', data: new TextEncoder().encode('%PDF-1.4\n%%EOF').buffer },
+      capturedAt: new Date().toISOString(),
+    })
+    await syncOnce(a, org.id, supabaseRemote(owner))
+    const dry = await owner.functions.invoke('send-protocol', {
+      body: { assessmentId: done.id, dryRun: true },
+    })
+    expect(dry.error).toBeNull()
+    expect(dry.data).toEqual({ sent: false, dryRun: true, to: ['buero@baumcheck-test.invalid'] })
+    const anon = await client().functions.invoke('send-protocol', {
+      body: { assessmentId: done.id },
+    })
+    expect(anon.error).not.toBeNull()
+
     // Only the owner can delete the whole company – files included.
     await expect(deleteCloudOrganization(member, org.id)).rejects.toThrow()
     await deleteCloudOrganization(owner, org.id)
