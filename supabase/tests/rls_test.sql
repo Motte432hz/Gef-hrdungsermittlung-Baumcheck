@@ -241,6 +241,17 @@ begin
   perform pg_temp.check_as(x, 'outsiders get no device code',
     format($q$select public.register_device(%L, '', 'X', null)$q$, org), 'error');
 
+  -- Deleting the whole company: owner only (a is owner after the transfer above).
+  perform pg_temp.check_as(o, 'admins cannot delete the company',
+    format('select public.delete_organization(%L)', org), 'error');
+  perform pg_temp.check_as(a, 'owner deletes the company',
+    format('select public.delete_organization(%L)', org), 'ok');
+  if exists (select 1 from public.organizations where id = org::uuid)
+    or exists (select 1 from public.memberships where organization_id = org::uuid)
+    or exists (select 1 from public.customers where organization_id = org::uuid) then
+    raise exception 'FAILED [company and its data are gone]';
+  end if;
+
   raise notice 'ALL RLS TESTS PASSED';
 end $$;
 

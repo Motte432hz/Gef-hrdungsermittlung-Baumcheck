@@ -29,7 +29,16 @@ const TABLES = [
 type TableName = (typeof TABLES)[number]
 
 /** Device-specific meta entries that are never exported or imported. */
-const LOCAL_META = new Set([META_DEVICE_CODE, META_LAST_BACKUP])
+const LOCAL_META_KEYS = new Set([
+  META_DEVICE_CODE,
+  META_LAST_BACKUP,
+  'resetCode',
+  'resetAttempts',
+  'cloud',
+  'cloudJoinName',
+])
+/** Device-specific: codes, cloud sign-in and sync progress (a new device starts its own). */
+const isLocalMeta = (key: string) => LOCAL_META_KEYS.has(key) || key.startsWith('sync:')
 
 export class BackupError extends Error {
   constructor(message: string) {
@@ -85,7 +94,7 @@ export async function exportBackup(
     for (const t of TABLES) {
       const rows = (await db[t].toArray()) as unknown[]
       tables[t] = (
-        t === 'meta' ? rows.filter((m) => !LOCAL_META.has((m as { key: string }).key)) : rows
+        t === 'meta' ? rows.filter((m) => !isLocalMeta((m as { key: string }).key)) : rows
       ).map((r) => extract(r, files))
     }
   })
@@ -197,7 +206,7 @@ export async function importBackup(db: BaumCheckDB, bytes: Uint8Array): Promise<
       for (const row of tables[t] ?? []) {
         if (t === 'meta') {
           const key = row.key!
-          if (LOCAL_META.has(key) || key === META_CURRENT_ORG) continue
+          if (isLocalMeta(key) || key === META_CURRENT_ORG) continue
           const local = await table.get(key)
           // Number counters: keep the higher one so numbers are never reused.
           if (key.startsWith('counter:')) {

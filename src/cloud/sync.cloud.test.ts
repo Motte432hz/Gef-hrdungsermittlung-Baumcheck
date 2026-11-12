@@ -10,7 +10,13 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { BaumCheckDB } from '../db/db'
 import { addTree, createAssessment, ensureOrganization, setTreeAnswer } from '../db/repo'
 import { saveCustomer, saveWorker } from '../db/profiles'
-import { adoptOrganization, createCloudOrganization, createInvite, requestJoin } from './account'
+import {
+  adoptOrganization,
+  createCloudOrganization,
+  createInvite,
+  deleteCloudOrganization,
+  requestJoin,
+} from './account'
 import { SUPABASE_KEY, SUPABASE_URL } from './config'
 import { supabaseRemote } from './supabaseRemote'
 import { syncOnce } from './sync'
@@ -163,5 +169,17 @@ describe('sync with the real cloud', () => {
     // B gets the server state back.
     await syncOnce(b, org.id, supabaseRemote(member))
     expect((await b.customers.get(c))?.name).toBe('Kita')
+
+    // Only the owner can delete the whole company – files included.
+    await expect(deleteCloudOrganization(member, org.id)).rejects.toThrow()
+    await deleteCloudOrganization(owner, org.id)
+    const [left] = (await sql(`select
+      (select count(*) from public.organizations where id = '${org.id}') +
+      (select count(*) from public.workers where organization_id = '${org.id}') +
+      (select count(*) from public.memberships where organization_id = '${org.id}') +
+      (select count(*) from storage.objects where name like '${org.id}/%') as n`)) as {
+      n: number
+    }[]
+    expect(Number(left!.n)).toBe(0)
   }, 120_000)
 })

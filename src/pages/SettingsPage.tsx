@@ -14,6 +14,7 @@ import { db } from '../db/db'
 import { META_DEVICE_CODE } from '../db/repo'
 import { normalizeCode } from '../domain/protocolNumber'
 import { BackupCard } from './BackupCard'
+import { ResetCard } from './ResetCard'
 import { ColorModeChooser } from './ColorModeChooser'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
@@ -135,6 +136,8 @@ export function SettingsPage() {
           </div>
         )}
       </Card>
+
+      <ResetCard />
 
       <Card title="Über">
         <p className="text-stone-700 dark:text-stone-300">BaumCheck, Version {__APP_VERSION__}</p>

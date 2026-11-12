@@ -331,3 +331,35 @@ export async function ensureOwnProfile(
   await setMyWorker(sb, organizationId, workerId)
   return workerId
 }
+
+/** Removes all files of a storage folder (recursively). */
+async function removeFolder(sb: SupabaseClient, prefix: string, depth = 0): Promise<void> {
+  if (depth > 5) return
+  for (let round = 0; round < 1000; round++) {
+    const { data, error } = await sb.storage.from('files').list(prefix, { limit: 100 })
+    if (error) throw error
+    if (!data || data.length === 0) return
+    // Folders have no id.
+    for (const folder of data.filter((e) => !e.id))
+      await removeFolder(sb, `${prefix}/${folder.name}`, depth + 1)
+    const files = data.filter((e) => e.id).map((e) => `${prefix}/${e.name}`)
+    if (files.length) {
+      const { data: removed, error: e2 } = await sb.storage.from('files').remove(files)
+      if (e2) throw e2
+      // Without the right to delete, the storage silently removes nothing.
+      if ((removed?.length ?? 0) < files.length)
+        throw new Error('Nur die Inhaberin oder der Inhaber kann die Firma löschen.')
+    }
+    if (files.length === 0) return
+  }
+}
+
+/**
+ * Deletes the whole company from the cloud (owner only): first its files, then all records,
+ * members, invitations and device codes. Cannot be undone.
+ */
+export async function deleteCloudOrganization(sb: SupabaseClient, organizationId: ID) {
+  await removeFolder(sb, organizationId)
+  const { error } = await sb.rpc('delete_organization', { p_org: organizationId })
+  if (error) throw error
+}

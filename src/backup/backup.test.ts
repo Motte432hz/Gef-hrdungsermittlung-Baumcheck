@@ -32,6 +32,10 @@ async function populated() {
   const db = freshDb()
   const org = await ensureOrganization(db, { name: 'Zwieselwiesel', numberPrefix: 'ZW' })
   await db.meta.put({ key: META_DEVICE_CODE, value: 'T1' })
+  // Device-only entries that must not travel with a backup.
+  await db.meta.put({ key: 'resetCode', value: { salt: '00', hash: '00' } })
+  await db.meta.put({ key: 'cloud', value: { organizationId: 'x', userId: 'u', role: 'owner' } })
+  await db.meta.put({ key: 'sync:cursor:workers', value: '2030-01-01T00:00:00.000Z' })
   await db.organizations.update(org.id, {
     logo: { type: 'image/png', data: bytes(137, 80, 78, 71) },
   })
@@ -84,6 +88,8 @@ describe('backup', () => {
     )
     // Device code is device-specific and not copied …
     expect(await target.meta.get(META_DEVICE_CODE)).toBeUndefined()
+    for (const key of ['resetCode', 'cloud', 'sync:cursor:workers'])
+      expect(await target.meta.get(key)).toBeUndefined()
     // … but number counters are, so numbers are not reused.
     await target.meta.put({ key: META_DEVICE_CODE, value: 'T1' })
     expect((await numberingInfo(target, 'ZW', 2026)).next).toBe('ZW-2026-T1-002')
