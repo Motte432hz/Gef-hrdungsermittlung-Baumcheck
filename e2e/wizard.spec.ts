@@ -328,3 +328,37 @@ test('measures can be picked instead of typed', async ({ page }) => {
     'Elektrofachkraft vor Ort',
   )
 })
+
+test('notes can be dictated where the browser supports it', async ({ page }) => {
+  // Simulated speech recognition: delivers one phrase, then ends.
+  await page.addInitScript(() => {
+    class FakeRecognition {
+      lang = ''
+      continuous = false
+      interimResults = false
+      onresult: ((e: unknown) => void) | null = null
+      onend: (() => void) | null = null
+      onerror: ((e: unknown) => void) | null = null
+      start() {
+        setTimeout(() => {
+          this.onresult?.({
+            resultIndex: 0,
+            results: [{ isFinal: true, 0: { transcript: 'astabbruch über dem weg' } }],
+          })
+          this.onend?.()
+        }, 50)
+      }
+      stop() {
+        this.onend?.()
+      }
+    }
+    const w = window as unknown as Record<string, unknown>
+    w.SpeechRecognition = FakeRecognition
+    w.webkitSpeechRecognition = FakeRecognition
+  })
+  await start(page)
+  await page.goto(page.url().replace(/job$/, 'workplace'))
+  const other = page.getByRole('textbox', { name: 'Sonstige Gefahren am Einsatzort' })
+  await page.locator('[id$="site-otherHazards"]').getByRole('button', { name: 'Sprechen' }).click()
+  await expect(other).toHaveValue('Astabbruch über dem weg')
+})

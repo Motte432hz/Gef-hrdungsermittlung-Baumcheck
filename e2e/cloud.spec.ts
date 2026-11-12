@@ -148,7 +148,7 @@ async function fakeServer(page: Page): Promise<Server> {
 }
 
 async function signIn(page: Page) {
-  await page.getByLabel('E-Mail-Adresse').fill('Anna@Example.de ')
+  await page.getByLabel('E-Mail-Adresse', { exact: true }).fill('Anna@Example.de ')
   await page.getByRole('button', { name: 'Code senden' }).click()
   await expect(page.getByText('Code an Anna@Example.de gesendet.')).toBeVisible()
   await page.getByLabel('Code aus der E-Mail').fill('000000')

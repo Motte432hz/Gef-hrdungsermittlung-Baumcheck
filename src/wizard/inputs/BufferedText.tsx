@@ -1,6 +1,8 @@
 import { useState, type InputHTMLAttributes } from 'react'
 import { TextArea, TextField } from '../../components/form/Field'
 import { toggleMeasure, hasMeasure } from './measures'
+import { DictateButton } from '../../components/form/DictateButton'
+import { appendDictation } from '../../lib/speech'
 
 /**
  * Text input with local state that writes through on every change (autosave).
@@ -61,8 +63,11 @@ export function BufferedText({
     />
   )
   const tracked = (
-    <div onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
+    <div className="space-y-2" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
       {input}
+      {multiline && (
+        <DictateButton label={label} onText={(t) => change(appendDictation(value, t))} />
+      )}
     </div>
   )
   if (!suggestions?.length) return tracked

@@ -1,4 +1,6 @@
 import { useId, useState } from 'react'
+import { DictateButton } from '../../components/form/DictateButton'
+import { appendDictation } from '../../lib/speech'
 import type { Answer } from '../../domain/types'
 import type { NumberItem, TextItem, TimeItem } from '../../form/schema'
 import { ItemLabel } from './InfoButton'
@@ -53,6 +55,9 @@ export function TextItemField({ item, answer, onChange }: Props<TextItem>) {
             value={text}
             onChange={(e) => change(e.target.value)}
           />
+        )}
+        {item.multiline && (
+          <DictateButton label={item.label} onText={(t) => change(appendDictation(text, t))} />
         )}
       </div>
     </ItemCard>
