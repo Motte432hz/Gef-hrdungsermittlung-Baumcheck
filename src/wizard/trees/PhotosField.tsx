@@ -12,6 +12,7 @@ import { ItemLabel } from '../inputs/InfoButton'
 import { Notice } from '../inputs/Notice'
 import { CameraCapture } from '../../components/CameraCapture'
 import { detectPlatform } from '../../lib/install'
+import { PhotoEditor } from './PhotoEditor'
 
 /** Phones and tablets open their own camera app via <input capture>; others need the in-app camera. */
 const hasNativeCamera = () =>
@@ -22,9 +23,24 @@ const PHOTO_MAX_PX = 1600
 
 function Thumb({ photo, n, onRemove }: { photo: Attachment; n: number; onRemove: () => void }) {
   const url = useObjectUrl(photo.file)
+  const [editing, setEditing] = useState(false)
   return (
     <li className="relative">
       <img src={url} alt={`Foto ${n}`} className="aspect-square w-full rounded-xl object-cover" />
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        aria-label={`Foto ${n} markieren`}
+        className="absolute bottom-1 left-1 flex size-11 items-center justify-center rounded-full bg-black/70 text-xl text-white"
+      >
+        ✎
+      </button>
+      {photo.original && (
+        <span className="absolute bottom-2 right-2 rounded-md bg-red-600 px-1.5 text-xs font-semibold text-white">
+          markiert
+        </span>
+      )}
+      {editing && <PhotoEditor photo={photo} n={n} onClose={() => setEditing(false)} />}
       <button
         type="button"
         onClick={onRemove}

@@ -11,6 +11,8 @@ import {
   addTreePhoto,
   getTreePhotos,
   removeAttachment,
+  markPhoto,
+  restoreOriginalPhoto,
   confirmPrefilled,
   deleteDraft,
   completeAssessment,
@@ -295,6 +297,24 @@ describe('tree photos', () => {
     await complete(a.id)
     await expect(addTreePhoto(db, t.id, photo, 'b.jpg')).rejects.toBeInstanceOf(LockedError)
     await expect(removeAttachment(db, p.id)).rejects.toBeInstanceOf(LockedError)
+    await expect(markPhoto(db, p.id, photo)).rejects.toBeInstanceOf(LockedError)
+  })
+
+  it('marks keep the original; restoring removes them', async () => {
+    const a = await createAssessment(db, org.id, '1.0')
+    const t = await addTree(db, a.id)
+    const p = await addTreePhoto(db, t.id, photo, 'a.jpg')
+    const marked1 = { type: 'image/jpeg', data: new Uint8Array([1]).buffer }
+    const marked2 = { type: 'image/jpeg', data: new Uint8Array([2]).buffer }
+    await markPhoto(db, p.id, marked1)
+    await markPhoto(db, p.id, marked2) // marking again keeps the first original
+    let att = (await db.attachments.get(p.id))!
+    expect([new Uint8Array(att.file.data)[0], new Uint8Array(att.original!.data)[0]]).toEqual([
+      2, 255,
+    ])
+    await restoreOriginalPhoto(db, p.id)
+    att = (await db.attachments.get(p.id))!
+    expect([new Uint8Array(att.file.data)[0], att.original]).toEqual([255, undefined])
   })
 })
 

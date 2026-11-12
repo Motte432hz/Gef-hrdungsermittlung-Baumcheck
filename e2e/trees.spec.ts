@@ -94,6 +94,41 @@ test('photos can be added and deleted', async ({ page }) => {
   await expect(page.getByRole('list', { name: 'Fotos' }).getByRole('img')).toHaveCount(1)
 })
 
+test('photos can be marked with arrows and circles; the original is kept', async ({ page }) => {
+  const base = await start(page)
+  await addFirstTree(page, base)
+  await page.locator('input[type=file][multiple]').setInputFiles(['public/pwa-512x512.png'])
+  const list = page.getByRole('list', { name: 'Fotos' })
+  await expect(list.getByRole('img')).toHaveCount(1)
+  const before = await list.getByRole('img').first().getAttribute('src')
+
+  await page.getByRole('button', { name: 'Foto 1 markieren' }).click()
+  const editor = page.getByRole('dialog', { name: 'Foto 1 markieren' })
+  const canvas = editor.getByRole('img', { name: 'Foto zum Markieren' })
+  await expect(editor.getByRole('button', { name: 'Fertig' })).toBeEnabled()
+  const box = (await canvas.boundingBox())!
+  // Arrow (default tool), then a circle.
+  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.2)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width * 0.6, box.y + box.height * 0.6, { steps: 5 })
+  await page.mouse.up()
+  await editor.getByRole('button', { name: /Kreis/ }).click()
+  await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.3)
+  await page.mouse.down()
+  await page.mouse.move(box.x + box.width * 0.8, box.y + box.height * 0.7, { steps: 5 })
+  await page.mouse.up()
+  await editor.getByRole('button', { name: /Rückgängig/ }).click()
+  await editor.getByRole('button', { name: 'Markierungen speichern' }).click()
+  await expect(editor).toHaveCount(0)
+  await expect(list.getByText('markiert')).toBeVisible()
+  await expect.poll(() => list.getByRole('img').first().getAttribute('src')).not.toBe(before)
+
+  // Back to the original.
+  await page.getByRole('button', { name: 'Foto 1 markieren' }).click()
+  await editor.getByRole('button', { name: 'Original wiederherstellen' }).click()
+  await expect(list.getByText('markiert')).toHaveCount(0)
+})
+
 test('several trees: next walks tree by tree; trees can be removed', async ({ page }) => {
   const base = await start(page)
   await addFirstTree(page, base)

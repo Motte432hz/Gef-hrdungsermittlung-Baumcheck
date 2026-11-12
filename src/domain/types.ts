@@ -252,6 +252,8 @@ export interface Attachment extends BaseRecord {
   kind: AttachmentKind
   fileName: string
   file: StoredFile
+  /** Photo before marks were drawn on it (only for marked photos). */
+  original?: StoredFile
   capturedAt: ISODate
 }
 

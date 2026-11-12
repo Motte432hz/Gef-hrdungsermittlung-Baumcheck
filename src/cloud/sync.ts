@@ -68,7 +68,13 @@ const SPECS: Spec[] = [
   { local: 'assessments', remote: 'assessments', hardDelete: true },
   { local: 'trees', remote: 'trees', part: true, hardDelete: true },
   { local: 'signatures', remote: 'signatures', files: ['image'], part: true, hardDelete: true },
-  { local: 'attachments', remote: 'attachments', files: ['file'], part: true, hardDelete: true },
+  {
+    local: 'attachments',
+    remote: 'attachments',
+    files: ['file', 'original'],
+    part: true,
+    hardDelete: true,
+  },
   { local: 'auditLog', remote: 'audit_log', appendOnly: true },
 ]
 const spec = (local: SyncedTable) => SPECS.find((s) => s.local === local)!

@@ -468,6 +468,36 @@ export async function removeAttachment(db: BaumCheckDB, id: ID): Promise<void> {
   })
 }
 
+/** Saves a marked version of a photo; the unmarked original is kept the first time. */
+export async function markPhoto(db: BaumCheckDB, id: ID, marked: StoredFile): Promise<void> {
+  await db.transaction('rw', db.assessments, db.attachments, async () => {
+    const att = await db.attachments.get(id)
+    if (!att) throw new Error(`Attachment ${id} not found`)
+    await requireDraft(db, att.assessmentId)
+    await db.attachments.update(id, {
+      original: att.original ?? att.file,
+      file: marked,
+      updatedAt: nowIso(),
+      syncState: 'pending',
+    })
+  })
+}
+
+/** Removes all marks: the original photo is used again. */
+export async function restoreOriginalPhoto(db: BaumCheckDB, id: ID): Promise<void> {
+  await db.transaction('rw', db.assessments, db.attachments, async () => {
+    const att = await db.attachments.get(id)
+    if (!att?.original) return
+    await requireDraft(db, att.assessmentId)
+    await db.attachments.update(id, {
+      file: att.original,
+      original: undefined,
+      updatedAt: nowIso(),
+      syncState: 'pending',
+    })
+  })
+}
+
 export async function getTreePhotos(db: BaumCheckDB, treeId: ID): Promise<Attachment[]> {
   const list = await db.attachments.where('treeId').equals(treeId).toArray()
   return list

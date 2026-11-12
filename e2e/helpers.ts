@@ -120,6 +120,8 @@ export async function fillCompleteAssessment(
 /** Signs for every person on the summary step. */
 export async function signEveryone(page: Page) {
   const cards = page.getByRole('listitem', { name: /^Unterschrift / })
+  // The summary loads its data first – counting right away could find no cards at all.
+  await expect(cards.first()).toBeVisible()
   const n = await cards.count()
   for (let i = 0; i < n; i++) {
     const card = cards.nth(i)
