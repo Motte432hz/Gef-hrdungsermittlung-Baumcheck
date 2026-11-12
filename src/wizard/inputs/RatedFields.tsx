@@ -46,6 +46,7 @@ export function CheckpointField({ item, answer, noteLabel, onChange }: Props<Che
             label={noteLabel}
             initial={answer?.note ?? ''}
             onSave={(note) => onChange({ value: 'no', note })}
+            suggestions={item.measures}
           />
         </>
       )}
@@ -81,6 +82,7 @@ export function HazardField({ item, answer, noteLabel, onChange }: Props<HazardI
           hint="Was wird getan, um die Gefahr zu beherrschen?"
           initial={answer?.note ?? ''}
           onSave={(note) => onChange({ value: 'present', note })}
+          suggestions={item.measures}
         />
       )}
     </ItemCard>

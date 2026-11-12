@@ -215,7 +215,7 @@ test('filter question hides hazards until abnormalities are reported', async ({ 
   await expect(gate.getByRole('radio', { name: 'Ja, einzeln prüfen' })).toBeChecked()
   const power = page.locator('#item-site-powerLines')
   await power.getByText('vorhanden', { exact: true }).click()
-  await power.getByLabel('Maßnahme').fill('Netzbetreiber schaltet frei')
+  await power.getByRole('textbox', { name: 'Maßnahme' }).fill('Netzbetreiber schaltet frei')
   await gate.getByRole('button', { name: /Übrige 4 als „nicht vorhanden“ markieren/ }).click()
   await expect(
     page.locator('#item-site-undergroundUtilities').getByRole('button', {
@@ -298,4 +298,33 @@ test('new customer and whole subcontractor company without leaving the wizard', 
   // Search finds nobody left to add.
   await page.getByRole('searchbox', { name: 'Person hinzufügen' }).fill('Kim')
   await expect(page.getByText('Keine gespeicherte Person gefunden.')).toBeVisible()
+})
+
+test('measures can be picked instead of typed', async ({ page }) => {
+  await start(page)
+  await page.goto(page.url().replace(/job$/, 'workplace'))
+  await item(page, 'Gibt es besondere Gefahren am Einsatzort?')
+    .getByText('Ja, einzeln prüfen', { exact: true })
+    .click()
+  const power = page.locator('#item-site-powerLines')
+  await power.getByText('vorhanden', { exact: true }).click()
+  const picks = power.getByRole('group', { name: /^Vorschläge/ })
+  await picks.getByRole('button', { name: '+ Netzbetreiber schaltet frei' }).click()
+  await picks.getByRole('button', { name: '+ Elektrofachkraft vor Ort' }).click()
+  await expect(power.getByRole('textbox', { name: 'Maßnahme' })).toHaveValue(
+    'Netzbetreiber schaltet frei; Elektrofachkraft vor Ort',
+  )
+  await expect(
+    picks.getByRole('button', { name: '✓ Netzbetreiber schaltet frei' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  // Tap again removes it; free text can be added.
+  await picks.getByRole('button', { name: '✓ Netzbetreiber schaltet frei' }).click()
+  await expect(power.getByRole('textbox', { name: 'Maßnahme' })).toHaveValue(
+    'Elektrofachkraft vor Ort',
+  )
+
+  await page.goto(page.url().replace(/workplace$/, 'summary'))
+  await expect(page.getByRole('region', { name: 'Gefahren und Maßnahmen' })).toContainText(
+    'Elektrofachkraft vor Ort',
+  )
 })

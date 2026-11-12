@@ -181,13 +181,23 @@
               "id": "site.locationKnown",
               "type": "checkpoint",
               "label": "Genauer Einsatzort und Zufahrt sind allen im Team bekannt",
-              "info": "Im Notfall muss jede Person dem Rettungsdienst sagen können, wo sie ist und wie man hinkommt, nicht nur die Aufsicht."
+              "info": "Im Notfall muss jede Person dem Rettungsdienst sagen können, wo sie ist und wie man hinkommt, nicht nur die Aufsicht.",
+              "measures": [
+                "Einsatzort und Zufahrt vor Beginn mit allen begehen",
+                "Treffpunkt für Rettungsdienst festgelegt und markiert",
+                "Adresse/Koordinaten an alle verschickt"
+              ]
             },
             {
               "id": "site.emergencyCallPossible",
               "type": "checkpoint",
               "label": "Notruf ist am Arbeitsplatz möglich (Mobilfunkempfang geprüft)",
-              "info": "Prüfe den Empfang direkt am Baum, nicht nur an der Straße. Ohne Empfang muss festgelegt werden, wie und von wo ein Notruf abgesetzt wird, z. B. „Empfang an der Kreuzung 200 m nördlich“."
+              "info": "Prüfe den Empfang direkt am Baum, nicht nur an der Straße. Ohne Empfang muss festgelegt werden, wie und von wo ein Notruf abgesetzt wird, z. B. „Empfang an der Kreuzung 200 m nördlich“.",
+              "measures": [
+                "Notruf-Standort mit Empfang festgelegt",
+                "Funkkette zum Fahrzeug/Notrufstandort eingerichtet",
+                "Satelliten-Notruf (Handy) mitgeführt"
+              ]
             }
           ]
         }
@@ -218,31 +228,51 @@
               "id": "team.briefed",
               "type": "checkpoint",
               "label": "Der Arbeitsauftrag wurde mit allen besprochen",
-              "info": "Alle wissen, welche Bäume bearbeitet werden, was genau gemacht wird und in welcher Reihenfolge."
+              "info": "Alle wissen, welche Bäume bearbeitet werden, was genau gemacht wird und in welcher Reihenfolge.",
+              "measures": [
+                "Arbeitsauftrag vor Beginn mit allen besprochen",
+                "Ablauf und Gefahrenbereiche vor Ort gezeigt"
+              ]
             },
             {
               "id": "team.assigned",
               "type": "checkpoint",
               "label": "Aufgaben und Personal sind eingeteilt",
-              "info": "Jede Person kennt ihre Rolle und weiß, wer sie im Notfall rettet."
+              "info": "Jede Person kennt ihre Rolle und weiß, wer sie im Notfall rettet.",
+              "measures": ["Aufgaben vor Beginn zugeteilt", "Aufsicht benannt und allen bekannt"]
             },
             {
               "id": "team.communicationAgreed",
               "type": "checkpoint",
               "label": "Verständigung ist abgesprochen",
-              "info": "Handzeichen, Rufkommandos (z. B. „Achtung, Ast kommt!“, „Halt!“) und gegebenenfalls Funk sind vereinbart und allen bekannt. Das gilt besonders bei Lärm durch Motorsäge oder Hacker."
+              "info": "Handzeichen, Rufkommandos (z. B. „Achtung, Ast kommt!“, „Halt!“) und gegebenenfalls Funk sind vereinbart und allen bekannt. Das gilt besonders bei Lärm durch Motorsäge oder Hacker.",
+              "measures": [
+                "Handzeichen und Rufkommandos vereinbart",
+                "Funk mit festen Kanälen ausgegeben",
+                "Sichtkontakt Kletterer–Bodenperson sichergestellt"
+              ]
             },
             {
               "id": "team.fitForWork",
               "type": "checkpoint",
               "label": "Alle Beteiligten sind heute gesundheitlich geeignet",
-              "info": "Keine akute Erkrankung, keine Medikamente oder Alkohol, die die Arbeit beeinträchtigen, ausgeruht. Im Zweifel nicht in den Baum."
+              "info": "Keine akute Erkrankung, keine Medikamente oder Alkohol, die die Arbeit beeinträchtigen, ausgeruht. Im Zweifel nicht in den Baum.",
+              "measures": [
+                "Person übernimmt nur Bodenarbeiten",
+                "Person wird ersetzt",
+                "Arbeiten verschoben"
+              ]
             },
             {
               "id": "team.experienced",
               "type": "checkpoint",
               "label": "Alle haben ausreichend Erfahrung und Qualifikation für die geplanten Arbeiten",
-              "info": "Die nötigen Nachweise (z. B. AS-Baum, SKT A/B) liegen vor, und die Personen haben die Arbeiten in dieser Schwierigkeit schon ausgeführt."
+              "info": "Die nötigen Nachweise (z. B. AS-Baum, SKT A/B) liegen vor, und die Personen haben die Arbeiten in dieser Schwierigkeit schon ausgeführt.",
+              "measures": [
+                "Arbeiten unter direkter Aufsicht einer erfahrenen Person",
+                "Aufgaben angepasst (nur Bodenarbeiten)",
+                "Erfahrene Person hinzugezogen"
+              ]
             }
           ]
         }
@@ -324,7 +354,12 @@
                   "warning": "Hohe Gefahr: Der Baum kann jederzeit umstürzen.",
                   "severity": "danger",
                   "requiresNote": true,
-                  "noteLabel": "Maßnahme"
+                  "noteLabel": "Maßnahme",
+                  "measures": [
+                    "Neigung und Wurzelteller vor dem Klettern geprüft",
+                    "Fällrichtung in Neigungsrichtung",
+                    "Hubarbeitsbühne statt Klettern"
+                  ]
                 }
               ]
             },
@@ -351,25 +386,47 @@
               "id": "tree.env.soilCracks",
               "type": "hazard",
               "label": "Bodenrisse oder angehobener Wurzelteller",
-              "info": "Risse im Boden oder ein angehobener Wurzelteller auf einer Seite deuten darauf hin, dass der Baum seine Standsicherheit verliert."
+              "info": "Risse im Boden oder ein angehobener Wurzelteller auf einer Seite deuten darauf hin, dass der Baum seine Standsicherheit verliert.",
+              "measures": [
+                "Nicht beklettern, Arbeit von der Hubarbeitsbühne",
+                "Baum vor Beginn sichern (Seil/Zug)",
+                "Eingehende Untersuchung veranlasst",
+                "Fallbereich großräumig abgesperrt"
+              ]
             },
             {
               "id": "tree.env.neighbourTrees",
               "type": "hazard",
               "label": "Nachbarbäume behindern die Arbeiten",
-              "info": "Zum Beispiel Kronen, die ineinander verhakt sind, Totholz oder Hänger im Nachbarbaum, oder ein Nachbarbaum, an dem der gefällte Baum hängen bleiben kann."
+              "info": "Zum Beispiel Kronen, die ineinander verhakt sind, Totholz oder Hänger im Nachbarbaum, oder ein Nachbarbaum, an dem der gefällte Baum hängen bleiben kann.",
+              "measures": [
+                "Nachbarbaum vorher freigeschnitten",
+                "Fällrichtung angepasst",
+                "Hänger mit Seilzug/Winde lösen",
+                "Gefahrenbereich erweitert"
+              ]
             },
             {
               "id": "tree.env.rootDamage",
               "type": "hazard",
               "label": "Verletzte oder gekappte Wurzeln",
-              "info": "Etwa durch Bauarbeiten, Leitungsgräben oder Bodenverdichtung. Das kann die Standsicherheit verringern, auch wenn es von außen nicht sichtbar ist."
+              "info": "Etwa durch Bauarbeiten, Leitungsgräben oder Bodenverdichtung. Das kann die Standsicherheit verringern, auch wenn es von außen nicht sichtbar ist.",
+              "measures": [
+                "Standsicherheit vor dem Klettern geprüft",
+                "Arbeit von der Hubarbeitsbühne",
+                "Zugbelastung des Baums vermeiden"
+              ]
             },
             {
               "id": "tree.env.fungi",
               "type": "hazard",
               "label": "Pilzfruchtkörper im Wurzelbereich",
-              "info": "Pilze am Wurzelanlauf oder im Boden um den Stamm herum, z. B. Hallimasch oder Riesenporling, können auf Wurzelfäule hinweisen. Erhöhte Gefahr, dass der Baum umstürzt."
+              "info": "Pilze am Wurzelanlauf oder im Boden um den Stamm herum, z. B. Hallimasch oder Riesenporling, können auf Wurzelfäule hinweisen. Erhöhte Gefahr, dass der Baum umstürzt.",
+              "measures": [
+                "Pilz bestimmt, Wurzelfäule angenommen",
+                "Nicht beklettern, Hubarbeitsbühne",
+                "Eingehende Untersuchung veranlasst"
+              ]
             }
           ],
           "gate": {
@@ -386,35 +443,65 @@
               "id": "tree.trunk.defects",
               "type": "hazard",
               "label": "Risse, Wülste, Beulen oder Rippen",
-              "info": "Der Baum bildet Wülste und Rippen, wo er innere Schäden wie Risse oder Höhlungen ausgleicht. Sie sind ein Hinweis auf Schwachstellen."
+              "info": "Der Baum bildet Wülste und Rippen, wo er innere Schäden wie Risse oder Höhlungen ausgleicht. Sie sind ein Hinweis auf Schwachstellen.",
+              "measures": [
+                "Schadstelle mit Schonhammer geprüft",
+                "Anschlag oberhalb der Schadstelle vermeiden",
+                "Lasten klein halten, keine Schlagbelastung"
+              ]
             },
             {
               "id": "tree.trunk.fungi",
               "type": "hazard",
-              "label": "Pilzfruchtkörper am Stamm"
+              "label": "Pilzfruchtkörper am Stamm",
+              "measures": [
+                "Pilz bestimmt, Ausmaß der Fäule geschätzt",
+                "Restwand geprüft (Schonhammer/Bohrung)",
+                "Hubarbeitsbühne statt Klettern"
+              ]
             },
             {
               "id": "tree.trunk.decay",
               "type": "hazard",
               "label": "Faulstellen oder Höhlungen",
-              "info": "Prüfe durch Abklopfen mit dem Schonhammer: Ein hohler Klang deutet auf eine Höhlung hin. Die verbleibende Restwand bestimmt die Bruchsicherheit."
+              "info": "Prüfe durch Abklopfen mit dem Schonhammer: Ein hohler Klang deutet auf eine Höhlung hin. Die verbleibende Restwand bestimmt die Bruchsicherheit.",
+              "measures": [
+                "Restwanddicke geprüft",
+                "Fällung mit Halteband/Zugseil, keine Keile in Faulholz",
+                "Hubarbeitsbühne statt Klettern"
+              ]
             },
             {
               "id": "tree.trunk.oldSurgery",
               "type": "hazard",
               "label": "Spuren früherer baumchirurgischer Maßnahmen",
-              "info": "Zum Beispiel ausgefräste Höhlungen, Füllungen, Drainagerohre oder Verschraubungen. Darunter liegen oft größere Schäden."
+              "info": "Zum Beispiel ausgefräste Höhlungen, Füllungen, Drainagerohre oder Verschraubungen. Darunter liegen oft größere Schäden.",
+              "measures": [
+                "Alte Füllungen/Verschraubungen geortet",
+                "Säge nicht in Metall/Füllung führen",
+                "Statik der Stelle vor Belastung geprüft"
+              ]
             },
             {
               "id": "tree.trunk.wounds",
               "type": "hazard",
-              "label": "Größere Wunden"
+              "label": "Größere Wunden",
+              "measures": [
+                "Wunde auf Fäule geprüft",
+                "Anschlag nicht über der Wunde",
+                "Belastung des Bereichs vermeiden"
+              ]
             },
             {
               "id": "tree.trunk.deadBark",
               "type": "hazard",
               "label": "Abgestorbene oder lose Rinde",
-              "info": "Darunter ist das Holz oft schon zersetzt. Lose Rinde kann beim Klettern oder Fällen abfallen."
+              "info": "Darunter ist das Holz oft schon zersetzt. Lose Rinde kann beim Klettern oder Fällen abfallen.",
+              "measures": [
+                "Lose Rinde vorab entfernt",
+                "Steigeisen nicht im Bereich der losen Rinde",
+                "Bodenpersonal außerhalb des Fallbereichs"
+              ]
             }
           ],
           "gate": {
@@ -451,7 +538,12 @@
                   "warning": "Geschwächter Baum: Äste und Anschlagpunkte besonders sorgfältig prüfen.",
                   "severity": "warning",
                   "requiresNote": true,
-                  "noteLabel": "Maßnahme"
+                  "noteLabel": "Maßnahme",
+                  "measures": [
+                    "Anschlagpunkte besonders sorgfältig geprüft",
+                    "Lasten klein halten",
+                    "Rückschnitt maßvoll, Baum nicht zusätzlich schwächen"
+                  ]
                 },
                 {
                   "value": "3",
@@ -460,7 +552,12 @@
                   "warning": "Stark geschwächter oder absterbender Baum: hohe Bruchgefahr. Klettern nur nach eingehender Prüfung, besser Hubarbeitsbühne.",
                   "severity": "danger",
                   "requiresNote": true,
-                  "noteLabel": "Maßnahme"
+                  "noteLabel": "Maßnahme",
+                  "measures": [
+                    "Hubarbeitsbühne statt Klettern",
+                    "Fällung geprüft",
+                    "Eingehende Untersuchung veranlasst"
+                  ]
                 },
                 {
                   "value": "na",
@@ -503,7 +600,8 @@
                   "warning": "Geschwächter Baum: Äste, Wipfel und Anschlagpunkte besonders sorgfältig prüfen.",
                   "severity": "warning",
                   "requiresNote": true,
-                  "noteLabel": "Maßnahme"
+                  "noteLabel": "Maßnahme",
+                  "measures": ["Anschlagpunkte besonders sorgfältig geprüft", "Lasten klein halten"]
                 },
                 {
                   "value": "3",
@@ -512,7 +610,12 @@
                   "warning": "Stark geschwächter Baum: hohe Bruchgefahr, besonders im Wipfel. Klettern nur nach eingehender Prüfung, besser Hubarbeitsbühne.",
                   "severity": "danger",
                   "requiresNote": true,
-                  "noteLabel": "Maßnahme"
+                  "noteLabel": "Maßnahme",
+                  "measures": [
+                    "Hubarbeitsbühne statt Klettern",
+                    "Wipfel nicht belasten",
+                    "Fällung geprüft"
+                  ]
                 },
                 {
                   "value": "4",
@@ -521,7 +624,12 @@
                   "warning": "Abgestorbener Nadelbaum: Holz kann spröde sein und ohne Vorwarnung brechen. Nicht beklettern; Fällung von der Hubarbeitsbühne oder mit Seilwinde planen.",
                   "severity": "danger",
                   "requiresNote": true,
-                  "noteLabel": "Maßnahme"
+                  "noteLabel": "Maßnahme",
+                  "measures": [
+                    "Fällung von der Hubarbeitsbühne",
+                    "Fällung mit Seilwinde/Zugseil",
+                    "Nicht beklettern"
+                  ]
                 },
                 {
                   "value": "na",
@@ -534,64 +642,119 @@
               "id": "tree.crown.deadwood",
               "type": "hazard",
               "label": "Totholz",
-              "info": "Abgestorbene Äste können beim Klettern oder durch Erschütterung (Fällung, Seilarbeit) herabfallen. Bei viel Totholz: Kletterweg und Anschlagpunkt besonders sorgfältig wählen."
+              "info": "Abgestorbene Äste können beim Klettern oder durch Erschütterung (Fällung, Seilarbeit) herabfallen. Bei viel Totholz: Kletterweg und Anschlagpunkt besonders sorgfältig wählen.",
+              "measures": [
+                "Totholz vor Beginn der übrigen Arbeiten entfernt",
+                "Starkes Totholz abgeseilt",
+                "Fallbereich abgesperrt"
+              ]
             },
             {
               "id": "tree.crown.defects",
               "type": "hazard",
-              "label": "Risse, Wülste oder andere Defekte in der Krone"
+              "label": "Risse, Wülste oder andere Defekte in der Krone",
+              "measures": [
+                "Defekte Äste nicht als Anschlag/Abstützung",
+                "Betroffene Äste zuerst entlastet",
+                "Arbeit von der Hubarbeitsbühne"
+              ]
             },
             {
               "id": "tree.crown.compressionFork",
               "type": "hazard",
               "label": "Druckzwiesel",
-              "info": "Eine V-förmige Gabelung mit eingewachsener Rinde. Die Verbindung ist schwach und kann aufreißen, besonders bei Belastung durch Seile oder Kletterer."
+              "info": "Eine V-förmige Gabelung mit eingewachsener Rinde. Die Verbindung ist schwach und kann aufreißen, besonders bei Belastung durch Seile oder Kletterer.",
+              "measures": [
+                "Kein Anschlag im Zwiesel",
+                "Zwiesel vor dem Schnitt gesichert (Gurt/Kronensicherung)",
+                "Schnittfolge so, dass der Zwiesel nicht aufreißt"
+              ]
             },
             {
               "id": "tree.crown.breakouts",
               "type": "hazard",
-              "label": "Ausbrüche oder abgebrochene Äste"
+              "label": "Ausbrüche oder abgebrochene Äste",
+              "measures": [
+                "Bruchstellen und lose Teile zuerst entfernt",
+                "Anschlag nicht an beschädigten Ästen",
+                "Fallbereich abgesperrt"
+              ]
             },
             {
               "id": "tree.crown.stormDamage",
               "type": "hazard",
               "label": "Sturmschäden, hängende Äste („Hänger“)",
-              "info": "Abgebrochene Äste, die noch in der Krone hängen, können jederzeit herabfallen. Zuerst entfernen oder aus sicherer Entfernung sichern."
+              "info": "Abgebrochene Äste, die noch in der Krone hängen, können jederzeit herabfallen. Zuerst entfernen oder aus sicherer Entfernung sichern.",
+              "measures": [
+                "Hänger mit Seil gesichert und kontrolliert abgelassen",
+                "Unter Spannung stehendes Holz in Schritten entlastet",
+                "Arbeit von der Hubarbeitsbühne"
+              ]
             },
             {
               "id": "tree.crown.insects",
               "type": "hazard",
               "label": "Insektennester",
-              "info": "Wespen, Hornissen oder Gespinste des Eichenprozessionsspinners. Dessen Brennhaare verursachen starke Haut- und Atemwegsreizungen und erfordern Schutzausrüstung bzw. eine Fachfirma. Bei Hornissen gilt Artenschutz."
+              "info": "Wespen, Hornissen oder Gespinste des Eichenprozessionsspinners. Dessen Brennhaare verursachen starke Haut- und Atemwegsreizungen und erfordern Schutzausrüstung bzw. eine Fachfirma. Bei Hornissen gilt Artenschutz.",
+              "measures": [
+                "Nest vorab gemeldet/umgesiedelt (Fachbetrieb)",
+                "Arbeit im Bereich verschoben",
+                "Allergiker im Team informiert, Notfallset bereit"
+              ]
             },
             {
               "id": "tree.crown.oldBracing",
               "type": "hazard",
               "label": "Alte Kronensicherung vorhanden",
-              "info": "Der Zustand ist oft unbekannt. Nicht als Anschlagpunkt oder Sicherung verwenden. Beim Entfernen kann Spannung frei werden."
+              "info": "Der Zustand ist oft unbekannt. Nicht als Anschlagpunkt oder Sicherung verwenden. Beim Entfernen kann Spannung frei werden.",
+              "measures": [
+                "Zustand der alten Sicherung geprüft",
+                "Sicherung nicht als Anschlag genutzt",
+                "Neue Kronensicherung vor dem Ausbau eingebaut"
+              ]
             },
             {
               "id": "tree.crown.topped",
               "type": "hazard",
               "label": "Gekappter Baum (Kappung)",
-              "info": "Neuaustriebe an Kappungsstellen sind schwach verankert und können ausbrechen, besonders unter Last."
+              "info": "Neuaustriebe an Kappungsstellen sind schwach verankert und können ausbrechen, besonders unter Last.",
+              "measures": [
+                "Austriebe am Kappungsrand nicht als Anschlag",
+                "Faulstellen am Kappungskopf geprüft",
+                "Anschlag unterhalb des Kappungskopfes"
+              ]
             },
             {
               "id": "tree.crown.decay",
               "type": "hazard",
-              "label": "Faulstellen in der Krone"
+              "label": "Faulstellen in der Krone",
+              "measures": [
+                "Faule Äste nicht belasten",
+                "Anschlag in gesundem Holz",
+                "Abschnitte klein halten und abseilen"
+              ]
             },
             {
               "id": "tree.crown.fungi",
               "type": "hazard",
-              "label": "Pilzfruchtkörper in der Krone"
+              "label": "Pilzfruchtkörper in der Krone",
+              "measures": [
+                "Betroffene Äste nicht belasten",
+                "Hubarbeitsbühne statt Klettern",
+                "Eingehende Untersuchung veranlasst"
+              ]
             },
             {
               "id": "tree.crown.protectedSpecies",
               "type": "hazard",
               "proposal": true,
               "label": "Geschützte Tiere (Vogelnest, Fledermausquartier, Höhlen)",
-              "info": "Besetzte Nester und Quartiere sind geschützt (Bundesnaturschutzgesetz). Gegebenenfalls ist eine Abstimmung mit der Naturschutzbehörde nötig."
+              "info": "Besetzte Nester und Quartiere sind geschützt (Bundesnaturschutzgesetz). Gegebenenfalls ist eine Abstimmung mit der Naturschutzbehörde nötig.",
+              "measures": [
+                "Arbeiten im Bereich verschoben",
+                "Artenschutz-Fachperson hinzugezogen",
+                "Untere Naturschutzbehörde informiert"
+              ]
             },
             {
               "id": "tree.crown.anchorOk",
@@ -602,7 +765,13 @@
                 "field": "job.types",
                 "includes": "rope_access"
               },
-              "info": "Der Anschlagpunkt muss gesund, ausreichend stark und frei von Defekten sein. Im Zweifel einen anderen Punkt, einen Nachbarbaum oder die Hubarbeitsbühne wählen."
+              "info": "Der Anschlagpunkt muss gesund, ausreichend stark und frei von Defekten sein. Im Zweifel einen anderen Punkt, einen Nachbarbaum oder die Hubarbeitsbühne wählen.",
+              "measures": [
+                "Anderen Anschlagpunkt gewählt",
+                "Anschlagpunkt im Nachbarbaum",
+                "Hubarbeitsbühne statt Klettern",
+                "Anschlag mit Redundanz (zweiter Anschlagpunkt)"
+              ]
             }
           ],
           "gate": {
@@ -649,7 +818,13 @@
                   "warning": "Der Baum darf mit dem geplanten Verfahren nicht bearbeitet werden. Wähle ein sicheres Verfahren (z. B. Hubarbeitsbühne, Kran, Seilwinde) oder brich die Arbeiten ab.",
                   "severity": "danger",
                   "requiresNote": true,
-                  "noteLabel": "Begründung / geändertes Vorgehen"
+                  "noteLabel": "Begründung / geändertes Vorgehen",
+                  "measures": [
+                    "Arbeiten mit Hubarbeitsbühne",
+                    "Fällung mit Kran",
+                    "Auftrag angepasst und mit Kunde besprochen",
+                    "Arbeiten abgebrochen"
+                  ]
                 },
                 {
                   "value": "investigate",
@@ -657,7 +832,12 @@
                   "warning": "Die Sicherheit kann vor Ort nicht ausreichend beurteilt werden. Vor Beginn der Arbeiten ist eine eingehende Untersuchung nötig.",
                   "severity": "warning",
                   "requiresNote": true,
-                  "noteLabel": "Begründung / weiteres Vorgehen"
+                  "noteLabel": "Begründung / weiteres Vorgehen",
+                  "measures": [
+                    "Baumgutachten beauftragt",
+                    "Arbeiten bis zur Untersuchung verschoben",
+                    "Bereich bis dahin abgesperrt"
+                  ]
                 }
               ]
             },
@@ -685,13 +865,24 @@
               "type": "checkpoint",
               "allowNotRelevant": false,
               "label": "Die Witterung ist für die Arbeiten geeignet",
-              "info": "Kein starker oder böiger Wind, kein Gewitter, keine Vereisung. Nasse oder vereiste Rinde verringert die Griffigkeit. Bei Gewitter sofort aus dem Baum."
+              "info": "Kein starker oder böiger Wind, kein Gewitter, keine Vereisung. Nasse oder vereiste Rinde verringert die Griffigkeit. Bei Gewitter sofort aus dem Baum.",
+              "measures": [
+                "Arbeiten verschoben",
+                "Nur Bodenarbeiten",
+                "Windgeschwindigkeit laufend beobachten, Abbruch bei Böen",
+                "Pausen bei Gewitter/Starkregen"
+              ]
             },
             {
               "id": "site.dropZoneClear",
               "type": "checkpoint",
               "label": "Der Fall- und Gefahrenbereich ist frei und abgesperrt",
-              "info": "Bei Fällungen mindestens die doppelte Baumlänge. Bei Kronenarbeiten den Bereich, in den Äste fallen oder pendeln können. Keine unbeteiligten Personen, keine Fahrzeuge."
+              "info": "Bei Fällungen mindestens die doppelte Baumlänge. Bei Kronenarbeiten den Bereich, in den Äste fallen oder pendeln können. Keine unbeteiligten Personen, keine Fahrzeuge.",
+              "measures": [
+                "Fallbereich abgesperrt (Flatterband/Absperrgitter)",
+                "Sicherungsposten aufgestellt",
+                "Personen und Fahrzeuge aus dem Fallbereich entfernt"
+              ]
             },
             {
               "id": "site.escapeRoute",
@@ -701,13 +892,23 @@
                 "field": "work.types",
                 "includesAny": ["felling", "felling_rigging", "felling_crane"]
               },
-              "info": "Schräg nach hinten, etwa 45° zur Fällrichtung, frei von Hindernissen und Stolperstellen, für alle am Baum Tätigen."
+              "info": "Schräg nach hinten, etwa 45° zur Fällrichtung, frei von Hindernissen und Stolperstellen, für alle am Baum Tätigen.",
+              "measures": [
+                "Rückweichen freigeschnitten",
+                "Stolperstellen entfernt",
+                "Rückweichen allen gezeigt"
+              ]
             },
             {
               "id": "site.communicationPossible",
               "type": "checkpoint",
               "label": "Ruf- und Sichtverbindung oder Funk ist zwischen allen möglich",
-              "info": "Zwischen Kletterer bzw. Bühnenbediener, Bodenperson und Sicherungsposten – auch bei laufender Motorsäge oder laufendem Hacker. Wenn nicht: Funk einsetzen oder Sicherungsposten so stellen, dass Sichtkontakt besteht."
+              "info": "Zwischen Kletterer bzw. Bühnenbediener, Bodenperson und Sicherungsposten – auch bei laufender Motorsäge oder laufendem Hacker. Wenn nicht: Funk einsetzen oder Sicherungsposten so stellen, dass Sichtkontakt besteht.",
+              "measures": [
+                "Funkgeräte eingesetzt",
+                "Sicherungsposten mit Sichtkontakt aufgestellt",
+                "Maschinen bei Kommandos abgestellt"
+              ]
             }
           ]
         },
@@ -719,31 +920,60 @@
               "id": "site.powerLines",
               "type": "hazard",
               "label": "Stromleitungen in der Nähe",
-              "info": "Schutzabstände für Nicht-Elektrofachkräfte: bis 1 kV 1 m, bis 110 kV 3 m, bis 220 kV 4 m, bis 380 kV 5 m. Das Ausschwingen von Ästen und Seilen ist mitzurechnen. Kann der Abstand nicht sicher eingehalten werden, muss der Netzbetreiber freischalten."
+              "info": "Schutzabstände für Nicht-Elektrofachkräfte: bis 1 kV 1 m, bis 110 kV 3 m, bis 220 kV 4 m, bis 380 kV 5 m. Das Ausschwingen von Ästen und Seilen ist mitzurechnen. Kann der Abstand nicht sicher eingehalten werden, muss der Netzbetreiber freischalten.",
+              "measures": [
+                "Netzbetreiber schaltet frei",
+                "Schutzabstand eingehalten, Seilführung weg von der Leitung",
+                "Elektrofachkraft vor Ort",
+                "Leitung abgedeckt (Netzbetreiber)"
+              ]
             },
             {
               "id": "site.trafficControl",
               "type": "hazard",
               "label": "Verkehrssicherung notwendig",
-              "info": "Bei Arbeiten an Straßen, Geh- oder Radwegen. Gegebenenfalls ist eine verkehrsrechtliche Anordnung nötig, außerdem Absperrung, Beschilderung und Sicherungsposten."
+              "info": "Bei Arbeiten an Straßen, Geh- oder Radwegen. Gegebenenfalls ist eine verkehrsrechtliche Anordnung nötig, außerdem Absperrung, Beschilderung und Sicherungsposten.",
+              "measures": [
+                "Verkehrsrechtliche Anordnung liegt vor",
+                "Absperrung nach RSA aufgebaut",
+                "Sicherungsposten mit Warnweste",
+                "Straße/Gehweg kurzzeitig gesperrt"
+              ]
             },
             {
               "id": "site.riggingRequired",
               "type": "hazard",
               "label": "Abseilen von Ästen oder Stammteilen erforderlich",
-              "info": "Wenn Teile nicht frei fallen dürfen, z. B. wegen Gebäuden, Leitungen oder Pflanzungen. Dann sind Abseilausrüstung und eine eingeteilte Bodenperson nötig."
+              "info": "Wenn Teile nicht frei fallen dürfen, z. B. wegen Gebäuden, Leitungen oder Pflanzungen. Dann sind Abseilausrüstung und eine eingeteilte Bodenperson nötig.",
+              "measures": [
+                "Abseiltechnik und Lasten vorab festgelegt",
+                "Abseilpunkt geprüft",
+                "Bodenpersonal außerhalb des Fallbereichs bis Freigabe",
+                "Kommandos für das Ablassen vereinbart"
+              ]
             },
             {
               "id": "site.propertyInDropZone",
               "type": "hazard",
               "proposal": true,
-              "label": "Gebäude, Sachwerte oder Verkehrswege im Fallbereich"
+              "label": "Gebäude, Sachwerte oder Verkehrswege im Fallbereich",
+              "measures": [
+                "Teile abgeseilt statt fallen gelassen",
+                "Gebäude/Fahrzeuge geschützt oder entfernt",
+                "Fällrichtung angepasst",
+                "Eigentümer informiert"
+              ]
             },
             {
               "id": "site.undergroundUtilities",
               "type": "hazard",
               "proposal": true,
-              "label": "Unterirdische Leitungen (bei Wurzel- oder Stubbenarbeiten)"
+              "label": "Unterirdische Leitungen (bei Wurzel- oder Stubbenarbeiten)",
+              "measures": [
+                "Leitungspläne eingeholt",
+                "Ortung vor Beginn",
+                "Stubben ausgefräst statt gerodet"
+              ]
             },
             {
               "id": "site.otherHazards",
@@ -767,14 +997,20 @@
               "type": "checkpoint",
               "allowNotRelevant": false,
               "label": "Betriebssichere persönliche Schutzausrüstung (PSA) für alle vorhanden",
-              "info": "Helm mit Gesichts- und Gehörschutz, Schnittschutzhose, Sicherheitsschuhe mit Schnittschutz, Handschuhe, Warnkleidung bei Verkehr."
+              "info": "Helm mit Gesichts- und Gehörschutz, Schnittschutzhose, Sicherheitsschuhe mit Schnittschutz, Handschuhe, Warnkleidung bei Verkehr.",
+              "measures": [
+                "Fehlende PSA nachbeschafft",
+                "Arbeiten erst nach Vervollständigung der PSA",
+                "Person ohne vollständige PSA nicht eingesetzt"
+              ]
             },
             {
               "id": "equip.ppeChecked",
               "type": "checkpoint",
               "allowNotRelevant": false,
               "label": "PSA vor Benutzung auf Schäden geprüft",
-              "info": "Sichtprüfung vor jedem Einsatz. Zusätzlich muss die jährliche Prüfung durch eine sachkundige Person gültig sein, besonders bei PSA gegen Absturz."
+              "info": "Sichtprüfung vor jedem Einsatz. Zusätzlich muss die jährliche Prüfung durch eine sachkundige Person gültig sein, besonders bei PSA gegen Absturz.",
+              "measures": ["PSA vor Ort geprüft", "Beschädigte PSA ausgesondert und ersetzt"]
             },
             {
               "id": "equip.twoClimbingKits",
@@ -784,7 +1020,12 @@
                 "field": "job.types",
                 "includes": "rope_access"
               },
-              "info": "Die zweite Ausrüstung ist für die Rettung des Kletterers nötig."
+              "info": "Die zweite Ausrüstung ist für die Rettung des Kletterers nötig.",
+              "measures": [
+                "Zweite Kletterausrüstung nachgeholt",
+                "Rettung mit Hubarbeitsbühne sichergestellt",
+                "Klettern erst nach Eintreffen der zweiten Ausrüstung"
+              ]
             },
             {
               "id": "equip.riggingChecked",
@@ -801,24 +1042,39 @@
                     "includes": "felling_rigging"
                   }
                 ]
-              }
+              },
+              "measures": [
+                "Abseilausrüstung vor Ort geprüft",
+                "Beschädigte Teile ausgesondert und ersetzt"
+              ]
             },
             {
               "id": "equip.machinesChecked",
               "type": "checkpoint",
               "label": "Erforderliche Maschinen vorhanden und geprüft",
-              "info": "Zum Beispiel Motorsäge, Hacker, Seilwinde, Hubarbeitsbühne. Täglicher Funktionscheck, Schutzeinrichtungen vollständig."
+              "info": "Zum Beispiel Motorsäge, Hacker, Seilwinde, Hubarbeitsbühne. Täglicher Funktionscheck, Schutzeinrichtungen vollständig.",
+              "measures": [
+                "Maschinen vor Ort geprüft",
+                "Defekte Maschine ausgetauscht",
+                "Arbeiten ohne die Maschine umgeplant"
+              ]
             },
             {
               "id": "equip.radiosChecked",
               "type": "checkpoint",
               "label": "Funkgeräte geprüft",
-              "info": "„Nicht relevant“ wählen, wenn kein Funk nötig ist."
+              "info": "„Nicht relevant“ wählen, wenn kein Funk nötig ist.",
+              "measures": [
+                "Funkgeräte geladen und Kanal getestet",
+                "Ersatzgerät mitgeführt",
+                "Verständigung über Sichtkontakt und Handzeichen"
+              ]
             },
             {
               "id": "equip.barrierMaterial",
               "type": "checkpoint",
-              "label": "Absperr- und Sicherungsmaterial vorhanden"
+              "label": "Absperr- und Sicherungsmaterial vorhanden",
+              "measures": ["Absperrmaterial nachbeschafft", "Sicherungsposten statt Absperrung"]
             }
           ]
         },
@@ -830,20 +1086,29 @@
               "id": "emergency.firstAidKit",
               "type": "checkpoint",
               "allowNotRelevant": false,
-              "label": "Erste-Hilfe-Material vorhanden"
+              "label": "Erste-Hilfe-Material vorhanden",
+              "measures": [
+                "Verbandkasten aus dem Fahrzeug bereitgelegt",
+                "Erste-Hilfe-Material nachbeschafft"
+              ]
             },
             {
               "id": "emergency.firstAider",
               "type": "checkpoint",
               "proposal": true,
               "allowNotRelevant": false,
-              "label": "Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort"
+              "label": "Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort",
+              "measures": ["Ersthelfer/in hinzugezogen", "Arbeiten erst mit Ersthelfer/in vor Ort"]
             },
             {
               "id": "emergency.rescueKit",
               "type": "checkpoint",
               "label": "Rettungsausrüstung vorhanden",
-              "info": "Ausrüstung, mit der eine verletzte Person aus dem Baum oder von der Bühne gerettet werden kann, z. B. ein Rettungs- bzw. Abseilgerät."
+              "info": "Ausrüstung, mit der eine verletzte Person aus dem Baum oder von der Bühne gerettet werden kann, z. B. ein Rettungs- bzw. Abseilgerät.",
+              "measures": [
+                "Rettungsausrüstung nachgeholt",
+                "Rettung mit Hubarbeitsbühne sichergestellt"
+              ]
             },
             {
               "id": "emergency.rescueRope",
@@ -853,14 +1118,19 @@
                 "field": "job.types",
                 "includes": "rope_access"
               },
-              "info": "Mindestens so lang, dass vom höchsten Arbeitspunkt bis zum Boden abgeseilt werden kann."
+              "info": "Mindestens so lang, dass vom höchsten Arbeitspunkt bis zum Boden abgeseilt werden kann.",
+              "measures": ["Rettungsseil nachgeholt", "Klettern erst mit Rettungsseil vor Ort"]
             },
             {
               "id": "emergency.planBriefed",
               "type": "checkpoint",
               "allowNotRelevant": false,
               "label": "Notfallablauf besprochen",
-              "info": "Wer rettet? Wer setzt den Notruf ab (112)? Wo ist der Treffpunkt für den Rettungsdienst? Eine Person mit Gurtverletzung muss schnell aus dem Seil."
+              "info": "Wer rettet? Wer setzt den Notruf ab (112)? Wo ist der Treffpunkt für den Rettungsdienst? Eine Person mit Gurtverletzung muss schnell aus dem Seil.",
+              "measures": [
+                "Notfallablauf vor Beginn besprochen",
+                "Rettungsperson und Notruf-Verantwortliche/r benannt"
+              ]
             },
             {
               "id": "equip.notes",

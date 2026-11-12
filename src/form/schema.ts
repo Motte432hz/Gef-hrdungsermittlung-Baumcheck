@@ -31,6 +31,8 @@ interface ItemBase {
 /** Control point: yes / no / not relevant. "No" → warning + required measure. */
 export interface CheckpointItem extends ItemBase {
   type: 'checkpoint'
+  /** Typical measures offered as quick picks when the answer is "no". */
+  measures?: string[]
   /** Default true. */
   allowNotRelevant?: boolean
 }
@@ -38,6 +40,8 @@ export interface CheckpointItem extends ItemBase {
 /** Hazard feature: present / not present. "Present" → required measure. */
 export interface HazardItem extends ItemBase {
   type: 'hazard'
+  /** Typical measures offered as quick picks when the hazard is present. */
+  measures?: string[]
 }
 
 export interface ChoiceOption {
@@ -50,6 +54,8 @@ export interface ChoiceOption {
   /** Selecting this option requires a note (reason / measure). */
   requiresNote?: boolean
   noteLabel?: string
+  /** Typical measures offered as quick picks for the required note. */
+  measures?: string[]
   /** Option with free text ("Sonstiges"). */
   isOther?: boolean
 }

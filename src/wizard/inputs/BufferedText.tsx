@@ -1,5 +1,6 @@
 import { useState, type InputHTMLAttributes } from 'react'
 import { TextArea, TextField } from '../../components/form/Field'
+import { toggleMeasure, hasMeasure } from './measures'
 
 /**
  * Text input with local state that writes through on every change (autosave).
@@ -13,6 +14,7 @@ export function BufferedText({
   multiline,
   initial,
   onSave,
+  suggestions,
   ...rest
 }: {
   label: string
@@ -22,13 +24,15 @@ export function BufferedText({
   multiline?: boolean
   initial: string
   onSave: (value: string) => void
+  /** Quick picks (e.g. typical measures): tap adds, tap again removes. */
+  suggestions?: string[]
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'required'>) {
   const [value, setValue] = useState(initial)
   const change = (v: string) => {
     setValue(v)
     onSave(v)
   }
-  return multiline ? (
+  const input = multiline ? (
     <TextArea
       label={label}
       hint={hint}
@@ -48,5 +52,32 @@ export function BufferedText({
       value={value}
       onChange={(e) => change(e.target.value)}
     />
+  )
+  if (!suggestions?.length) return input
+  return (
+    <div className="space-y-2">
+      {input}
+      <div role="group" aria-label={`Vorschläge: ${label}`} className="flex flex-wrap gap-2">
+        {suggestions.map((m) => {
+          const on = hasMeasure(value, m)
+          return (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={on}
+              onClick={() => change(toggleMeasure(value, m))}
+              className={`min-h-12 rounded-xl border-2 px-3 py-1 text-left text-sm font-semibold ${
+                on
+                  ? 'border-brand-700 bg-brand-700 text-white'
+                  : 'border-stone-300 bg-white text-stone-800 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100'
+              }`}
+            >
+              {on ? '✓ ' : '+ '}
+              {m}
+            </button>
+          )
+        })}
+      </div>
+    </div>
   )
 }

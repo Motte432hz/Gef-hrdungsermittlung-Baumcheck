@@ -102,6 +102,7 @@ export function ChoiceField({
           label={noteOption.noteLabel ?? 'Begründung'}
           initial={answer?.note ?? ''}
           onSave={(note) => onChange({ ...answer!, note })}
+          suggestions={noteOption.measures}
         />
       )}
       {answer?.prefilled && (

@@ -445,3 +445,353 @@ Mit Tippen springt die App zum jeweiligen Punkt. Fehlt bei einer Warnung die Ma�
 3. 🆕 **Vorschläge**: 3.2 (Bühnenbedienung / Kran-Rollen), 6.22, 6.23, 7.8, 7.9 und 8.9 jeweils übernehmen oder streichen?
 4. **Ohne „nicht relevant“:** Bei 7.1, 8.1, 8.2, 8.8, 8.9 und 8.13 habe ich die Antwort „nicht relevant“ weggelassen, weil diese Punkte bei jedem Einsatz zutreffen. Einverstanden?
 5. Fehlen dir Punkte, die ihr in der Praxis immer prüft?
+
+## Maßnahmen zum Antippen
+
+Bei „Nein“ bzw. „vorhanden“ (und bei Auswahlen mit Pflicht-Maßnahme) bietet die App diese Maßnahmen als Knöpfe an. Antippen übernimmt sie ins Maßnahmenfeld, nochmal Antippen entfernt sie; eigener Text ist jederzeit möglich. Bitte prüfen, ergänzen oder streichen.
+
+**Genauer Einsatzort und Zufahrt sind allen im Team bekannt** · `site.locationKnown`
+
+- Einsatzort und Zufahrt vor Beginn mit allen begehen
+- Treffpunkt für Rettungsdienst festgelegt und markiert
+- Adresse/Koordinaten an alle verschickt
+
+**Notruf ist am Arbeitsplatz möglich (Mobilfunkempfang geprüft)** · `site.emergencyCallPossible`
+
+- Notruf-Standort mit Empfang festgelegt
+- Funkkette zum Fahrzeug/Notrufstandort eingerichtet
+- Satelliten-Notruf (Handy) mitgeführt
+
+**Der Arbeitsauftrag wurde mit allen besprochen** · `team.briefed`
+
+- Arbeitsauftrag vor Beginn mit allen besprochen
+- Ablauf und Gefahrenbereiche vor Ort gezeigt
+
+**Aufgaben und Personal sind eingeteilt** · `team.assigned`
+
+- Aufgaben vor Beginn zugeteilt
+- Aufsicht benannt und allen bekannt
+
+**Verständigung ist abgesprochen** · `team.communicationAgreed`
+
+- Handzeichen und Rufkommandos vereinbart
+- Funk mit festen Kanälen ausgegeben
+- Sichtkontakt Kletterer–Bodenperson sichergestellt
+
+**Alle Beteiligten sind heute gesundheitlich geeignet** · `team.fitForWork`
+
+- Person übernimmt nur Bodenarbeiten
+- Person wird ersetzt
+- Arbeiten verschoben
+
+**Alle haben ausreichend Erfahrung und Qualifikation für die geplanten Arbeiten** · `team.experienced`
+
+- Arbeiten unter direkter Aufsicht einer erfahrenen Person
+- Aufgaben angepasst (nur Bodenarbeiten)
+- Erfahrene Person hinzugezogen
+
+**Wuchsform: Angekippt** · `tree.growthForm`
+
+- Neigung und Wurzelteller vor dem Klettern geprüft
+- Fällrichtung in Neigungsrichtung
+- Hubarbeitsbühne statt Klettern
+
+**Bodenrisse oder angehobener Wurzelteller** · `tree.env.soilCracks`
+
+- Nicht beklettern, Arbeit von der Hubarbeitsbühne
+- Baum vor Beginn sichern (Seil/Zug)
+- Eingehende Untersuchung veranlasst
+- Fallbereich großräumig abgesperrt
+
+**Nachbarbäume behindern die Arbeiten** · `tree.env.neighbourTrees`
+
+- Nachbarbaum vorher freigeschnitten
+- Fällrichtung angepasst
+- Hänger mit Seilzug/Winde lösen
+- Gefahrenbereich erweitert
+
+**Verletzte oder gekappte Wurzeln** · `tree.env.rootDamage`
+
+- Standsicherheit vor dem Klettern geprüft
+- Arbeit von der Hubarbeitsbühne
+- Zugbelastung des Baums vermeiden
+
+**Pilzfruchtkörper im Wurzelbereich** · `tree.env.fungi`
+
+- Pilz bestimmt, Wurzelfäule angenommen
+- Nicht beklettern, Hubarbeitsbühne
+- Eingehende Untersuchung veranlasst
+
+**Risse, Wülste, Beulen oder Rippen** · `tree.trunk.defects`
+
+- Schadstelle mit Schonhammer geprüft
+- Anschlag oberhalb der Schadstelle vermeiden
+- Lasten klein halten, keine Schlagbelastung
+
+**Pilzfruchtkörper am Stamm** · `tree.trunk.fungi`
+
+- Pilz bestimmt, Ausmaß der Fäule geschätzt
+- Restwand geprüft (Schonhammer/Bohrung)
+- Hubarbeitsbühne statt Klettern
+
+**Faulstellen oder Höhlungen** · `tree.trunk.decay`
+
+- Restwanddicke geprüft
+- Fällung mit Halteband/Zugseil, keine Keile in Faulholz
+- Hubarbeitsbühne statt Klettern
+
+**Spuren früherer baumchirurgischer Maßnahmen** · `tree.trunk.oldSurgery`
+
+- Alte Füllungen/Verschraubungen geortet
+- Säge nicht in Metall/Füllung führen
+- Statik der Stelle vor Belastung geprüft
+
+**Größere Wunden** · `tree.trunk.wounds`
+
+- Wunde auf Fäule geprüft
+- Anschlag nicht über der Wunde
+- Belastung des Bereichs vermeiden
+
+**Abgestorbene oder lose Rinde** · `tree.trunk.deadBark`
+
+- Lose Rinde vorab entfernt
+- Steigeisen nicht im Bereich der losen Rinde
+- Bodenpersonal außerhalb des Fallbereichs
+
+**Vitalität der Krone (Roloff, Laubbäume): Stufe 2 – Stagnation (geschwächt)** · `tree.crown.vitality`
+
+- Anschlagpunkte besonders sorgfältig geprüft
+- Lasten klein halten
+- Rückschnitt maßvoll, Baum nicht zusätzlich schwächen
+
+**Vitalität der Krone (Roloff, Laubbäume): Stufe 3 – Resignation (stark geschwächt / absterbend)** · `tree.crown.vitality`
+
+- Hubarbeitsbühne statt Klettern
+- Fällung geprüft
+- Eingehende Untersuchung veranlasst
+
+**Benadelung der Krone (Nadelbäume): Stufe 2 – mittelstark verlichtet (26–60 %)** · `tree.crown.needleLoss`
+
+- Anschlagpunkte besonders sorgfältig geprüft
+- Lasten klein halten
+
+**Benadelung der Krone (Nadelbäume): Stufe 3 – stark verlichtet (über 60 %)** · `tree.crown.needleLoss`
+
+- Hubarbeitsbühne statt Klettern
+- Wipfel nicht belasten
+- Fällung geprüft
+
+**Benadelung der Krone (Nadelbäume): Stufe 4 – abgestorben** · `tree.crown.needleLoss`
+
+- Fällung von der Hubarbeitsbühne
+- Fällung mit Seilwinde/Zugseil
+- Nicht beklettern
+
+**Totholz** · `tree.crown.deadwood`
+
+- Totholz vor Beginn der übrigen Arbeiten entfernt
+- Starkes Totholz abgeseilt
+- Fallbereich abgesperrt
+
+**Risse, Wülste oder andere Defekte in der Krone** · `tree.crown.defects`
+
+- Defekte Äste nicht als Anschlag/Abstützung
+- Betroffene Äste zuerst entlastet
+- Arbeit von der Hubarbeitsbühne
+
+**Druckzwiesel** · `tree.crown.compressionFork`
+
+- Kein Anschlag im Zwiesel
+- Zwiesel vor dem Schnitt gesichert (Gurt/Kronensicherung)
+- Schnittfolge so, dass der Zwiesel nicht aufreißt
+
+**Ausbrüche oder abgebrochene Äste** · `tree.crown.breakouts`
+
+- Bruchstellen und lose Teile zuerst entfernt
+- Anschlag nicht an beschädigten Ästen
+- Fallbereich abgesperrt
+
+**Sturmschäden, hängende Äste („Hänger“)** · `tree.crown.stormDamage`
+
+- Hänger mit Seil gesichert und kontrolliert abgelassen
+- Unter Spannung stehendes Holz in Schritten entlastet
+- Arbeit von der Hubarbeitsbühne
+
+**Insektennester** · `tree.crown.insects`
+
+- Nest vorab gemeldet/umgesiedelt (Fachbetrieb)
+- Arbeit im Bereich verschoben
+- Allergiker im Team informiert, Notfallset bereit
+
+**Alte Kronensicherung vorhanden** · `tree.crown.oldBracing`
+
+- Zustand der alten Sicherung geprüft
+- Sicherung nicht als Anschlag genutzt
+- Neue Kronensicherung vor dem Ausbau eingebaut
+
+**Gekappter Baum (Kappung)** · `tree.crown.topped`
+
+- Austriebe am Kappungsrand nicht als Anschlag
+- Faulstellen am Kappungskopf geprüft
+- Anschlag unterhalb des Kappungskopfes
+
+**Faulstellen in der Krone** · `tree.crown.decay`
+
+- Faule Äste nicht belasten
+- Anschlag in gesundem Holz
+- Abschnitte klein halten und abseilen
+
+**Pilzfruchtkörper in der Krone** · `tree.crown.fungi`
+
+- Betroffene Äste nicht belasten
+- Hubarbeitsbühne statt Klettern
+- Eingehende Untersuchung veranlasst
+
+**Geschützte Tiere (Vogelnest, Fledermausquartier, Höhlen)** · `tree.crown.protectedSpecies`
+
+- Arbeiten im Bereich verschoben
+- Artenschutz-Fachperson hinzugezogen
+- Untere Naturschutzbehörde informiert
+
+**Anschlagpunkt ausreichend tragfähig** · `tree.crown.anchorOk`
+
+- Anderen Anschlagpunkt gewählt
+- Anschlagpunkt im Nachbarbaum
+- Hubarbeitsbühne statt Klettern
+- Anschlag mit Redundanz (zweiter Anschlagpunkt)
+
+**Ist der Baum für die geplanten Arbeiten sicher?: Nein** · `tree.result`
+
+- Arbeiten mit Hubarbeitsbühne
+- Fällung mit Kran
+- Auftrag angepasst und mit Kunde besprochen
+- Arbeiten abgebrochen
+
+**Ist der Baum für die geplanten Arbeiten sicher?: Eingehende Untersuchung erforderlich** · `tree.result`
+
+- Baumgutachten beauftragt
+- Arbeiten bis zur Untersuchung verschoben
+- Bereich bis dahin abgesperrt
+
+**Die Witterung ist für die Arbeiten geeignet** · `site.weatherOk`
+
+- Arbeiten verschoben
+- Nur Bodenarbeiten
+- Windgeschwindigkeit laufend beobachten, Abbruch bei Böen
+- Pausen bei Gewitter/Starkregen
+
+**Der Fall- und Gefahrenbereich ist frei und abgesperrt** · `site.dropZoneClear`
+
+- Fallbereich abgesperrt (Flatterband/Absperrgitter)
+- Sicherungsposten aufgestellt
+- Personen und Fahrzeuge aus dem Fallbereich entfernt
+
+**Rückweichen sind angelegt und frei** · `site.escapeRoute`
+
+- Rückweichen freigeschnitten
+- Stolperstellen entfernt
+- Rückweichen allen gezeigt
+
+**Ruf- und Sichtverbindung oder Funk ist zwischen allen möglich** · `site.communicationPossible`
+
+- Funkgeräte eingesetzt
+- Sicherungsposten mit Sichtkontakt aufgestellt
+- Maschinen bei Kommandos abgestellt
+
+**Stromleitungen in der Nähe** · `site.powerLines`
+
+- Netzbetreiber schaltet frei
+- Schutzabstand eingehalten, Seilführung weg von der Leitung
+- Elektrofachkraft vor Ort
+- Leitung abgedeckt (Netzbetreiber)
+
+**Verkehrssicherung notwendig** · `site.trafficControl`
+
+- Verkehrsrechtliche Anordnung liegt vor
+- Absperrung nach RSA aufgebaut
+- Sicherungsposten mit Warnweste
+- Straße/Gehweg kurzzeitig gesperrt
+
+**Abseilen von Ästen oder Stammteilen erforderlich** · `site.riggingRequired`
+
+- Abseiltechnik und Lasten vorab festgelegt
+- Abseilpunkt geprüft
+- Bodenpersonal außerhalb des Fallbereichs bis Freigabe
+- Kommandos für das Ablassen vereinbart
+
+**Gebäude, Sachwerte oder Verkehrswege im Fallbereich** · `site.propertyInDropZone`
+
+- Teile abgeseilt statt fallen gelassen
+- Gebäude/Fahrzeuge geschützt oder entfernt
+- Fällrichtung angepasst
+- Eigentümer informiert
+
+**Unterirdische Leitungen (bei Wurzel- oder Stubbenarbeiten)** · `site.undergroundUtilities`
+
+- Leitungspläne eingeholt
+- Ortung vor Beginn
+- Stubben ausgefräst statt gerodet
+
+**Betriebssichere persönliche Schutzausrüstung (PSA) für alle vorhanden** · `equip.ppeAvailable`
+
+- Fehlende PSA nachbeschafft
+- Arbeiten erst nach Vervollständigung der PSA
+- Person ohne vollständige PSA nicht eingesetzt
+
+**PSA vor Benutzung auf Schäden geprüft** · `equip.ppeChecked`
+
+- PSA vor Ort geprüft
+- Beschädigte PSA ausgesondert und ersetzt
+
+**Zwei vollständige Kletterausrüstungen vor Ort** · `equip.twoClimbingKits`
+
+- Zweite Kletterausrüstung nachgeholt
+- Rettung mit Hubarbeitsbühne sichergestellt
+- Klettern erst nach Eintreffen der zweiten Ausrüstung
+
+**Abseilausrüstung vorhanden und geprüft** · `equip.riggingChecked`
+
+- Abseilausrüstung vor Ort geprüft
+- Beschädigte Teile ausgesondert und ersetzt
+
+**Erforderliche Maschinen vorhanden und geprüft** · `equip.machinesChecked`
+
+- Maschinen vor Ort geprüft
+- Defekte Maschine ausgetauscht
+- Arbeiten ohne die Maschine umgeplant
+
+**Funkgeräte geprüft** · `equip.radiosChecked`
+
+- Funkgeräte geladen und Kanal getestet
+- Ersatzgerät mitgeführt
+- Verständigung über Sichtkontakt und Handzeichen
+
+**Absperr- und Sicherungsmaterial vorhanden** · `equip.barrierMaterial`
+
+- Absperrmaterial nachbeschafft
+- Sicherungsposten statt Absperrung
+
+**Erste-Hilfe-Material vorhanden** · `emergency.firstAidKit`
+
+- Verbandkasten aus dem Fahrzeug bereitgelegt
+- Erste-Hilfe-Material nachbeschafft
+
+**Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort** · `emergency.firstAider`
+
+- Ersthelfer/in hinzugezogen
+- Arbeiten erst mit Ersthelfer/in vor Ort
+
+**Rettungsausrüstung vorhanden** · `emergency.rescueKit`
+
+- Rettungsausrüstung nachgeholt
+- Rettung mit Hubarbeitsbühne sichergestellt
+
+**Rettungsseil vorhanden** · `emergency.rescueRope`
+
+- Rettungsseil nachgeholt
+- Klettern erst mit Rettungsseil vor Ort
+
+**Notfallablauf besprochen** · `emergency.planBriefed`
+
+- Notfallablauf vor Beginn besprochen
+- Rettungsperson und Notruf-Verantwortliche/r benannt

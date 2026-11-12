@@ -57,6 +57,17 @@ export function checkDefinition(def: FormDefinition): string[] {
     stepIds.add(step.id)
   }
 
+  // Measure quick picks: "; " separates measures in a note.
+  for (const { item } of located) {
+    const lists = [
+      'measures' in item ? item.measures : undefined,
+      ...('options' in item ? item.options.map((o) => o.measures) : []),
+    ]
+    for (const m of lists.flat())
+      if (m !== undefined && (!m.trim() || m.includes(';')))
+        problems.push(`${item.id}: invalid measure "${m}"`)
+  }
+
   for (const step of def.steps) {
     for (const section of step.sections) {
       if (!section.gate) continue
