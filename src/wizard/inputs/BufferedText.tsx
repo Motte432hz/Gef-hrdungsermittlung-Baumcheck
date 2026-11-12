@@ -57,7 +57,7 @@ export function BufferedText({
   return (
     <div className="space-y-2">
       {input}
-      <div role="group" aria-label={`Vorschläge: ${label}`} className="flex flex-wrap gap-2">
+      <div role="group" aria-label="Vorschläge zum Antippen" className="flex flex-wrap gap-2">
         {suggestions.map((m) => {
           const on = hasMeasure(value, m)
           return (
