@@ -19,8 +19,12 @@ interface ItemBase {
   /** Stable id, used as answer key. Never rename once released. */
   id: string
   label: string
-  /** Explanation behind the (i) button. */
+  /** Explanation behind the "?" button: what is meant. */
   info?: string
+  /** Why the question is asked (risk behind it). */
+  why?: string
+  /** A short practical example. */
+  example?: string
   visibleIf?: Condition
   /** Needed to complete the protocol. Checkpoints and hazards are always required. */
   required?: boolean
@@ -113,6 +117,8 @@ export interface SectionGate {
   id: string
   label: string
   info?: string
+  why?: string
+  example?: string
 }
 
 export const GATE_NONE = 'none'
@@ -135,6 +141,7 @@ export interface FormStep {
   title: string
   /** For step navigation on small screens. */
   shortTitle: string
+  /** One or two sentences at the top of the step: what it is about. */
   intro?: string
   /** Repeated per tree; answers live on the tree record. */
   repeat?: 'tree'

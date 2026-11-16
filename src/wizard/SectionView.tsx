@@ -108,7 +108,7 @@ function GateField({
       {...(value === undefined ? { [OPEN_ATTR]: '' } : {})}
     >
       <ItemCard tone={value === GATE_SOME && present.length > 0 ? 'bad' : undefined}>
-        <ItemLabel label={gate.label} info={gate.info} />
+        <ItemLabel label={gate.label} info={gate.info} why={gate.why} example={gate.example} />
         <Segmented
           label={gate.label}
           options={[

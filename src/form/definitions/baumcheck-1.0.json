@@ -24,8 +24,9 @@
               "id": "job.types",
               "type": "multi",
               "label": "Einsatzart",
-              "required": true,
               "info": "Wähle alles aus, was heute zum Einsatz kommt. Je nach Auswahl blendet die App passende Prüfpunkte ein oder aus.",
+              "why": "Klettern, Hubarbeitsbühne und Kran haben eigene Gefahren. Die App fragt dann nur, was zu eurem Einsatz passt.",
+              "required": true,
               "options": [
                 {
                   "value": "tree_work",
@@ -48,30 +49,36 @@
             {
               "id": "job.customer",
               "type": "customer",
-              "label": "Kunde / Objekt"
+              "label": "Kunde / Objekt",
+              "info": "Für wen und wo wird gearbeitet? Aus den gespeicherten Kunden wählen oder direkt neu anlegen.",
+              "example": "Hausverwaltung Müller – Wohnanlage Lindenstraße 4"
             },
             {
               "id": "job.date",
               "type": "date",
               "label": "Datum",
+              "info": "Wird automatisch auf heute gesetzt. Nur ändern, wenn du das Protokoll nachträglich erfasst.",
               "required": true
             },
             {
               "id": "job.timeFrom",
               "type": "time",
-              "label": "Arbeitszeit von"
+              "label": "Arbeitszeit von",
+              "info": "Geplanter Beginn vor Ort. Kann später angepasst werden."
             },
             {
               "id": "job.timeTo",
               "type": "time",
-              "label": "Arbeitszeit bis"
+              "label": "Arbeitszeit bis",
+              "info": "Geplantes Ende. Kann später angepasst werden."
             },
             {
               "id": "job.supervisor",
               "type": "supervisor",
               "label": "Aufsichtsführende Person",
-              "required": true,
-              "info": "Die Aufsicht ist vor Ort weisungsbefugt, leitet die Gefährdungsermittlung und unterschreibt sie. Sie muss während der Arbeiten erreichbar sein."
+              "info": "Die Aufsicht ist vor Ort weisungsbefugt, leitet die Gefährdungsermittlung und unterschreibt sie. Sie muss während der Arbeiten erreichbar sein.",
+              "why": "Es muss klar sein, wer vor Ort entscheidet – z. B. ob bei aufkommendem Wind abgebrochen wird.",
+              "required": true
             }
           ]
         },
@@ -82,6 +89,8 @@
               "id": "work.types",
               "type": "multi",
               "label": "Geplante Arbeiten",
+              "info": "Alles ankreuzen, was bei diesem Einsatz gemacht wird.",
+              "why": "Davon hängt ab, welche Fragen später kommen, z. B. zum Naturschutz bei Fällungen in der Schonzeit.",
               "required": true,
               "options": [
                 {
@@ -127,7 +136,8 @@
             }
           ]
         }
-      ]
+      ],
+      "intro": "Was wird heute gemacht, für wen und wer hat vor Ort die Aufsicht? Dauert etwa eine Minute."
     },
     {
       "id": "site",
@@ -142,20 +152,24 @@
               "id": "site.gps",
               "type": "gps",
               "label": "GPS-Position",
-              "info": "Möglichst direkt am Baum bestimmen. Bei einer Genauigkeit schlechter als 30 m warnt die App."
+              "info": "Möglichst direkt am Baum bestimmen. Bei einer Genauigkeit schlechter als 30 m warnt die App.",
+              "why": "Im Notfall zählt jede Minute. Mit der genauen Position findet der Rettungsdienst euch auch ohne Hausnummer."
             },
             {
               "id": "site.address",
               "type": "address",
               "label": "Adresse",
+              "info": "Wird bei Internet aus der GPS-Position ermittelt, sonst von Hand eintragen.",
+              "why": "Die Adresse ist das Erste, was die Leitstelle beim Notruf wissen will.",
               "required": true
             },
             {
               "id": "site.w3w",
               "type": "text",
               "label": "what3words",
-              "placeholder": "///wort.wort.wort",
-              "info": "Drei Wörter, die einen 3 × 3 m großen Punkt beschreiben. Rettungsleitstellen können damit den Ort finden, auch wenn es keine Hausnummer gibt."
+              "info": "Drei Wörter, die einen 3 × 3 m großen Punkt beschreiben. Rettungsleitstellen können damit den Ort finden, auch wenn es keine Hausnummer gibt.",
+              "example": "///kerze.fenster.wald – der Leitstelle Wort für Wort durchgeben.",
+              "placeholder": "///wort.wort.wort"
             }
           ]
         },
@@ -166,24 +180,28 @@
             {
               "id": "site.rescueAccess",
               "type": "text",
-              "multiline": true,
               "label": "Zufahrt / Treffpunkt für den Rettungsdienst",
+              "info": "Beschreibe, wie ein Rettungswagen am schnellsten hinkommt. Im Wald, wenn vorhanden, den Rettungstreffpunkt (Schild) angeben.",
+              "why": "Rettungswagen kommen oft nicht bis an den Baum. Wer weiß, wo der Wagen hält und wer ihn einweist, spart im Notfall Minuten.",
+              "example": "Zufahrt über Hofeinfahrt Lindenstraße 4, Tor ist offen. Rettungswagen kommt bis 20 m an den Baum heran.",
+              "multiline": true,
               "required": true,
-              "placeholder": "z. B. Einfahrt Hofseite, Schranke offen, Treffpunkt am Tor",
-              "info": "Beschreibe, wie ein Rettungswagen am schnellsten hinkommt. Im Wald, wenn vorhanden, den Rettungstreffpunkt (Schild) angeben."
+              "placeholder": "z. B. Einfahrt Hofseite, Schranke offen, Treffpunkt am Tor"
             },
             {
               "id": "site.hospital",
               "type": "text",
               "label": "Nächstes Krankenhaus",
-              "assist": "hospital",
-              "info": "Mit „Nächste Notaufnahme suchen“ schlägt die App Krankenhäuser in der Nähe vor (bei Internet und GPS-Position). Die Angaben stammen aus OpenStreetMap – im Zweifel die Leitstelle fragen. Im Notfall immer 112."
+              "info": "Mit „Nächste Notaufnahme suchen“ schlägt die App Krankenhäuser in der Nähe vor (bei Internet und GPS-Position). Die Angaben stammen aus OpenStreetMap – im Zweifel die Leitstelle fragen. Im Notfall immer 112.",
+              "why": "Bei leichteren Verletzungen fahrt ihr eventuell selbst – dann muss klar sein, wohin.",
+              "assist": "hospital"
             },
             {
               "id": "site.locationKnown",
               "type": "checkpoint",
               "label": "Genauer Einsatzort und Zufahrt sind allen im Team bekannt",
               "info": "Im Notfall muss jede Person dem Rettungsdienst sagen können, wo sie ist und wie man hinkommt, nicht nur die Aufsicht.",
+              "why": "Die Aufsicht kann selbst die verletzte Person sein. Dann muss jemand anderes den Notruf absetzen können.",
               "measures": [
                 "Einsatzort und Zufahrt vor Beginn mit allen begehen",
                 "Treffpunkt für Rettungsdienst festgelegt und markiert",
@@ -195,6 +213,7 @@
               "type": "checkpoint",
               "label": "Notruf ist am Arbeitsplatz möglich (Mobilfunkempfang geprüft)",
               "info": "Prüfe den Empfang direkt am Baum, nicht nur an der Straße. Ohne Empfang muss festgelegt werden, wie und von wo ein Notruf abgesetzt wird, z. B. „Empfang an der Kreuzung 200 m nördlich“.",
+              "why": "Im Wald, an Hängen und in Tälern gibt es oft Funklöcher.",
               "measures": [
                 "Notruf-Standort mit Empfang festgelegt",
                 "Funkkette zum Fahrzeug/Notrufstandort eingerichtet",
@@ -203,7 +222,8 @@
             }
           ]
         }
-      ]
+      ],
+      "intro": "Wo genau seid ihr und wie findet der Rettungsdienst zu euch? Am besten direkt am Baum ausfüllen, dann stimmt die GPS-Position."
     },
     {
       "id": "team",
@@ -217,8 +237,8 @@
               "id": "team.members",
               "type": "team",
               "label": "Personen und Rollen",
-              "required": true,
-              "info": "Mitarbeiter oder Subunternehmer aus den Profilen auswählen oder eine neue Person erfassen. Sicherungsposten: sichert den Gefahrenbereich ab, z. B. gegenüber Fußgängern oder Verkehr, und hat keine andere Aufgabe."
+              "info": "Mitarbeiter oder Subunternehmer aus den Profilen auswählen oder eine neue Person erfassen. Sicherungsposten: sichert den Gefahrenbereich ab, z. B. gegenüber Fußgängern oder Verkehr, und hat keine andere Aufgabe.",
+              "required": true
             }
           ]
         },
@@ -231,6 +251,7 @@
               "type": "checkpoint",
               "label": "Der Arbeitsauftrag wurde mit allen besprochen",
               "info": "Alle wissen, welche Bäume bearbeitet werden, was genau gemacht wird und in welcher Reihenfolge.",
+              "why": "Wer nicht weiß, was als Nächstes passiert, steht leicht im falschen Bereich.",
               "measures": [
                 "Arbeitsauftrag vor Beginn mit allen besprochen",
                 "Ablauf und Gefahrenbereiche vor Ort gezeigt"
@@ -241,6 +262,7 @@
               "type": "checkpoint",
               "label": "Aufgaben und Personal sind eingeteilt",
               "info": "Jede Person kennt ihre Rolle und weiß, wer sie im Notfall rettet.",
+              "example": "Anna klettert, Ben ist Bodenperson und rettet im Notfall, Carla sichert den Gehweg.",
               "measures": ["Aufgaben vor Beginn zugeteilt", "Aufsicht benannt und allen bekannt"]
             },
             {
@@ -248,6 +270,7 @@
               "type": "checkpoint",
               "label": "Verständigung ist abgesprochen",
               "info": "Handzeichen, Rufkommandos (z. B. „Achtung, Ast kommt!“, „Halt!“) und gegebenenfalls Funk sind vereinbart und allen bekannt. Das gilt besonders bei Lärm durch Motorsäge oder Hacker.",
+              "why": "Bei laufender Motorsäge oder laufendem Hacker hört man Zurufe kaum.",
               "measures": [
                 "Handzeichen und Rufkommandos vereinbart",
                 "Funk mit festen Kanälen ausgegeben",
@@ -259,6 +282,7 @@
               "type": "checkpoint",
               "label": "Alle Beteiligten sind heute gesundheitlich geeignet",
               "info": "Keine akute Erkrankung, keine Medikamente oder Alkohol, die die Arbeit beeinträchtigen, ausgeruht. Im Zweifel nicht in den Baum.",
+              "why": "Müdigkeit, Kreislaufprobleme oder Medikamente erhöhen das Absturz- und Schnittrisiko.",
               "measures": [
                 "Person übernimmt nur Bodenarbeiten",
                 "Person wird ersetzt",
@@ -270,6 +294,7 @@
               "type": "checkpoint",
               "label": "Alle haben ausreichend Erfahrung und Qualifikation für die geplanten Arbeiten",
               "info": "Die nötigen Nachweise (z. B. AS-Baum, SKT A/B) liegen vor, und die Personen haben die Arbeiten in dieser Schwierigkeit schon ausgeführt.",
+              "why": "Wer eine Arbeit zum ersten Mal oder in dieser Schwierigkeit macht, unterschätzt Gefahren leichter.",
               "measures": [
                 "Arbeiten unter direkter Aufsicht einer erfahrenen Person",
                 "Aufgaben angepasst (nur Bodenarbeiten)",
@@ -278,7 +303,8 @@
             }
           ]
         }
-      ]
+      ],
+      "intro": "Wer ist heute dabei und wer übernimmt welche Rolle? Danach bestätigst du, dass alle eingewiesen und einsatzfähig sind."
     },
     {
       "id": "tree",
@@ -299,7 +325,8 @@
               "id": "tree.position",
               "type": "treePosition",
               "label": "Standort des Baums",
-              "info": "Am Stammfuß stehen und den Standort übernehmen. Beim nächsten Einsatz am selben Objekt findet die App den Baum wieder und zeigt den letzten Befund."
+              "info": "Am Stammfuß stehen und den Standort übernehmen. Beim nächsten Einsatz am selben Objekt findet die App den Baum wieder und zeigt den letzten Befund.",
+              "why": "So bleibt nachvollziehbar, welcher Baum gemeint war – auch wenn keine Baum-Nr. vorhanden ist."
             },
             {
               "id": "tree.species",
@@ -311,6 +338,9 @@
               "id": "tree.height",
               "type": "number",
               "label": "Baumhöhe",
+              "info": "Eine Schätzung genügt.",
+              "why": "Die Höhe bestimmt den Fallbereich: bei Fällungen mindestens die doppelte Baumlänge.",
+              "example": "Stock so lang wie dein Arm senkrecht vor das Auge halten und zurückgehen, bis Stockspitze und Baumspitze übereinanderliegen. Der Abstand zum Baum ist ungefähr die Baumhöhe.",
               "unit": "m",
               "min": 1,
               "max": 80,
@@ -321,19 +351,22 @@
               "id": "tree.diameter",
               "type": "number",
               "label": "Stammdurchmesser",
+              "info": "Gemessen in 1,30 m Höhe.",
+              "why": "Der Durchmesser zeigt, wie schwer der Baum ist und welche Säge, Fälltechnik und Fällhilfen nötig sind.",
+              "example": "Umfang mit dem Maßband messen und durch 3,14 teilen: 157 cm Umfang ≈ 50 cm Durchmesser.",
               "unit": "cm",
               "min": 1,
               "max": 500,
               "step": 1,
-              "required": true,
-              "info": "Gemessen in 1,30 m Höhe."
+              "required": true
             },
             {
               "id": "tree.growthForm",
               "type": "single",
               "label": "Wuchsform",
-              "required": true,
               "info": "Vor-, Rück- und Seithänger beziehen sich auf die geplante Fällrichtung. Bei Pflegearbeiten beschreibt die Angabe die Hauptneigung des Baums.",
+              "why": "Die Neigung bestimmt, wohin der Baum fallen will und welche Fälltechnik nötig ist.",
+              "required": true,
               "options": [
                 {
                   "value": "normal",
@@ -378,7 +411,8 @@
             }
           ]
         }
-      ]
+      ],
+      "intro": "Für jeden Baum, an dem gearbeitet wird, eine eigene Karte: Baumart, Größe, Wuchsform und Fotos."
     },
     {
       "id": "treeAssessment",
@@ -440,7 +474,8 @@
           "gate": {
             "id": "tree.env.gate",
             "label": "Gibt es Auffälligkeiten im Baumumfeld?",
-            "info": "Bodenrisse oder angehobener Wurzelteller, behindernde Nachbarbäume, verletzte Wurzeln, Pilze im Wurzelbereich. Bei „Ja“ werden die einzelnen Merkmale abgefragt."
+            "info": "Bodenrisse oder angehobener Wurzelteller, behindernde Nachbarbäume, verletzte Wurzeln, Pilze im Wurzelbereich. Bei „Ja“ werden die einzelnen Merkmale abgefragt.",
+            "why": "Schäden im Boden und an den Wurzeln sieht man der Krone oft nicht an – sie entscheiden aber, ob der Baum sicher steht."
           }
         },
         {
@@ -462,6 +497,8 @@
               "id": "tree.trunk.fungi",
               "type": "hazard",
               "label": "Pilzfruchtkörper am Stamm",
+              "info": "Konsolen oder Hüte direkt am Stamm. Sie zeigen, dass im Inneren Holz zersetzt wird.",
+              "example": "Zunderschwamm an Buche, Schwefelporling an Eiche oder Weide.",
               "measures": [
                 "Pilz bestimmt, Ausmaß der Fäule geschätzt",
                 "Restwand geprüft (Schonhammer/Bohrung)",
@@ -473,6 +510,7 @@
               "type": "hazard",
               "label": "Faulstellen oder Höhlungen",
               "info": "Prüfe durch Abklopfen mit dem Schonhammer: Ein hohler Klang deutet auf eine Höhlung hin. Die verbleibende Restwand bestimmt die Bruchsicherheit.",
+              "why": "Je weniger gesundes Holz um eine Höhlung bleibt, desto leichter bricht der Stamm – besonders beim Fällen und Abseilen.",
               "measures": [
                 "Restwanddicke geprüft",
                 "Fällung mit Halteband/Zugseil, keine Keile in Faulholz",
@@ -494,6 +532,8 @@
               "id": "tree.trunk.wounds",
               "type": "hazard",
               "label": "Größere Wunden",
+              "info": "Größere Rindenverletzungen, z. B. durch Anfahrschäden, Blitz oder Astabrisse.",
+              "why": "Über Wunden dringen Pilze ein. Das Holz dahinter kann bereits geschwächt sein.",
               "measures": [
                 "Wunde auf Fäule geprüft",
                 "Anschlag nicht über der Wunde",
@@ -515,7 +555,8 @@
           "gate": {
             "id": "tree.trunk.gate",
             "label": "Gibt es Auffälligkeiten an Stammfuß oder Stamm?",
-            "info": "Risse, Wülste, Pilze, Faulstellen oder Höhlungen, alte baumchirurgische Eingriffe, Wunden, lose Rinde. Bei „Ja“ werden die einzelnen Merkmale abgefragt."
+            "info": "Risse, Wülste, Pilze, Faulstellen oder Höhlungen, alte baumchirurgische Eingriffe, Wunden, lose Rinde. Bei „Ja“ werden die einzelnen Merkmale abgefragt.",
+            "why": "Der Stamm muss beim Klettern, Abseilen und Fällen große Kräfte aufnehmen."
           }
         },
         {
@@ -526,8 +567,8 @@
               "id": "tree.crown.vitality",
               "type": "single",
               "label": "Vitalität der Krone (Roloff, Laubbäume)",
-              "required": true,
               "info": "Vitalitätsstufen nach Roloff, beurteilt an der Verzweigung der Krone. Gilt für Laubbäume; bei Nadelbäumen erscheint stattdessen die Benadelung. Geschwächte Bäume haben ein erhöhtes Bruchrisiko, besonders bei Belastung durch Seile oder Kletterer.",
+              "required": true,
               "options": [
                 {
                   "value": "0",
@@ -583,9 +624,9 @@
             {
               "id": "tree.crown.needleLoss",
               "type": "single",
-              "required": true,
               "label": "Benadelung der Krone (Nadelbäume)",
               "info": "Stufen nach Nadelverlust bzw. Kronenverlichtung, geschätzt im Vergleich zu einem voll benadelten Baum gleicher Art. Achte auch auf vergilbte oder braune Nadeln und abgestorbene Wipfel. Lärche, Sumpfzypresse und Urweltmammutbaum werfen im Winter die Nadeln ab – dann „nicht beurteilbar“.",
+              "required": true,
               "visibleIf": {
                 "field": "tree.species.group",
                 "equals": "nadel"
@@ -651,6 +692,7 @@
               "type": "hazard",
               "label": "Totholz",
               "info": "Abgestorbene Äste können beim Klettern oder durch Erschütterung (Fällung, Seilarbeit) herabfallen. Bei viel Totholz: Kletterweg und Anschlagpunkt besonders sorgfältig wählen.",
+              "example": "Trockene Äste ohne Knospen über dem Kletterweg zuerst entfernen oder umgehen.",
               "measures": [
                 "Totholz vor Beginn der übrigen Arbeiten entfernt",
                 "Starkes Totholz abgeseilt",
@@ -661,6 +703,8 @@
               "id": "tree.crown.defects",
               "type": "hazard",
               "label": "Risse, Wülste oder andere Defekte in der Krone",
+              "info": "Längsrisse in Ästen, Wülste an Astansätzen oder Verbindungen, die sichtbar unter Spannung stehen.",
+              "why": "Solche Stellen können unter dem Gewicht des Kletterers oder beim Abseilen nachgeben.",
               "measures": [
                 "Defekte Äste nicht als Anschlag/Abstützung",
                 "Betroffene Äste zuerst entlastet",
@@ -672,6 +716,8 @@
               "type": "hazard",
               "label": "Druckzwiesel",
               "info": "Eine V-förmige Gabelung mit eingewachsener Rinde. Die Verbindung ist schwach und kann aufreißen, besonders bei Belastung durch Seile oder Kletterer.",
+              "why": "Wird ein Stämmling beim Klettern oder Abseilen belastet, kann der Zwiesel aufreißen.",
+              "example": "Typisch bei Linde, Ahorn oder Rosskastanie mit zwei steil nach oben wachsenden Stämmlingen.",
               "measures": [
                 "Kein Anschlag im Zwiesel",
                 "Zwiesel vor dem Schnitt gesichert (Gurt/Kronensicherung)",
@@ -682,6 +728,8 @@
               "id": "tree.crown.breakouts",
               "type": "hazard",
               "label": "Ausbrüche oder abgebrochene Äste",
+              "info": "Frische oder alte Bruchstellen in der Krone.",
+              "why": "Sie zeigen, dass dort schon Teile versagt haben. Benachbarte Äste können ähnlich schwach sein.",
               "measures": [
                 "Bruchstellen und lose Teile zuerst entfernt",
                 "Anschlag nicht an beschädigten Ästen",
@@ -736,6 +784,8 @@
               "id": "tree.crown.decay",
               "type": "hazard",
               "label": "Faulstellen in der Krone",
+              "info": "Höhlungen, Spechtlöcher oder weiches Holz an Ästen und Zwieseln.",
+              "why": "Dort kann ein Ast unter Last brechen.",
               "measures": [
                 "Faule Äste nicht belasten",
                 "Anschlag in gesundem Holz",
@@ -746,6 +796,8 @@
               "id": "tree.crown.fungi",
               "type": "hazard",
               "label": "Pilzfruchtkörper in der Krone",
+              "info": "Pilze an Ästen zeigen Fäule im Holz.",
+              "why": "Solche Äste nicht als Anschlagpunkt oder zum Abseilen nutzen.",
               "measures": [
                 "Betroffene Äste nicht belasten",
                 "Hubarbeitsbühne statt Klettern",
@@ -755,9 +807,9 @@
             {
               "id": "tree.crown.protectedSpecies",
               "type": "hazard",
-              "proposal": true,
               "label": "Geschützte Tiere (Vogelnest, Fledermausquartier, Höhlen)",
               "info": "Besetzte Nester und Quartiere sind geschützt (Bundesnaturschutzgesetz). Gegebenenfalls ist eine Abstimmung mit der Naturschutzbehörde nötig.",
+              "proposal": true,
               "measures": [
                 "Arbeiten im Bereich verschoben",
                 "Artenschutz-Fachperson hinzugezogen",
@@ -767,13 +819,15 @@
             {
               "id": "tree.crown.anchorOk",
               "type": "checkpoint",
-              "proposal": true,
               "label": "Anschlagpunkt ausreichend tragfähig",
+              "info": "Der Anschlagpunkt muss gesund, ausreichend stark und frei von Defekten sein. Im Zweifel einen anderen Punkt, einen Nachbarbaum oder die Hubarbeitsbühne wählen.",
+              "why": "Bricht der Anschlagpunkt, stürzt der Kletterer ab.",
+              "example": "Nicht am Druckzwiesel, an Totholz oder an einem Ast mit Pilzbefall anschlagen.",
+              "proposal": true,
               "visibleIf": {
                 "field": "job.types",
                 "includes": "rope_access"
               },
-              "info": "Der Anschlagpunkt muss gesund, ausreichend stark und frei von Defekten sein. Im Zweifel einen anderen Punkt, einen Nachbarbaum oder die Hubarbeitsbühne wählen.",
               "measures": [
                 "Anderen Anschlagpunkt gewählt",
                 "Anschlagpunkt im Nachbarbaum",
@@ -785,7 +839,8 @@
           "gate": {
             "id": "tree.crown.gate",
             "label": "Gibt es Auffälligkeiten in der Krone?",
-            "info": "Totholz, Defekte, Druckzwiesel, Ausbrüche, Hänger, Insektennester, alte Kronensicherung, Kappung, Faulstellen, Pilze, geschützte Tiere. Bei „Ja“ werden die einzelnen Merkmale abgefragt."
+            "info": "Totholz, Defekte, Druckzwiesel, Ausbrüche, Hänger, Insektennester, alte Kronensicherung, Kappung, Faulstellen, Pilze, geschützte Tiere. Bei „Ja“ werden die einzelnen Merkmale abgefragt.",
+            "why": "In der Krone wird geklettert, angeschlagen und geschnitten. Schwachstellen dort sind direkt gefährlich."
           }
         },
         {
@@ -796,8 +851,9 @@
               "id": "tree.crown.balance",
               "type": "single",
               "label": "Gewichtsverteilung der Krone",
-              "required": true,
               "info": "Bei einseitiger Krone zieht der Baum beim Fällen zur schweren Seite. Bei Pflegearbeiten verlagert sich das Gewicht beim Entnehmen von Ästen.",
+              "example": "Krone hängt über die Garage: Der Baum zieht beim Fällen zur Garage – Seilzug oder stückweise Abtragung einplanen.",
+              "required": true,
               "options": [
                 {
                   "value": "even",
@@ -813,6 +869,8 @@
               "id": "tree.result",
               "type": "single",
               "label": "Ist der Baum für die geplanten Arbeiten sicher?",
+              "info": "Dein Gesamturteil: Kann an diesem Baum so gearbeitet werden, wie geplant?",
+              "why": "Bei „Nein“ oder „Eingehende Untersuchung“ darf nicht wie geplant gearbeitet werden, z. B. Hubarbeitsbühne statt Klettern oder Gutachten abwarten.",
               "required": true,
               "options": [
                 {
@@ -852,12 +910,14 @@
             {
               "id": "tree.remark",
               "type": "text",
-              "multiline": true,
-              "label": "Bemerkung"
+              "label": "Bemerkung",
+              "info": "Alles, was für diesen Baum sonst wichtig ist.",
+              "multiline": true
             }
           ]
         }
-      ]
+      ],
+      "intro": "Schau dir den Baum von unten nach oben an: Umfeld, Stammfuß und Stamm, dann die Krone. Ist ein Bereich unauffällig, reicht dafür ein Tipp."
     },
     {
       "id": "workplace",
@@ -871,9 +931,11 @@
             {
               "id": "site.weatherOk",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "Die Witterung ist für die Arbeiten geeignet",
               "info": "Kein starker oder böiger Wind, kein Gewitter, keine Vereisung. Nasse oder vereiste Rinde verringert die Griffigkeit. Bei Gewitter sofort aus dem Baum.",
+              "why": "Wind bewegt Krone und Seile, Fallrichtungen werden unberechenbar. Nässe macht Rinde und Seile rutschig.",
+              "example": "Die App warnt bei Unwetterwarnungen und Böen ab etwa 50 km/h.",
+              "allowNotRelevant": false,
               "measures": [
                 "Arbeiten verschoben",
                 "Nur Bodenarbeiten",
@@ -887,6 +949,7 @@
               "type": "checkpoint",
               "label": "Der Fall- und Gefahrenbereich ist frei und abgesperrt",
               "info": "Bei Fällungen mindestens die doppelte Baumlänge. Bei Kronenarbeiten den Bereich, in den Äste fallen oder pendeln können. Keine unbeteiligten Personen, keine Fahrzeuge.",
+              "example": "Gehweg mit Flatterband und Schild sperren, ein Sicherungsposten an jedem Ende.",
               "measures": [
                 "Fallbereich abgesperrt (Flatterband/Absperrgitter)",
                 "Sicherungsposten aufgestellt",
@@ -897,11 +960,12 @@
               "id": "site.escapeRoute",
               "type": "checkpoint",
               "label": "Rückweichen sind angelegt und frei",
+              "info": "Schräg nach hinten, etwa 45° zur Fällrichtung, frei von Hindernissen und Stolperstellen, für alle am Baum Tätigen.",
+              "why": "Beim Fallen kann der Stamm zurückschlagen oder abrutschen. Direkt hinter dem Stamm ist der gefährlichste Ort.",
               "visibleIf": {
                 "field": "work.types",
                 "includesAny": ["felling", "felling_rigging", "felling_crane"]
               },
-              "info": "Schräg nach hinten, etwa 45° zur Fällrichtung, frei von Hindernissen und Stolperstellen, für alle am Baum Tätigen.",
               "measures": [
                 "Rückweichen freigeschnitten",
                 "Stolperstellen entfernt",
@@ -913,6 +977,7 @@
               "type": "checkpoint",
               "label": "Ruf- und Sichtverbindung oder Funk ist zwischen allen möglich",
               "info": "Zwischen Kletterer bzw. Bühnenbediener, Bodenperson und Sicherungsposten – auch bei laufender Motorsäge oder laufendem Hacker. Wenn nicht: Funk einsetzen oder Sicherungsposten so stellen, dass Sichtkontakt besteht.",
+              "why": "Ohne Verständigung merkt niemand rechtzeitig, wenn jemand den Gefahrenbereich betritt oder Hilfe braucht.",
               "measures": [
                 "Funkgeräte eingesetzt",
                 "Sicherungsposten mit Sichtkontakt aufgestellt",
@@ -930,6 +995,7 @@
               "type": "hazard",
               "label": "Stromleitungen in der Nähe",
               "info": "Schutzabstände für Nicht-Elektrofachkräfte: bis 1 kV 1 m, bis 110 kV 3 m, bis 220 kV 4 m, bis 380 kV 5 m. Das Ausschwingen von Ästen und Seilen ist mitzurechnen. Kann der Abstand nicht sicher eingehalten werden, muss der Netzbetreiber freischalten.",
+              "why": "Strom kann über Äste, Seile oder nasses Holz überspringen – lebensgefährlich, auch ohne direkte Berührung.",
               "measures": [
                 "Netzbetreiber schaltet frei",
                 "Schutzabstand eingehalten, Seilführung weg von der Leitung",
@@ -942,6 +1008,7 @@
               "type": "hazard",
               "label": "Verkehrssicherung notwendig",
               "info": "Bei Arbeiten an Straßen, Geh- oder Radwegen. Gegebenenfalls ist eine verkehrsrechtliche Anordnung nötig, außerdem Absperrung, Beschilderung und Sicherungsposten.",
+              "example": "Halbseitige Sperrung mit Absperrschranken und Schild „Baumarbeiten“, Sicherungsposten am Gehweg.",
               "measures": [
                 "Verkehrsrechtliche Anordnung liegt vor",
                 "Absperrung nach RSA aufgebaut",
@@ -954,6 +1021,7 @@
               "type": "hazard",
               "label": "Abseilen von Ästen oder Stammteilen erforderlich",
               "info": "Wenn Teile nicht frei fallen dürfen, z. B. wegen Gebäuden, Leitungen oder Pflanzungen. Dann sind Abseilausrüstung und eine eingeteilte Bodenperson nötig.",
+              "example": "Ast über dem Wintergarten: am Abseilseil über eine Umlenkrolle ablassen.",
               "measures": [
                 "Abseiltechnik und Lasten vorab festgelegt",
                 "Abseilpunkt geprüft",
@@ -964,8 +1032,10 @@
             {
               "id": "site.propertyInDropZone",
               "type": "hazard",
-              "proposal": true,
               "label": "Gebäude, Sachwerte oder Verkehrswege im Fallbereich",
+              "info": "Häuser, Zäune, Autos, Gewächshäuser, Straßen oder Wege, auf die Holz fallen könnte.",
+              "why": "Herabfallende Teile können Schäden verursachen oder Personen treffen, die dort unterwegs sind.",
+              "proposal": true,
               "measures": [
                 "Teile abgeseilt statt fallen gelassen",
                 "Gebäude/Fahrzeuge geschützt oder entfernt",
@@ -976,8 +1046,10 @@
             {
               "id": "site.undergroundUtilities",
               "type": "hazard",
-              "proposal": true,
               "label": "Unterirdische Leitungen (bei Wurzel- oder Stubbenarbeiten)",
+              "info": "Gas-, Wasser-, Strom- oder Telefonleitungen im Boden. Nur wichtig, wenn gegraben, gefräst oder der Stubben gezogen wird.",
+              "example": "Vorher Leitungsauskunft bei den Netzbetreibern einholen.",
+              "proposal": true,
               "measures": [
                 "Leitungspläne eingeholt",
                 "Ortung vor Beginn",
@@ -987,14 +1059,17 @@
             {
               "id": "site.otherHazards",
               "type": "text",
-              "multiline": true,
-              "label": "Sonstige Gefahren am Einsatzort"
+              "label": "Sonstige Gefahren am Einsatzort",
+              "info": "Alles, was oben nicht abgefragt wurde.",
+              "example": "Steiler Hang, Gewässer, Bienenstock, Spielplatz in Betrieb.",
+              "multiline": true
             }
           ],
           "gate": {
             "id": "site.hazards.gate",
             "label": "Gibt es besondere Gefahren am Einsatzort?",
-            "info": "Stromleitungen, Straßenverkehr, Abseilen nötig, Gebäude oder Sachwerte im Fallbereich, unterirdische Leitungen. Bei „Ja“ werden die einzelnen Gefahren abgefragt."
+            "info": "Stromleitungen, Straßenverkehr, Abseilen nötig, Gebäude oder Sachwerte im Fallbereich, unterirdische Leitungen. Bei „Ja“ werden die einzelnen Gefahren abgefragt.",
+            "why": "Strom, Verkehr und Gebäude im Fallbereich verlangen besondere Maßnahmen, bevor die Arbeit beginnt."
           }
         },
         {
@@ -1004,9 +1079,10 @@
             {
               "id": "nature.wildlifeChecked",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "Bäume auf Nester, Höhlen und Fledermausquartiere abgesucht",
               "info": "§ 44 BNatSchG: Fortpflanzungs- und Ruhestätten geschützter Arten dürfen das ganze Jahr nicht beschädigt werden. Achte auf besetzte Nester, Spechthöhlen, Rindentaschen, Kot- und Fraßspuren. Bei einem Fund die Arbeiten in dem Bereich stoppen und mit der Unteren Naturschutzbehörde klären.",
+              "example": "Spechthöhle mit frischen Spänen am Stammfuß: Höhle vor dem Fällen prüfen lassen.",
+              "allowNotRelevant": false,
               "measures": [
                 "Arbeiten im Bereich verschoben",
                 "Fachperson für Artenschutz hinzugezogen",
@@ -1017,9 +1093,10 @@
             {
               "id": "nature.closedSeason",
               "type": "single",
-              "required": true,
               "label": "Schonzeit (1. März – 30. September): Warum ist die Fällung oder der starke Rückschnitt zulässig?",
               "info": "§ 39 Abs. 5 BNatSchG: Vom 1. März bis 30. September ist es verboten, Bäume außerhalb des Waldes, von Kurzumtriebsplantagen oder gärtnerisch genutzten Grundflächen abzuschneiden oder auf den Stock zu setzen. Erlaubt bleiben schonende Form- und Pflegeschnitte, nicht aufschiebbare Maßnahmen der Verkehrssicherung sowie behördlich angeordnete oder genehmigte Maßnahmen. Im Zweifel die Untere Naturschutzbehörde fragen.",
+              "example": "Pflegeschnitt im Juni: erlaubt. Fällung eines gesunden Straßenbaums im Mai: nur mit Genehmigung.",
+              "required": true,
               "visibleIf": {
                 "all": [
                   {
@@ -1081,9 +1158,10 @@
             {
               "id": "nature.treeProtection",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "Baumschutzsatzung geprüft – Fällgenehmigung liegt vor oder ist nicht nötig",
               "info": "Viele Städte und Gemeinden schützen Bäume ab einem bestimmten Stammumfang (oft 60–80 cm in 1 m Höhe) mit einer Baumschutzsatzung. Ohne nötige Genehmigung drohen Bußgelder – für den Auftraggeber und oft auch für den ausführenden Betrieb.",
+              "example": "Im Internet nach „Baumschutzsatzung“ und dem Ortsnamen suchen oder bei der Gemeinde nachfragen.",
+              "allowNotRelevant": false,
               "visibleIf": {
                 "field": "work.types",
                 "includesAny": ["felling", "felling_rigging", "felling_crane"]
@@ -1103,9 +1181,9 @@
             {
               "id": "equip.ppeAvailable",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "Betriebssichere persönliche Schutzausrüstung (PSA) für alle vorhanden",
               "info": "Helm mit Gesichts- und Gehörschutz, Schnittschutzhose, Sicherheitsschuhe mit Schnittschutz, Handschuhe, Warnkleidung bei Verkehr.",
+              "allowNotRelevant": false,
               "measures": [
                 "Fehlende PSA nachbeschafft",
                 "Arbeiten erst nach Vervollständigung der PSA",
@@ -1115,20 +1193,22 @@
             {
               "id": "equip.ppeChecked",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "PSA vor Benutzung auf Schäden geprüft",
               "info": "Sichtprüfung vor jedem Einsatz. Zusätzlich muss die jährliche Prüfung durch eine sachkundige Person gültig sein, besonders bei PSA gegen Absturz.",
+              "example": "Gurt: Nähte und Schnallen; Seil: keine Schnitte oder harten Stellen; Helm: Risse und Herstelldatum.",
+              "allowNotRelevant": false,
               "measures": ["PSA vor Ort geprüft", "Beschädigte PSA ausgesondert und ersetzt"]
             },
             {
               "id": "equip.twoClimbingKits",
               "type": "checkpoint",
               "label": "Zwei vollständige Kletterausrüstungen vor Ort",
+              "info": "Die zweite Ausrüstung ist für die Rettung des Kletterers nötig.",
+              "why": "Hängt ein Kletterer verletzt im Seil, muss eine zweite Person sofort zu ihm hinaufklettern können.",
               "visibleIf": {
                 "field": "job.types",
                 "includes": "rope_access"
               },
-              "info": "Die zweite Ausrüstung ist für die Rettung des Kletterers nötig.",
               "measures": [
                 "Zweite Kletterausrüstung nachgeholt",
                 "Rettung mit Hubarbeitsbühne sichergestellt",
@@ -1139,6 +1219,7 @@
               "id": "equip.riggingChecked",
               "type": "checkpoint",
               "label": "Abseilausrüstung vorhanden und geprüft",
+              "info": "Seile, Umlenkrollen, Abseilbremse und Schlingen: vollständig und ohne Beschädigung.",
               "visibleIf": {
                 "any": [
                   {
@@ -1161,6 +1242,7 @@
               "type": "checkpoint",
               "label": "Erforderliche Maschinen vorhanden und geprüft",
               "info": "Zum Beispiel Motorsäge, Hacker, Seilwinde, Hubarbeitsbühne. Täglicher Funktionscheck, Schutzeinrichtungen vollständig.",
+              "example": "Motorsäge: Kettenbremse, Kettenfangbolzen und Gashebelsperre funktionieren.",
               "measures": [
                 "Maschinen vor Ort geprüft",
                 "Defekte Maschine ausgetauscht",
@@ -1182,6 +1264,7 @@
               "id": "equip.barrierMaterial",
               "type": "checkpoint",
               "label": "Absperr- und Sicherungsmaterial vorhanden",
+              "info": "Flatterband, Absperrbaken, Warnschilder, bei Straßen auch Verkehrszeichen.",
               "measures": ["Absperrmaterial nachbeschafft", "Sicherungsposten statt Absperrung"]
             }
           ]
@@ -1193,8 +1276,9 @@
             {
               "id": "emergency.firstAidKit",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "Erste-Hilfe-Material vorhanden",
+              "info": "Verbandkasten griffbereit am Einsatzort – nicht nur im weit entfernten Fahrzeug.",
+              "allowNotRelevant": false,
               "measures": [
                 "Verbandkasten aus dem Fahrzeug bereitgelegt",
                 "Erste-Hilfe-Material nachbeschafft"
@@ -1203,9 +1287,10 @@
             {
               "id": "emergency.firstAider",
               "type": "checkpoint",
+              "label": "Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort",
+              "info": "Eine Person mit Erste-Hilfe-Ausbildung, deren letzte Schulung höchstens zwei Jahre zurückliegt.",
               "proposal": true,
               "allowNotRelevant": false,
-              "label": "Mindestens eine ausgebildete Ersthelferin / ein Ersthelfer vor Ort",
               "measures": ["Ersthelfer/in hinzugezogen", "Arbeiten erst mit Ersthelfer/in vor Ort"]
             },
             {
@@ -1222,19 +1307,21 @@
               "id": "emergency.rescueRope",
               "type": "checkpoint",
               "label": "Rettungsseil vorhanden",
+              "info": "Mindestens so lang, dass vom höchsten Arbeitspunkt bis zum Boden abgeseilt werden kann.",
+              "why": "Eine verletzte Person muss vom höchsten Arbeitspunkt bis ganz nach unten gebracht werden können.",
               "visibleIf": {
                 "field": "job.types",
                 "includes": "rope_access"
               },
-              "info": "Mindestens so lang, dass vom höchsten Arbeitspunkt bis zum Boden abgeseilt werden kann.",
               "measures": ["Rettungsseil nachgeholt", "Klettern erst mit Rettungsseil vor Ort"]
             },
             {
               "id": "emergency.planBriefed",
               "type": "checkpoint",
-              "allowNotRelevant": false,
               "label": "Notfallablauf besprochen",
               "info": "Wer rettet? Wer setzt den Notruf ab (112)? Wo ist der Treffpunkt für den Rettungsdienst? Eine Person mit Gurtverletzung muss schnell aus dem Seil.",
+              "why": "Bewusstlos im Gurt zu hängen kann schon nach wenigen Minuten lebensbedrohlich werden (Hängetrauma).",
+              "allowNotRelevant": false,
               "measures": [
                 "Notfallablauf vor Beginn besprochen",
                 "Rettungsperson und Notruf-Verantwortliche/r benannt"
@@ -1243,12 +1330,14 @@
             {
               "id": "equip.notes",
               "type": "text",
-              "multiline": true,
-              "label": "Besonderheiten"
+              "label": "Besonderheiten",
+              "info": "Was sonst zur Ausrüstung oder zum Notfall wichtig ist.",
+              "multiline": true
             }
           ]
         }
-      ]
+      ],
+      "intro": "Jetzt der Platz rund um den Baum: Wetter, Fallbereich, Gefahren in der Umgebung, Naturschutz und eure Ausrüstung."
     }
   ]
 }

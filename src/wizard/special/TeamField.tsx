@@ -52,7 +52,13 @@ export function TeamField({ item }: { item: SpecialItem }) {
   return (
     <div className="space-y-4">
       <ItemCard>
-        <ItemLabel label={item.label} info={item.info} required={item.required} />
+        <ItemLabel
+          label={item.label}
+          info={item.info}
+          why={item.why}
+          example={item.example}
+          required={item.required}
+        />
         {team.length === 0 && (
           <p className="text-stone-600 dark:text-stone-400">Noch niemand eingetragen.</p>
         )}

@@ -828,3 +828,11 @@ Info: § 39 Abs. 5 BNatSchG (Wortlaut sinngemäß, siehe Infotext in der App). �
 ## Fristen
 
 Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 60 Tagen ablaufende Nachweise (z. B. SKT) und fällige PSA-Prüfungen aller aktiven Personen. Auf der Startseite erscheint ein Hinweis, wenn etwas überfällig oder in den nächsten 30 Tagen fällig ist.
+
+## Erklärungen an jeder Frage („?“)
+
+- Das „?“ an einer Frage zeigt bis zu drei Teile: **Worum geht es?** (`info`), **Warum ist das wichtig?** (`why`) und **Beispiel** (`example`). Alle drei sind Felder in der Formular-Definition und können ohne Code geändert werden.
+- Jeder Schritt beginnt mit einem kurzen Einleitungssatz (`intro`).
+- **Fachbegriffe** in Fragen, Erklärungen und Einleitungen sind gepunktet unterstrichen. Antippen öffnet eine Kurzerklärung mit „Siehe auch“. Die Begriffe stehen in `src/help/glossary.ts` und gesammelt unter **Hilfe → Begriffe A–Z** (mit Suche).
+- Ein Begriff wird je Text nur einmal markiert; ist die ganze Frage nur der Begriff selbst (z. B. „Druckzwiesel“), erklärt das „?“ ihn.
+- Bitte prüfen: Glossartexte und die neuen Beispiele, besonders zu SKT, Schonzeit, Ersthelfer (Auffrischung alle 2 Jahre) und Baumhöhe schätzen.

@@ -26,7 +26,13 @@ export function CheckpointField({ item, answer, noteLabel, onChange }: Props<Che
   ]
   return (
     <ItemCard tone={value === 'no' ? 'bad' : undefined}>
-      <ItemLabel label={item.label} info={item.info} proposal={item.proposal} />
+      <ItemLabel
+        label={item.label}
+        info={item.info}
+        why={item.why}
+        example={item.example}
+        proposal={item.proposal}
+      />
       <Segmented<V>
         label={item.label}
         options={options}
@@ -60,7 +66,13 @@ export function HazardField({ item, answer, noteLabel, onChange }: Props<HazardI
   const value = answer?.value as V | undefined
   return (
     <ItemCard tone={value === 'present' ? 'bad' : undefined}>
-      <ItemLabel label={item.label} info={item.info} proposal={item.proposal} />
+      <ItemLabel
+        label={item.label}
+        info={item.info}
+        why={item.why}
+        example={item.example}
+        proposal={item.proposal}
+      />
       <Segmented<V>
         label={item.label}
         options={[

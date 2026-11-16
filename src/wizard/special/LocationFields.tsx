@@ -60,7 +60,7 @@ export function GpsField({ item }: { item: SpecialItem }) {
 
   return (
     <ItemCard>
-      <ItemLabel label={item.label} info={item.info} />
+      <ItemLabel label={item.label} info={item.info} why={item.why} example={item.example} />
       {capturing ? (
         <div className="space-y-3" role="status" aria-live="polite">
           <p className="text-lg font-semibold">

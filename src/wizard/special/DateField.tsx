@@ -15,6 +15,8 @@ export function DateField({ item }: { item: SpecialItem }) {
         htmlFor={id}
         label={item.label}
         info={item.info}
+        why={item.why}
+        example={item.example}
         required={item.required}
       />
       <input

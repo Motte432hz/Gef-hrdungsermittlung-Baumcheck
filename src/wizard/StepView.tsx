@@ -10,6 +10,7 @@ import { Button } from '../components/Button'
 import { Card } from '../components/Card'
 import { EmergencyCard } from './special/EmergencyCard'
 import { TreeStepView } from './trees/TreeStepView'
+import { StepIntro } from './StepIntro'
 
 export function StepView({ step }: { step: FormStep }) {
   const { assessment } = useWizard()
@@ -39,7 +40,7 @@ export function StepView({ step }: { step: FormStep }) {
 
   return (
     <div className="space-y-6">
-      {step.intro && <p className="text-stone-700 dark:text-stone-300">{step.intro}</p>}
+      {step.intro && <StepIntro text={step.intro} />}
       {prefilled.length > 0 && (
         <Card>
           <p className="mb-3">

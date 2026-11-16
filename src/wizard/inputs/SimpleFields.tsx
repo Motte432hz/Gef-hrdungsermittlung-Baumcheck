@@ -36,6 +36,8 @@ export function TextItemField({ item, answer, onChange }: Props<TextItem>) {
           htmlFor={id}
           label={item.label}
           info={item.info}
+          why={item.why}
+          example={item.example}
           required={item.required}
         />
         {item.multiline ? (
@@ -82,6 +84,8 @@ export function NumberItemField({ item, answer, onChange }: Props<NumberItem>) {
         htmlFor={id}
         label={item.label}
         info={item.info}
+        why={item.why}
+        example={item.example}
         required={item.required}
       />
       <div className="flex items-center gap-2">
@@ -117,6 +121,8 @@ export function TimeItemField({ item, answer, onChange }: Props<TimeItem>) {
         htmlFor={id}
         label={item.label}
         info={item.info}
+        why={item.why}
+        example={item.example}
         required={item.required}
       />
       <input

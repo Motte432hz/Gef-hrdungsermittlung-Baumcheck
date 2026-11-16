@@ -18,6 +18,8 @@ import { CustomerListPage } from '../pages/profiles/CustomerListPage'
 import { CustomerEditPage } from '../pages/profiles/CustomerEditPage'
 import { EquipmentPage } from '../pages/profiles/EquipmentPage'
 import { ProtocolPage } from '../pages/ProtocolPage'
+import { HelpPage } from '../pages/help/HelpPage'
+import { GlossaryPage } from '../pages/help/GlossaryPage'
 
 export const routes = [
   {
@@ -47,6 +49,8 @@ export const routes = [
           { path: 'profile/kunden/:id', element: <CustomerEditPage /> },
           { path: 'profile/ausruestung', element: <EquipmentPage /> },
           { path: 'einstellungen', element: <SettingsPage /> },
+          { path: 'hilfe', element: <HelpPage /> },
+          { path: 'hilfe/begriffe', element: <GlossaryPage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

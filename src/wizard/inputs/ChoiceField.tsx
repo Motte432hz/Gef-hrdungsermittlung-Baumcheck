@@ -46,6 +46,8 @@ export function ChoiceField({
           as="legend"
           label={item.label}
           info={item.info}
+          why={item.why}
+          example={item.example}
           required={item.required}
           proposal={item.proposal}
         />

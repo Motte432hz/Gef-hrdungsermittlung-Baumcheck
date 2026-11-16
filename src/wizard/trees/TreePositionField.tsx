@@ -46,7 +46,7 @@ export function TreePositionField({ item, treeId }: { item: SpecialItem; treeId:
 
   return (
     <ItemCard>
-      <ItemLabel label={item.label} info={item.info} />
+      <ItemLabel label={item.label} info={item.info} why={item.why} example={item.example} />
       {pos && (
         <p>
           <span data-testid="tree-position">{formatDecimal(pos)}</span>

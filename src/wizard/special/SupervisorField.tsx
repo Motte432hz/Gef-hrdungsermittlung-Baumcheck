@@ -45,6 +45,8 @@ export function SupervisorField({ item }: { item: SpecialItem }) {
         htmlFor={id}
         label={item.label}
         info={item.info}
+        why={item.why}
+        example={item.example}
         required={item.required}
       />
       <select

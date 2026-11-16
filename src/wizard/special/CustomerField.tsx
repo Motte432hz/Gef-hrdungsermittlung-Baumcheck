@@ -50,7 +50,14 @@ export function CustomerField({ item }: { item: SpecialItem }) {
 
   return (
     <ItemCard>
-      <ItemLabel as="label" htmlFor={customerId} label={item.label} info={item.info} />
+      <ItemLabel
+        as="label"
+        htmlFor={customerId}
+        label={item.label}
+        info={item.info}
+        why={item.why}
+        example={item.example}
+      />
       {customers && customers.length === 0 ? (
         <p className="text-stone-600 dark:text-stone-400">
           Noch keine Kunden gespeichert (optional).

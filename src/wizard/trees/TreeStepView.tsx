@@ -14,6 +14,7 @@ import { LastFindings, PreviousTrees } from './PreviousTrees'
 import type { Answer } from '../../domain/types'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
+import { StepIntro } from '../StepIntro'
 
 /** A per-tree step (basic data or assessment) for the tree selected via ?baum=. */
 export function TreeStepView({ step }: { step: FormStep }) {
@@ -25,6 +26,7 @@ export function TreeStepView({ step }: { step: FormStep }) {
   if (!tree) {
     return (
       <div className="space-y-4">
+        {step.intro && <StepIntro text={step.intro} />}
         <PreviousTrees />
         <Card>
           <p className="mb-3 text-stone-700 dark:text-stone-300">Noch kein Baum erfasst.</p>
@@ -72,6 +74,7 @@ export function TreeStepView({ step }: { step: FormStep }) {
     <div className="space-y-6">
       <TreeTabs stepId={step.id} currentTreeId={tree.id} />
       <h2 className="text-2xl font-bold">{treeLabel(tree)}</h2>
+      {step.intro && <StepIntro text={step.intro} />}
       {step.id === 'tree' && <PreviousTrees />}
       {step.id === 'treeAssessment' && <LastFindings tree={tree} />}
       {step.id === 'treeAssessment' && species && <SpeciesHazards species={species} compact />}

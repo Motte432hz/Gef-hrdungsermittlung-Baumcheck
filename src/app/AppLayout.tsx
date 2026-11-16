@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet } from 'react-router'
 import { navItems } from './nav'
 import { Icon } from '../components/Icon'
 import { OnlineBadge } from '../components/OnlineBadge'
@@ -55,7 +55,21 @@ export function AppLayout() {
             <div className="flex min-w-0 items-center gap-2 md:invisible">
               <BrandMark size="sm" onColor={branded} />
             </div>
-            <OnlineBadge />
+            <div className="flex items-center gap-2">
+              <OnlineBadge />
+              <Link
+                to="/hilfe"
+                aria-label="Hilfe"
+                title="Hilfe"
+                className={`flex size-12 items-center justify-center rounded-full border-2 text-xl font-bold ${
+                  branded
+                    ? 'border-white/60 text-white'
+                    : 'border-stone-300 text-brand-700 dark:border-stone-600 dark:text-brand-300'
+                }`}
+              >
+                ?
+              </Link>
+            </div>
           </div>
         </header>
 
