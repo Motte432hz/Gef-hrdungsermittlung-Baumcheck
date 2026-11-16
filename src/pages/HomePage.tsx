@@ -15,6 +15,8 @@ import { DueNotice } from './profiles/DueDatesPage'
 import { startAssessment } from '../wizard/start'
 import { useCloudRights } from '../cloud/useCloudRights'
 import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
+import { issuePath } from '../wizard/nextIssue'
+import { SUMMARY_STEP_ID, wizardSteps } from '../wizard/steps'
 import { SetupCards } from './home/SetupCards'
 import { PracticeBadge, PracticeList } from './home/PracticeList'
 
@@ -36,12 +38,14 @@ export function HomePage() {
     return Promise.all(
       sorted.map(async (a) => {
         const trees = await getTrees(db, a.id)
-        const issues = validateAssessment({
-          definition: getDefinition(a.formVersion),
-          assessment: a,
-          trees,
-        })
+        const definition = getDefinition(a.formVersion)
+        const issues = validateAssessment({ definition, assessment: a, trees })
+        // Continue where something is still missing, otherwise at the summary.
+        const next = issues.find((i) => i.level === 'blocking')
+        const steps = wizardSteps(definition)
         return {
+          resume: next ? issuePath(a.id, next) : `/einsatz/${a.id}/${SUMMARY_STEP_ID}`,
+          resumeStep: steps.find((x) => x.id === (next?.stepId ?? SUMMARY_STEP_ID))?.title,
           id: a.id,
           title: assessmentTitle(a, customers),
           date: formatDateDe(a.date),
@@ -52,6 +56,9 @@ export function HomePage() {
       }),
     )
   }, [org?.id])
+
+  const latest = drafts?.[0]
+  const others = drafts?.slice(1) ?? []
 
   const start = async () => {
     if (!org || starting) return
@@ -71,10 +78,20 @@ export function HomePage() {
       <PageTitle>Gefährdungsermittlung</PageTitle>
 
       <SetupCards place="welcome" />
-      <BackupReminder />
-      <DueNotice />
+
+      {latest && (
+        <ResumeCard
+          draft={latest}
+          onRemove={
+            rights.canDelete(latest, 'draft')
+              ? () => void remove(latest.id, latest.title)
+              : undefined
+          }
+        />
+      )}
 
       <Button
+        variant={latest ? 'secondary' : 'primary'}
         className="min-h-16 w-full text-lg"
         onClick={() => void start()}
         disabled={!org || starting}
@@ -82,18 +99,21 @@ export function HomePage() {
         + Neue Gefährdungsermittlung
       </Button>
 
+      <DueNotice />
+      <BackupReminder />
       <SetupCards place="checklist" />
 
-      <Card title="Entwürfe">
-        {drafts === undefined ? (
-          <p>Lädt …</p>
-        ) : drafts.length === 0 ? (
+      {drafts?.length === 0 && (
+        <Card title="Entwürfe">
           <p className="text-stone-600 dark:text-stone-400">Noch keine angefangenen Einsätze.</p>
-        ) : (
+        </Card>
+      )}
+      {others.length > 0 && (
+        <Card title="Weitere Entwürfe">
           <ul className="divide-y divide-stone-200 dark:divide-stone-800">
-            {drafts.map((d) => (
+            {others.map((d) => (
               <li key={d.id} className="flex items-center gap-2">
-                <Link to={`/einsatz/${d.id}/job`} className="min-h-16 min-w-0 flex-1 py-2">
+                <Link to={d.resume} className="min-h-16 min-w-0 flex-1 py-2">
                   <span className="block truncate font-semibold">
                     {d.practice && <PracticeBadge />}
                     {d.title}
@@ -115,12 +135,61 @@ export function HomePage() {
               </li>
             ))}
           </ul>
-        )}
-      </Card>
+        </Card>
+      )}
 
       <PracticeList />
 
       <InstallHint />
     </div>
+  )
+}
+
+interface DraftInfo {
+  id: string
+  title: string
+  date: string
+  open: number
+  practice: boolean
+  resume: string
+  resumeStep?: string
+}
+
+/** The most recent draft, prominently: continue where something is still missing. */
+function ResumeCard({ draft, onRemove }: { draft: DraftInfo; onRemove?: () => void }) {
+  return (
+    <section
+      aria-label="Weitermachen"
+      className="rounded-2xl border-2 border-brand-700 bg-white dark:border-brand-300 dark:bg-stone-900"
+    >
+      <div className="flex items-start gap-2">
+        <Link to={draft.resume} className="block min-w-0 flex-1 p-4">
+          <span className="block text-sm font-semibold text-brand-700 dark:text-brand-300">
+            Weitermachen
+          </span>
+          <span className="block truncate text-lg font-bold">
+            {draft.practice && <PracticeBadge />}
+            {draft.title}
+          </span>
+          <span className="block text-stone-600 dark:text-stone-400">
+            {draft.date} ·{' '}
+            {draft.open === 0 ? 'bereit zum Abschluss' : `${draft.open} offene Punkte`}
+          </span>
+          <span className="mt-3 flex min-h-12 items-center justify-center rounded-xl bg-brand-700 px-4 font-semibold text-white">
+            {draft.open === 0 ? 'Prüfen & abschließen ›' : `Weiter bei „${draft.resumeStep}“ ›`}
+          </span>
+        </Link>
+        {onRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label={`Entwurf ${draft.title} löschen`}
+            className="m-2 flex size-12 shrink-0 items-center justify-center rounded-full text-xl text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800"
+          >
+            🗑
+          </button>
+        )}
+      </div>
+    </section>
   )
 }

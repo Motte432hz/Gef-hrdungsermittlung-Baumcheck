@@ -15,6 +15,8 @@ import type { Answer } from '../../domain/types'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
 import { StepIntro } from '../StepIntro'
+import { OneTimeTip } from '../../help/OneTimeTip'
+import { stepTips } from '../../help/tips'
 
 /** A per-tree step (basic data or assessment) for the tree selected via ?baum=. */
 export function TreeStepView({ step }: { step: FormStep }) {
@@ -75,6 +77,7 @@ export function TreeStepView({ step }: { step: FormStep }) {
       <TreeTabs stepId={step.id} currentTreeId={tree.id} />
       <h2 className="text-2xl font-bold">{treeLabel(tree)}</h2>
       {step.intro && <StepIntro text={step.intro} />}
+      {stepTips[step.id] && <OneTimeTip {...stepTips[step.id]!} />}
       {step.id === 'tree' && <PreviousTrees />}
       {step.id === 'treeAssessment' && <LastFindings tree={tree} />}
       {step.id === 'treeAssessment' && species && <SpeciesHazards species={species} compact />}

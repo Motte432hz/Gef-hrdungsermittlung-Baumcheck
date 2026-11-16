@@ -15,6 +15,7 @@ import { validateAssessment } from '../form/validation'
 import type { Assessment, Tree } from '../domain/types'
 import { WizardContext, type WizardContextValue } from './WizardContext'
 import { stepState, SUMMARY_STEP_ID, wizardSteps, type StepState, type WizardStep } from './steps'
+import { NextOpenBar } from './NextOpenBar'
 import { StepView } from './StepView'
 import { SummaryStep } from './SummaryStep'
 import { OnlineBadge } from '../components/OnlineBadge'
@@ -259,7 +260,7 @@ function Wizard({
             )}
           </header>
 
-          <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-32">
+          <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-44">
             {saveError && (
               <div
                 role="alert"
@@ -281,6 +282,19 @@ function Wizard({
             aria-label="Schritte"
             className="pb-safe fixed inset-x-0 bottom-0 z-10 border-t border-stone-200 bg-white md:left-72 dark:border-stone-800 dark:bg-stone-900"
           >
+            <div className="mx-auto max-w-3xl">
+              <NextOpenBar
+                assessmentId={assessment.id}
+                issues={issues}
+                stepIds={steps.map((s) => s.id)}
+                treeIds={[...trees].sort((a, b) => a.index - b.index).map((t) => t.id)}
+                current={{
+                  stepId: step.id,
+                  treeId:
+                    step.formStep?.repeat === 'tree' ? (treeParam ?? trees[0]?.id) : undefined,
+                }}
+              />
+            </div>
             <div className="mx-auto flex max-w-3xl gap-3 p-3">
               <button
                 type="button"

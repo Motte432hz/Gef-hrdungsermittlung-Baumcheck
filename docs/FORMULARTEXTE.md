@@ -850,3 +850,9 @@ Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 
 - **Einrichtungs-Assistent** (`/einrichtung`), 6 Schritte, alles wird sofort gespeichert, jeder Schritt überspringbar („Später weiter“): Firma (Name, Kürzel – wird aus dem Namen vorgeschlagen –, Kontakt, Adresse, Logo) → Du selbst (Name, Qualifikationen) → Team → Ausrüstung („Alles mit Ja vorbelegen“ oder einzeln) → Daten sichern (Firmen-Kartei oder Backup) → Fertig (Übungseinsatz starten).
 - **Checkliste** unter dem Start-Knopf: Firmendaten, Logo, Team, Standard-Ausrüstung, Daten sichern, Übungseinsatz – „x von 6 erledigt“; ausblendbar; verschwindet, wenn alles erledigt ist. Mitglieder einer Cloud-Firma sehen sie nicht.
 - **Übungseinsatz**: startet mit ein paar Beispielangaben, ist im Assistenten deutlich markiert, bekommt die Nummer „ÜBUNG“ statt einer echten (der Zähler bleibt unberührt), wird nie mit der Cloud abgeglichen, nie versendet, steht nicht im Archiv und lässt sich auch nach dem Abschluss löschen.
+
+## Flow im Einsatz
+
+- **Startseite „Was ist jetzt dran?“**: Der zuletzt bearbeitete Entwurf steht oben als „Weitermachen“ – der Knopf führt direkt zum ersten offenen Pflichtpunkt („Weiter bei „Standort & Rettung““) bzw. zu „Prüfen & abschließen“. Darunter „+ Neue Gefährdungsermittlung“, dann Hinweise (Fristen, Backup), die Einrichtungs-Checkliste und weitere Entwürfe.
+- **„Noch x offen – Nächster offener ›“** unten im Assistenten: springt zum nächsten offenen Pflichtpunkt, erst im aktuellen Schritt, dann in den folgenden, danach wieder von vorn. Sind alle erledigt: „✓ Alles Nötige ausgefüllt – Zum Abschluss ›“.
+- **Einmalige Tipps** (je Schritt einer, Texte in `src/help/tips.ts`): verschwinden nach „Verstanden“; unter Hilfe → „Tipps wieder anzeigen“ kommen sie zurück.

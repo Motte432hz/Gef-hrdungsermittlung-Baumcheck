@@ -2,6 +2,8 @@ import { Link } from 'react-router'
 import { PageTitle } from '../../components/Card'
 import { LinkList, ListLink } from '../../components/ListLink'
 import { getGuide, guideGroups } from '../../help/guides'
+import { resetTips } from '../../help/tips'
+import { useState } from 'react'
 
 /** Help centre: guides, glossary and the tour. */
 export function HelpPage() {
@@ -44,6 +46,8 @@ export function HelpPage() {
         Einsatz.
       </p>
 
+      <TipsReset />
+
       <h2 className="text-xl font-bold">Wie mache ich …?</h2>
       {guideGroups.map((group) => (
         <section key={group.title} className="space-y-2">
@@ -72,6 +76,24 @@ export function HelpPage() {
           </LinkList>
         </section>
       ))}
+    </div>
+  )
+}
+
+function TipsReset() {
+  const [done, setDone] = useState(false)
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        onClick={() => void resetTips().then(() => setDone(true))}
+        className="min-h-12 rounded-xl border-2 border-stone-300 px-4 font-semibold dark:border-stone-600"
+      >
+        💡 Tipps wieder anzeigen
+      </button>
+      <span role="status" className="font-semibold text-brand-700 dark:text-brand-300">
+        {done ? '✓ Die Tipps erscheinen wieder im Einsatz.' : ''}
+      </span>
     </div>
   )
 }

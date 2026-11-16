@@ -4,6 +4,8 @@ import { canComplete, type Issue, type IssueLevel } from '../form/validation'
 import { useWizard } from './WizardContext'
 import { wizardSteps } from './steps'
 import { itemAnchor } from './anchors'
+import { OneTimeTip } from '../help/OneTimeTip'
+import { stepTips } from '../help/tips'
 import { Card } from '../components/Card'
 import { Notice } from './inputs/Notice'
 import { db } from '../db/db'
@@ -102,6 +104,7 @@ export function SummaryStep() {
 
   return (
     <div className="space-y-6">
+      <OneTimeTip {...stepTips.summary!} />
       {/* 1. Open points */}
       {!ready && (
         <p className="text-stone-700 dark:text-stone-300">

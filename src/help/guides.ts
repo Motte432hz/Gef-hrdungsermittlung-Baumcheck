@@ -32,6 +32,8 @@ export const guides: Guide[] = [
     ],
     tips: [
       'Oben im Assistenten öffnet „Schritt x von 7“ die Liste aller Schritte. Ein Haken zeigt, was fertig ist.',
+      'Unten zeigt „Noch x offen“, wie viele Pflichtpunkte fehlen. „Nächster offener ›“ springt direkt zum nächsten – auch in andere Schritte.',
+      'Auf der Startseite geht es mit „Weitermachen“ genau dort weiter, wo noch etwas fehlt.',
       'Funktioniert komplett ohne Internet.',
     ],
     start: { label: 'Zur Startseite', to: '/' },

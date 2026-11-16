@@ -11,6 +11,8 @@ import { Card } from '../components/Card'
 import { EmergencyCard } from './special/EmergencyCard'
 import { TreeStepView } from './trees/TreeStepView'
 import { StepIntro } from './StepIntro'
+import { OneTimeTip } from '../help/OneTimeTip'
+import { stepTips } from '../help/tips'
 
 export function StepView({ step }: { step: FormStep }) {
   const { assessment } = useWizard()
@@ -41,6 +43,7 @@ export function StepView({ step }: { step: FormStep }) {
   return (
     <div className="space-y-6">
       {step.intro && <StepIntro text={step.intro} />}
+      {stepTips[step.id] && <OneTimeTip {...stepTips[step.id]!} />}
       {prefilled.length > 0 && (
         <Card>
           <p className="mb-3">
