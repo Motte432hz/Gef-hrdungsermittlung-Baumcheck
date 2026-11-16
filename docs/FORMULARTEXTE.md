@@ -843,3 +843,10 @@ Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 
 - **Hilfe-Center** (`/hilfe`): Rundgang, Begriffe A–Z und Anleitungen „Wie mache ich …?“ in vier Gruppen (Im Einsatz, Nach dem Einsatz, Einrichten, Sicherheit der Daten).
 - **Rundgang** (`/hilfe/rundgang`): 8 Bilder, jederzeit neu startbar. Beim Beenden merkt sich die App das (`tourSeen`) – für den Willkommens-Assistenten beim ersten Start.
 - Texte: `src/help/guides.ts` (Anleitungen, Hilfe je Seite und Schritt) und `src/help/tour.ts` (Rundgang).
+
+## Einrichtung und Übungsmodus
+
+- **Willkommen** (nur bei einer neuen Installation, über dem Start-Knopf): „Ich richte meine Firma ein“, „Ich wurde eingeladen“ (→ Firmen-Kartei/beitreten), „Erst einmal ausprobieren“ (Übungseinsatz), „Rundgang ansehen“, „Später“.
+- **Einrichtungs-Assistent** (`/einrichtung`), 6 Schritte, alles wird sofort gespeichert, jeder Schritt überspringbar („Später weiter“): Firma (Name, Kürzel – wird aus dem Namen vorgeschlagen –, Kontakt, Adresse, Logo) → Du selbst (Name, Qualifikationen) → Team → Ausrüstung („Alles mit Ja vorbelegen“ oder einzeln) → Daten sichern (Firmen-Kartei oder Backup) → Fertig (Übungseinsatz starten).
+- **Checkliste** unter dem Start-Knopf: Firmendaten, Logo, Team, Standard-Ausrüstung, Daten sichern, Übungseinsatz – „x von 6 erledigt“; ausblendbar; verschwindet, wenn alles erledigt ist. Mitglieder einer Cloud-Firma sehen sie nicht.
+- **Übungseinsatz**: startet mit ein paar Beispielangaben, ist im Assistenten deutlich markiert, bekommt die Nummer „ÜBUNG“ statt einer echten (der Zähler bleibt unberührt), wird nie mit der Cloud abgeglichen, nie versendet, steht nicht im Archiv und lässt sich auch nach dem Abschluss löschen.

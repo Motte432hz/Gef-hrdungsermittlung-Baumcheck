@@ -23,7 +23,7 @@ export function ArchivePage() {
       db.trees.where('organizationId').equals(org.id).toArray(),
     ])
     return all
-      .filter((a) => a.status !== 'draft')
+      .filter((a) => a.status !== 'draft' && !a.practice)
       .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
       .map((a) => ({
         id: a.id,

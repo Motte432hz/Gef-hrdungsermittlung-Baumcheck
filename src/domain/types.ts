@@ -216,6 +216,11 @@ export interface Assessment extends BaseRecord {
   /** SHA-256 of the final PDF file. */
   pdfHash?: string
   deviceInfo?: string
+  /**
+   * Practice run: gets no protocol number, is never synced, sent or archived and can be
+   * deleted even when completed.
+   */
+  practice?: boolean
 }
 
 export interface Tree extends BaseRecord {

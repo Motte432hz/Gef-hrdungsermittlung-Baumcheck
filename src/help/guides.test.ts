@@ -18,7 +18,8 @@ describe('help content', () => {
   })
 
   it('has help for every wizard step', () => {
-    for (const step of wizardSteps(currentDefinition)) expect(stepHelp[step.id], step.id).toBeDefined()
+    for (const step of wizardSteps(currentDefinition))
+      expect(stepHelp[step.id], step.id).toBeDefined()
   })
 
   it('finds the help for a page by its path', () => {

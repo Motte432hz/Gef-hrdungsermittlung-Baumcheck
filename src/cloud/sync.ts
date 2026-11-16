@@ -2,6 +2,7 @@ import type { Table } from 'dexie'
 import { markRemote, type BaumCheckDB, type SyncedTable } from '../db/db'
 import type { StoredFile } from '../domain/types'
 import { canonicalJson, sha256Hex } from '../lib/hash'
+import { practiceIds } from '../db/repo'
 
 /**
  * Sync between this device (IndexedDB, the working copy) and the company's cloud copy.
@@ -248,11 +249,20 @@ async function applyRows(
 }
 
 async function push(db: BaumCheckDB, orgId: string, remote: Remote, result: SyncResult) {
+  // Practice runs and everything belonging to them stay on this device.
+  const practice = await practiceIds(db)
+  const isPractice = (r: LocalRecord) => {
+    const x = r as { id: string; assessmentId?: string; entityId?: string }
+    return (
+      practice.has(x.id) || practice.has(x.assessmentId ?? '') || practice.has(x.entityId ?? '')
+    )
+  }
   for (const name of PUSH_ORDER) {
     const s = spec(name)
     const t = table(db, name)
-    const pending = (await t.where('syncState').equals('pending').toArray()).filter((r) =>
-      name === 'organizations' ? r.id === orgId : r.organizationId === orgId,
+    const pending = (await t.where('syncState').equals('pending').toArray()).filter(
+      (r) =>
+        (name === 'organizations' ? r.id === orgId : r.organizationId === orgId) && !isPractice(r),
     )
     for (let i = 0; i < pending.length; i += CHUNK) {
       const recs = pending.slice(i, i + CHUNK)

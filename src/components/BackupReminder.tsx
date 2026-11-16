@@ -8,7 +8,11 @@ export const BACKUP_REMINDER_DAYS = 7
 /** Reminds to back up when completed protocols exist and the last backup is old (or missing). */
 export function BackupReminder() {
   const state = useLiveQuery(async () => {
-    const completed = await db.assessments.where('status').anyOf('completed', 'sent').count()
+    const completed = await db.assessments
+      .where('status')
+      .anyOf('completed', 'sent')
+      .filter((a) => !a.practice)
+      .count()
     const last = (await db.meta.get(META_LAST_BACKUP))?.value as string | undefined
     const days = last ? Math.floor((Date.now() - Date.parse(last)) / 86_400_000) : undefined
     return { completed, days }

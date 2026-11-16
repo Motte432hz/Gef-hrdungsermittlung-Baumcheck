@@ -49,6 +49,13 @@ export function HelpPage() {
         <section key={group.title} className="space-y-2">
           <h3 className="font-semibold text-stone-600 dark:text-stone-400">{group.title}</h3>
           <LinkList>
+            {group.title === 'Einrichten' && (
+              <ListLink
+                to="/einrichtung"
+                title="Einrichtungs-Assistent"
+                meta="Firma, Team, Ausrüstung und Datensicherung Schritt für Schritt"
+              />
+            )}
             {group.guides.map((id) => {
               const g = getGuide(id)
               return (

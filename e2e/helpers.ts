@@ -60,15 +60,23 @@ async function addPerson(page: Page, name: string, role: string) {
  */
 export async function fillCompleteAssessment(
   page: Page,
-  opts: { newPeople?: string[]; profilePeople?: string[]; customer?: string } = {},
+  opts: {
+    newPeople?: string[]
+    profilePeople?: string[]
+    customer?: string
+    /** Start a practice run from the welcome card (new installation only). */
+    practice?: boolean
+  } = {},
 ) {
   const newPeople = opts.newPeople ?? ['Anna Ast', 'Bernd Borke']
   const profilePeople = opts.profilePeople ?? []
   await page.goto('/')
-  await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
+  if (opts.practice) await page.getByRole('button', { name: /Erst einmal ausprobieren/ }).click()
+  else await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
   await expect(page).toHaveURL(/\/job$/)
 
-  await check(page, 'Baumarbeiten (allgemein)')
+  // A practice run already has the job type.
+  if (!opts.practice) await check(page, 'Baumarbeiten (allgemein)')
   if (opts.customer)
     await page
       .getByRole('combobox', { name: 'Kunde / Objekt' })

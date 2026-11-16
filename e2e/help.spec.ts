@@ -43,7 +43,9 @@ test('help for the current page and step', async ({ page }) => {
   await sheet.getByRole('link', { name: 'Alle Hilfethemen' }).click()
   await expect(page).toHaveURL(/\/hilfe$/)
   await page.getByRole('link', { name: /Korrigieren|korrigieren/ }).click()
-  await expect(page.getByRole('heading', { name: 'Ein abgeschlossenes Protokoll korrigieren' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Ein abgeschlossenes Protokoll korrigieren' }),
+  ).toBeVisible()
 
   // In the wizard: help for the step, without leaving the protocol
   await page.goto('/')

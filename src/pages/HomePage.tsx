@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router'
 import { db } from '../db/db'
-import { deleteDraft, getTrees } from '../db/repo'
+import { deleteDraft, deletePractice, getTrees } from '../db/repo'
 import { listCustomers } from '../db/profiles'
 import { getDefinition } from '../form/definition'
 import { validateAssessment } from '../form/validation'
@@ -15,6 +15,8 @@ import { DueNotice } from './profiles/DueDatesPage'
 import { startAssessment } from '../wizard/start'
 import { useCloudRights } from '../cloud/useCloudRights'
 import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
+import { SetupCards } from './home/SetupCards'
+import { PracticeBadge, PracticeList } from './home/PracticeList'
 
 export function HomePage() {
   const org = useOrganization()
@@ -45,6 +47,7 @@ export function HomePage() {
           date: formatDateDe(a.date),
           open: issues.filter((i) => i.level === 'blocking').length,
           createdBy: a.createdBy,
+          practice: !!a.practice,
         }
       }),
     )
@@ -59,13 +62,15 @@ export function HomePage() {
 
   const remove = async (id: string, title: string) => {
     if (!window.confirm(`Entwurf „${title}“ wirklich löschen?`)) return
-    await deleteDraft(db, id)
+    const a = await db.assessments.get(id)
+    await (a?.practice ? deletePractice(db, id) : deleteDraft(db, id))
   }
 
   return (
     <div className="space-y-4">
       <PageTitle>Gefährdungsermittlung</PageTitle>
 
+      <SetupCards place="welcome" />
       <BackupReminder />
       <DueNotice />
 
@@ -77,6 +82,8 @@ export function HomePage() {
         + Neue Gefährdungsermittlung
       </Button>
 
+      <SetupCards place="checklist" />
+
       <Card title="Entwürfe">
         {drafts === undefined ? (
           <p>Lädt …</p>
@@ -87,7 +94,10 @@ export function HomePage() {
             {drafts.map((d) => (
               <li key={d.id} className="flex items-center gap-2">
                 <Link to={`/einsatz/${d.id}/job`} className="min-h-16 min-w-0 flex-1 py-2">
-                  <span className="block truncate font-semibold">{d.title}</span>
+                  <span className="block truncate font-semibold">
+                    {d.practice && <PracticeBadge />}
+                    {d.title}
+                  </span>
                   <span className="block text-sm text-stone-600 dark:text-stone-400">
                     {d.date} · {d.open === 0 ? 'bereit zum Abschluss' : `${d.open} offene Punkte`}
                   </span>
@@ -107,6 +117,8 @@ export function HomePage() {
           </ul>
         )}
       </Card>
+
+      <PracticeList />
 
       <InstallHint />
     </div>

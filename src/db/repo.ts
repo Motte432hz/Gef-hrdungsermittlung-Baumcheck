@@ -1,5 +1,5 @@
 import type { BaumCheckDB } from './db'
-import { LockedError } from './db'
+import { LockedError, markRemote } from './db'
 import type {
   Signature,
   Attachment,
@@ -90,7 +90,7 @@ export async function createAssessment(
   db: BaumCheckDB,
   organizationId: ID,
   formVersion: string,
-  init: Partial<Pick<Assessment, 'answers' | 'customerId' | 'siteId' | 'date'>> = {},
+  init: Partial<Pick<Assessment, 'answers' | 'customerId' | 'siteId' | 'date' | 'practice'>> = {},
 ): Promise<Assessment> {
   const assessment: Assessment = {
     ...baseRecord(organizationId),
@@ -102,6 +102,7 @@ export async function createAssessment(
     answers: init.answers ?? {},
     customerId: init.customerId,
     siteId: init.siteId,
+    ...(init.practice ? { practice: true } : {}),
   }
   await db.transaction('rw', db.assessments, db.auditLog, async () => {
     await db.assessments.add(assessment)
@@ -301,6 +302,7 @@ async function allocateProtocolNumber(
  */
 export async function peekProtocolNumber(db: BaumCheckDB, id: ID): Promise<string> {
   const a = await requireDraft(db, id)
+  if (a.practice) return PRACTICE_NUMBER
   const org = await db.organizations.get(a.organizationId)
   const deviceCode = await getDeviceCode(db)
   const prefix = org?.numberPrefix ?? 'BC'
@@ -342,12 +344,10 @@ export async function completeAssessment(
       const org = await db.organizations.get(a.organizationId)
       const deviceCode = await getDeviceCode(db)
       const year = Number(a.date.slice(0, 4))
-      const protocolNumber = await allocateProtocolNumber(
-        db,
-        org?.numberPrefix ?? 'BC',
-        year,
-        deviceCode,
-      )
+      // A practice run uses no number from the counter.
+      const protocolNumber = a.practice
+        ? PRACTICE_NUMBER
+        : await allocateProtocolNumber(db, org?.numberPrefix ?? 'BC', year, deviceCode)
       if (data.expectedNumber && data.expectedNumber !== protocolNumber)
         throw new NumberConflictError()
       const ts = data.completedAt ?? nowIso()
@@ -367,7 +367,7 @@ export async function completeAssessment(
           ...baseRecord(a.organizationId),
           assessmentId: id,
           kind: 'protocol_pdf',
-          fileName: `Gefaehrdungsermittlung_${protocolNumber}.pdf`,
+          fileName: `Gefaehrdungsermittlung_${a.practice ? 'Uebung' : protocolNumber}.pdf`,
           file: data.pdf,
           capturedAt: ts,
         })
@@ -447,6 +447,39 @@ export async function createNewVersion(db: BaumCheckDB, id: ID): Promise<Assessm
 }
 
 /** Deletes a draft with its trees, signatures and attachments. Completed protocols cannot be deleted. */
+/** Shown instead of a protocol number on practice runs. */
+export const PRACTICE_NUMBER = 'ÜBUNG'
+
+/**
+ * Removes a practice run with everything that belongs to it – also when completed.
+ * Practice runs never reach the cloud, so nothing is recorded for the sync.
+ */
+export async function deletePractice(db: BaumCheckDB, id: ID): Promise<void> {
+  await db.transaction(
+    'rw',
+    [db.assessments, db.trees, db.signatures, db.attachments, db.auditLog],
+    async (tx) => {
+      const a = await db.assessments.get(id)
+      if (!a?.practice) throw new Error('Not a practice run')
+      markRemote(tx)
+      const trees = await db.trees.where('assessmentId').equals(id).primaryKeys()
+      await db.trees.bulkDelete(trees)
+      await db.signatures.where('assessmentId').equals(id).delete()
+      await db.attachments.where('assessmentId').equals(id).delete()
+      await db.auditLog
+        .where('entityId')
+        .anyOf([id, ...trees])
+        .delete()
+      await db.assessments.delete(id)
+    },
+  )
+}
+
+/** Ids of practice runs; their records stay on this device. */
+export async function practiceIds(db: BaumCheckDB): Promise<Set<ID>> {
+  return new Set(await db.assessments.filter((a) => !!a.practice).primaryKeys())
+}
+
 export async function deleteDraft(db: BaumCheckDB, id: ID): Promise<void> {
   await db.transaction(
     'rw',

@@ -22,6 +22,7 @@ import { HelpPage } from '../pages/help/HelpPage'
 import { GlossaryPage } from '../pages/help/GlossaryPage'
 import { GuidePage } from '../pages/help/GuidePage'
 import { TourPage } from '../pages/help/TourPage'
+import { SetupPage } from '../pages/setup/SetupPage'
 
 export const routes = [
   {
@@ -29,6 +30,7 @@ export const routes = [
     children: [
       { path: '/einsatz/:id/:stepId?', element: <WizardPage /> },
       { path: '/hilfe/rundgang', element: <TourPage /> },
+      { path: '/einrichtung/:step?', element: <SetupPage /> },
       {
         path: '/',
         element: <AppLayout />,

@@ -132,7 +132,7 @@ export const guides: Guide[] = [
       '„Profile“ → „Firma“ öffnen.',
       'Logo hochladen. Die App schlägt passende Farben aus dem Logo vor.',
       'Firmenname, Adresse, Telefon und E-Mail eintragen – sie erscheinen im Kopf jedes PDFs.',
-      'Ein Kürzel für die Protokollnummern festlegen, z. B. „ZW“ → ZW-2026-001.',
+      'Ein Kürzel für die Protokollnummern festlegen, z. B. „ZW“ → ZW-2026-0001.',
       'Unter „Versand“ die E-Mail-Adressen eintragen, an die fertige Protokolle gehen.',
     ],
     tips: ['Alles wird automatisch gespeichert.'],

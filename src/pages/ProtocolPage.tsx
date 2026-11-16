@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate, useParams } from 'react-router'
 import { db } from '../db/db'
-import { createNewVersion, getProtocolPdf, markSent } from '../db/repo'
+import { createNewVersion, deletePractice, getProtocolPdf, markSent } from '../db/repo'
 import { listCustomers } from '../db/profiles'
 import { sha256Hex, shortHash } from '../lib/hash'
 import { downloadPdf, sharePdf } from '../lib/sharePdf'
@@ -72,7 +72,30 @@ export function ProtocolPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={`Protokoll ${a.protocolNumber}`} back="/archiv" backLabel="Archiv" />
+      {a.practice ? (
+        <PageHeader title="Übungseinsatz" back="/" backLabel="Start" />
+      ) : (
+        <PageHeader title={`Protokoll ${a.protocolNumber}`} back="/archiv" backLabel="Archiv" />
+      )}
+
+      {a.practice && (
+        <div className="space-y-3 rounded-2xl border-2 border-amber-500 bg-amber-50 p-4 text-amber-950 dark:bg-amber-950 dark:text-amber-50">
+          <p className="text-lg font-bold">Geschafft – das war ein Übungseinsatz.</p>
+          <p>
+            So sieht ein fertiges Protokoll aus. Die Übung hat keine Protokollnummer, kommt nicht
+            ins Archiv und wird nicht versendet. Schau dir das PDF an und lösche die Übung danach.
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              if (window.confirm('Übung löschen?'))
+                void deletePractice(db, a.id).then(() => navigate('/', { replace: true }))
+            }}
+          >
+            Übung löschen
+          </Button>
+        </div>
+      )}
 
       <Card>
         <p className="text-lg font-semibold">{title}</p>
@@ -108,8 +131,8 @@ export function ProtocolPage() {
               </Button>
             </div>
             {shareInfo && <p className="text-sm">{shareInfo}</p>}
-            <SendStatus assessment={a} />
-            {a.status !== 'sent' && (
+            {!a.practice && <SendStatus assessment={a} />}
+            {a.status !== 'sent' && !a.practice && (
               <Button variant="secondary" onClick={() => void markSent(db, a.id)}>
                 Als versendet markieren
               </Button>
@@ -120,7 +143,7 @@ export function ProtocolPage() {
         )}
       </Card>
 
-      <DocumentsCard assessmentId={a.id} />
+      {!a.practice && <DocumentsCard assessmentId={a.id} />}
 
       <Card title="Nachweis">
         <dl className="space-y-2 text-sm">
@@ -149,39 +172,43 @@ export function ProtocolPage() {
         </dl>
       </Card>
 
-      <Card title="Wiederkehrender Einsatz">
-        <p className="mb-3 text-stone-700 dark:text-stone-300">
-          Neuer Einsatz mit Kunde, Ort, Rettungsinfos, Team und Baum-Grunddaten aus diesem
-          Protokoll. Alle Prüfpunkte und Gefahren werden vor Ort neu beurteilt.
-        </p>
-        <Button
-          variant="secondary"
-          onClick={() =>
-            void createFromTemplate(db, a.id).then((d) => navigate(`/einsatz/${d.id}/job`))
-          }
-        >
-          Als Vorlage für neuen Einsatz
-        </Button>
-      </Card>
+      {!a.practice && (
+        <>
+          <Card title="Wiederkehrender Einsatz">
+            <p className="mb-3 text-stone-700 dark:text-stone-300">
+              Neuer Einsatz mit Kunde, Ort, Rettungsinfos, Team und Baum-Grunddaten aus diesem
+              Protokoll. Alle Prüfpunkte und Gefahren werden vor Ort neu beurteilt.
+            </p>
+            <Button
+              variant="secondary"
+              onClick={() =>
+                void createFromTemplate(db, a.id).then((d) => navigate(`/einsatz/${d.id}/job`))
+              }
+            >
+              Als Vorlage für neuen Einsatz
+            </Button>
+          </Card>
 
-      <Card title="Korrektur">
-        <p className="mb-3 text-stone-700 dark:text-stone-300">
-          Abgeschlossene Protokolle können nicht geändert werden. Für eine Korrektur wird eine neue
-          Version mit Verweis auf dieses Protokoll angelegt; alle unterschreiben erneut.
-        </p>
-        <Button variant="secondary" onClick={() => void correct()}>
-          Neue Version anlegen
-        </Button>
-        {a.previousVersionId && (
-          <p className="mt-3 text-sm">
-            Ersetzt{' '}
-            <Link to={`/protokoll/${a.previousVersionId}`} className="font-semibold underline">
-              die vorherige Version
-            </Link>
-            .
-          </p>
-        )}
-      </Card>
+          <Card title="Korrektur">
+            <p className="mb-3 text-stone-700 dark:text-stone-300">
+              Abgeschlossene Protokolle können nicht geändert werden. Für eine Korrektur wird eine
+              neue Version mit Verweis auf dieses Protokoll angelegt; alle unterschreiben erneut.
+            </p>
+            <Button variant="secondary" onClick={() => void correct()}>
+              Neue Version anlegen
+            </Button>
+            {a.previousVersionId && (
+              <p className="mt-3 text-sm">
+                Ersetzt{' '}
+                <Link to={`/protokoll/${a.previousVersionId}`} className="font-semibold underline">
+                  die vorherige Version
+                </Link>
+                .
+              </p>
+            )}
+          </Card>
+        </>
+      )}
     </div>
   )
 }

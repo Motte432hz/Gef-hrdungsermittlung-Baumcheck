@@ -268,6 +268,12 @@ function Wizard({
                 Die letzte Eingabe konnte nicht gespeichert werden. Bitte erneut versuchen.
               </div>
             )}
+            {assessment.practice && (
+              <p className="mb-4 rounded-xl border-l-4 border-amber-500 bg-amber-50 p-3 font-semibold text-amber-950 dark:bg-amber-950 dark:text-amber-50">
+                🎓 Übungseinsatz – bekommt keine Protokollnummer, kommt nicht ins Archiv und wird
+                nicht versendet. Probier alles in Ruhe aus.
+              </p>
+            )}
             {step.formStep ? <StepView key={step.id} step={step.formStep} /> : <SummaryStep />}
           </main>
 

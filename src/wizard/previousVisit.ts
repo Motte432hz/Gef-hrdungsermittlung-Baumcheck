@@ -35,6 +35,7 @@ export async function findPreviousVisit(
         a.id !== current.id &&
         a.organizationId === current.organizationId &&
         a.status !== 'draft' &&
+        !a.practice &&
         (a.siteId ?? '') === (current.siteId ?? ''),
     )
     .toArray()

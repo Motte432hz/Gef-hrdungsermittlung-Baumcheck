@@ -27,7 +27,7 @@ export async function queueSend(db: BaumCheckDB, assessmentId: string): Promise<
   const org = a && (await db.organizations.get(a.organizationId))
   if (!link || !a || a.organizationId !== link.organizationId || !org?.reportEmails.length)
     return false
-  if (a.status === 'sent') return false
+  if (a.status === 'sent' || a.practice) return false
   const entry: OutboxEntry = { assessmentId, queuedAt: new Date().toISOString(), attempts: 0 }
   await db.meta.put({ key: key(assessmentId), value: entry })
   return true
