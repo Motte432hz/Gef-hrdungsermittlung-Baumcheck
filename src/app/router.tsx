@@ -20,12 +20,15 @@ import { EquipmentPage } from '../pages/profiles/EquipmentPage'
 import { ProtocolPage } from '../pages/ProtocolPage'
 import { HelpPage } from '../pages/help/HelpPage'
 import { GlossaryPage } from '../pages/help/GlossaryPage'
+import { GuidePage } from '../pages/help/GuidePage'
+import { TourPage } from '../pages/help/TourPage'
 
 export const routes = [
   {
     element: <RootLayout />,
     children: [
       { path: '/einsatz/:id/:stepId?', element: <WizardPage /> },
+      { path: '/hilfe/rundgang', element: <TourPage /> },
       {
         path: '/',
         element: <AppLayout />,
@@ -51,6 +54,7 @@ export const routes = [
           { path: 'einstellungen', element: <SettingsPage /> },
           { path: 'hilfe', element: <HelpPage /> },
           { path: 'hilfe/begriffe', element: <GlossaryPage /> },
+          { path: 'hilfe/anleitung/:id', element: <GuidePage /> },
           { path: '*', element: <NotFoundPage /> },
         ],
       },

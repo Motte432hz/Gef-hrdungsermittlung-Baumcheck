@@ -836,3 +836,10 @@ Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 
 - **Fachbegriffe** in Fragen, Erklärungen und Einleitungen sind gepunktet unterstrichen. Antippen öffnet eine Kurzerklärung mit „Siehe auch“. Die Begriffe stehen in `src/help/glossary.ts` und gesammelt unter **Hilfe → Begriffe A–Z** (mit Suche).
 - Ein Begriff wird je Text nur einmal markiert; ist die ganze Frage nur der Begriff selbst (z. B. „Druckzwiesel“), erklärt das „?“ ihn.
 - Bitte prüfen: Glossartexte und die neuen Beispiele, besonders zu SKT, Schonzeit, Ersthelfer (Auffrischung alle 2 Jahre) und Baumhöhe schätzen.
+
+## Hilfe, die immer da ist
+
+- **„?“ oben rechts** auf jeder Seite und in jedem Schritt des Assistenten öffnet die Hilfe zu genau dieser Seite: kurzer Text, Tipps und passende Anleitungen zum Aufklappen. Im Assistenten führen keine Links aus dem Protokoll heraus.
+- **Hilfe-Center** (`/hilfe`): Rundgang, Begriffe A–Z und Anleitungen „Wie mache ich …?“ in vier Gruppen (Im Einsatz, Nach dem Einsatz, Einrichten, Sicherheit der Daten).
+- **Rundgang** (`/hilfe/rundgang`): 8 Bilder, jederzeit neu startbar. Beim Beenden merkt sich die App das (`tourSeen`) – für den Willkommens-Assistenten beim ersten Start.
+- Texte: `src/help/guides.ts` (Anleitungen, Hilfe je Seite und Schritt) und `src/help/tour.ts` (Rundgang).

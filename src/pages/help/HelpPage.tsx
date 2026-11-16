@@ -1,14 +1,70 @@
+import { Link } from 'react-router'
 import { PageTitle } from '../../components/Card'
 import { LinkList, ListLink } from '../../components/ListLink'
+import { getGuide, guideGroups } from '../../help/guides'
 
-/** Help centre: entry point for explanations and guides. */
+/** Help centre: guides, glossary and the tour. */
 export function HelpPage() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <PageTitle>Hilfe</PageTitle>
-      <LinkList>
-        <ListLink to="/hilfe/begriffe" title="Begriffe A–Z" meta="Fachbegriffe kurz erklärt" />
-      </LinkList>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Link
+          to="/hilfe/rundgang"
+          className="flex min-h-20 items-center gap-3 rounded-2xl bg-brand-700 p-4 font-semibold text-white"
+        >
+          <span aria-hidden="true" className="text-3xl">
+            🧭
+          </span>
+          <span>
+            <span className="block text-lg">Rundgang starten</span>
+            <span className="block text-sm font-normal text-white/85">
+              Die App in 8 kurzen Bildern
+            </span>
+          </span>
+        </Link>
+        <Link
+          to="/hilfe/begriffe"
+          className="flex min-h-20 items-center gap-3 rounded-2xl border-2 border-stone-300 bg-white p-4 font-semibold dark:border-stone-700 dark:bg-stone-900"
+        >
+          <span aria-hidden="true" className="text-3xl">
+            📖
+          </span>
+          <span>
+            <span className="block text-lg">Begriffe A–Z</span>
+            <span className="block text-sm font-normal text-stone-600 dark:text-stone-400">
+              Fachbegriffe kurz erklärt
+            </span>
+          </span>
+        </Link>
+      </div>
+
+      <p className="text-stone-700 dark:text-stone-300">
+        Tipp: Das „?“ oben rechts zeigt Hilfe zu der Seite, auf der du gerade bist – auch im
+        Einsatz.
+      </p>
+
+      <h2 className="text-xl font-bold">Wie mache ich …?</h2>
+      {guideGroups.map((group) => (
+        <section key={group.title} className="space-y-2">
+          <h3 className="font-semibold text-stone-600 dark:text-stone-400">{group.title}</h3>
+          <LinkList>
+            {group.guides.map((id) => {
+              const g = getGuide(id)
+              return (
+                g && (
+                  <ListLink
+                    key={id}
+                    to={`/hilfe/anleitung/${id}`}
+                    title={g.title}
+                    meta={g.summary}
+                  />
+                )
+              )
+            })}
+          </LinkList>
+        </section>
+      ))}
     </div>
   )
 }

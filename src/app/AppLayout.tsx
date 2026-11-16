@@ -1,4 +1,6 @@
-import { Link, NavLink, Outlet } from 'react-router'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { HelpButton } from '../help/HelpSheet'
+import { pageHelp } from '../help/guides'
 import { navItems } from './nav'
 import { Icon } from '../components/Icon'
 import { OnlineBadge } from '../components/OnlineBadge'
@@ -57,18 +59,7 @@ export function AppLayout() {
             </div>
             <div className="flex items-center gap-2">
               <OnlineBadge />
-              <Link
-                to="/hilfe"
-                aria-label="Hilfe"
-                title="Hilfe"
-                className={`flex size-12 items-center justify-center rounded-full border-2 text-xl font-bold ${
-                  branded
-                    ? 'border-white/60 text-white'
-                    : 'border-stone-300 text-brand-700 dark:border-stone-600 dark:text-brand-300'
-                }`}
-              >
-                ?
-              </Link>
+              <PageHelpButton onColor={branded} />
             </div>
           </div>
         </header>
@@ -102,5 +93,25 @@ export function AppLayout() {
         ))}
       </nav>
     </div>
+  )
+}
+
+/** "?" in the header: help for this page, or the help centre where there is none. */
+function PageHelpButton({ onColor }: { onColor: boolean }) {
+  const help = pageHelp(useLocation().pathname)
+  if (help) return <HelpButton help={help} onColor={onColor} />
+  return (
+    <Link
+      to="/hilfe"
+      aria-label="Hilfe"
+      title="Hilfe"
+      className={`flex size-12 items-center justify-center rounded-full border-2 text-xl font-bold ${
+        onColor
+          ? 'border-white/60 text-white'
+          : 'border-stone-300 text-brand-700 dark:border-stone-600 dark:text-brand-300'
+      }`}
+    >
+      ?
+    </Link>
   )
 }

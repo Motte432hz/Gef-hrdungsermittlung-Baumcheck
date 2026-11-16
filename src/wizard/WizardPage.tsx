@@ -18,6 +18,8 @@ import { stepState, SUMMARY_STEP_ID, wizardSteps, type StepState, type WizardSte
 import { StepView } from './StepView'
 import { SummaryStep } from './SummaryStep'
 import { OnlineBadge } from '../components/OnlineBadge'
+import { HelpButton } from '../help/HelpSheet'
+import { stepHelp } from '../help/guides'
 import { useOrganization } from '../app/useOrganization'
 import { neighbour } from './navigation'
 
@@ -231,6 +233,9 @@ function Wizard({
                 </span>
               </button>
               <OnlineBadge />
+              {stepHelp[step.id] && (
+                <HelpButton help={stepHelp[step.id]!} inWizard onColor={branded} />
+              )}
             </div>
             <div className="h-1 bg-stone-200 dark:bg-stone-800">
               <div
