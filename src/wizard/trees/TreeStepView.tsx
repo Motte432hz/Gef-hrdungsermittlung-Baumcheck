@@ -16,6 +16,7 @@ import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
 import { StepIntro } from '../StepIntro'
 import { useOfferUndo } from '../../components/undo/undo'
+import { QuickStartButton } from '../quick/QuickStartButton'
 import { OneTimeTip } from '../../help/OneTimeTip'
 import { stepTips } from '../../help/tips'
 
@@ -91,6 +92,13 @@ export function TreeStepView({ step }: { step: FormStep }) {
       {step.id === 'tree' && <PreviousTrees />}
       {step.id === 'treeAssessment' && <LastFindings tree={tree} />}
       {step.id === 'treeAssessment' && species && <SpeciesHazards species={species} compact />}
+      <QuickStartButton
+        step={step}
+        answers={tree.answers}
+        lookup={lookup}
+        treeId={tree.id}
+        title={treeLabel(tree)}
+      />
       {prefilled.length > 0 && (
         <Card>
           <p className="mb-3">

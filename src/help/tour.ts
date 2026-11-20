@@ -41,6 +41,7 @@ export const tourSlides: TourSlide[] = [
       '„Nein, unauffällig“ erledigt einen ganzen Bereich am Baum.',
       '„Alle offenen mit „Ja“ beantworten“ für Kontrollpunkte.',
       'Maßnahmen antippen oder mit „Sprechen“ diktieren.',
+      '„⚡ Schnellmodus“: eine Frage pro Bildschirm, riesige Knöpfe – auch mit Handschuhen.',
     ],
   },
   {

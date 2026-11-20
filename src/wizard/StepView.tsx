@@ -12,6 +12,7 @@ import { EmergencyCard } from './special/EmergencyCard'
 import { TreeStepView } from './trees/TreeStepView'
 import { StepIntro } from './StepIntro'
 import { useOfferUndo } from '../components/undo/undo'
+import { QuickStartButton } from './quick/QuickStartButton'
 import { OneTimeTip } from '../help/OneTimeTip'
 import { stepTips } from '../help/tips'
 
@@ -46,6 +47,7 @@ export function StepView({ step }: { step: FormStep }) {
     <div className="space-y-6">
       {step.intro && <StepIntro text={step.intro} />}
       {stepTips[step.id] && <OneTimeTip {...stepTips[step.id]!} />}
+      <QuickStartButton step={step} answers={assessment.answers} lookup={lookup} />
       {prefilled.length > 0 && (
         <Card>
           <p className="mb-3">

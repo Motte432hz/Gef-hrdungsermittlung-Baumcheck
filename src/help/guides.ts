@@ -43,6 +43,7 @@ export const guides: Guide[] = [
     title: 'Schneller ausfüllen',
     summary: 'Abkürzungen, die im Alltag viel Zeit sparen.',
     steps: [
+      '„⚡ Schnellmodus: Karte für Karte“ zeigt die Ja/Nein-Fragen eines Schritts einzeln mit großen Knöpfen – ideal mit Handschuhen. Bei „Nein“ oder „Vorhanden“ kommt sofort das Feld für die Maßnahme.',
       'Ist ein Bereich am Baum unauffällig, „Nein, unauffällig“ wählen – dann entfallen alle Einzelfragen dieses Bereichs.',
       '„Alle offenen mit „Ja“ beantworten“ beantwortet die restlichen Kontrollpunkte eines Abschnitts auf einmal. Danach kurz durchsehen.',
       'Die Standard-Ausrüstung aus den Profilen ist vorbelegt. Vor Ort prüfen und mit „Alle vorbelegten bestätigen“ übernehmen.',
