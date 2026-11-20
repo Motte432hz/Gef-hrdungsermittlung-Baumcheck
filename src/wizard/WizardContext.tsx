@@ -1,3 +1,4 @@
+import type { MeasureStats } from './inputs/measures'
 import { createContext, useContext } from 'react'
 import type { Answer, Assessment, Tree } from '../domain/types'
 import type { FormDefinition } from '../form/schema'
@@ -13,6 +14,8 @@ export interface WizardContextValue {
   /** Writes several answers in one go (gates clear the hazards of their section). */
   setAnswers: (changes: Record<string, Answer | undefined>, treeId?: string) => Promise<void>
   update: (changes: Partial<Assessment>) => Promise<void>
+  /** How often measures were used in earlier protocols of the company (quick-pick order). */
+  measureStats?: MeasureStats
 }
 
 export const WizardContext = createContext<WizardContextValue | null>(null)
@@ -21,4 +24,9 @@ export function useWizard(): WizardContextValue {
   const ctx = useContext(WizardContext)
   if (!ctx) throw new Error('useWizard outside WizardContext')
   return ctx
+}
+
+/** Quick-pick statistics, when rendered inside the wizard (fields also work without it). */
+export function useMeasureStatsContext(): MeasureStats | undefined {
+  return useContext(WizardContext)?.measureStats
 }

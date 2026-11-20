@@ -6,6 +6,8 @@ import { ItemLabel } from './InfoButton'
 import { ItemCard, PrefilledBadge } from './ItemCard'
 import { Notice } from './Notice'
 import { BufferedText } from './BufferedText'
+import { orderedMeasures } from './measures'
+import { useMeasureStatsContext } from '../WizardContext'
 
 export function ChoiceField({
   item,
@@ -16,6 +18,7 @@ export function ChoiceField({
   answer: Answer | undefined
   onChange: (answer: Answer | undefined) => void
 }) {
+  const measureStats = useMeasureStatsContext()
   const name = useId()
   const multi = item.type === 'multi'
   const values: string[] = Array.isArray(answer?.value)
@@ -104,7 +107,7 @@ export function ChoiceField({
           label={noteOption.noteLabel ?? 'Begründung'}
           initial={answer?.note ?? ''}
           onSave={(note) => onChange({ ...answer!, note })}
-          suggestions={noteOption.measures}
+          suggestions={orderedMeasures(noteOption.measures, measureStats?.get(item.id))}
         />
       )}
       {answer?.prefilled && (

@@ -865,3 +865,9 @@ Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 
 - **Wischen** nach links/rechts wechselt den Schritt (nicht auf Unterschriften-/Fotofeldern, Karten und Eingabefeldern).
 - **Sonnenmodus** (Schrittmenü und Einstellungen): größere Schrift, mehr Kontrast, immer hell. Gerätebezogen.
 - **Vibration** bei Antworten (länger bei „Nein“/„vorhanden“), abschaltbar in den Einstellungen. Nur Android; iPhones unterstützen das im Browser nicht.
+
+## Vorlagen und Wiederholung
+
+- **Einsatz-Vorlagen** (Firmen-Stammdaten, nur Admins ändern): „Vorlage anlegen …“ im letzten Schritt oder beim abgeschlossenen Protokoll. Gespeichert werden Einsatzart, geplante Arbeiten (inkl. „Sonstiges“-Text), Team aus den Profilen mit Rollen und die Ausrüstungs-/Notfallpunkte, die mit Ja oder „nicht relevant“ beantwortet waren – nie Prüfpunkte, Gefahren oder ein „Nein“. Start auf der Startseite unter „Mit Vorlage starten“; Ausrüstung kommt vorbelegt („bitte bestätigen“). Verwaltung: Profile → Einsatz-Vorlagen.
+- **„↻ Alles wie beim letzten Mal“** (Karte „Letzter Einsatz an diesem Objekt“): füllt nur Leeres – Einsatzart, Arbeiten, Adresse, what3words, Zufahrt, Krankenhaus, GPS, Team (mit aktuellen Qualifikationen) und die Bäume (mit Verweis auf den letzten Befund).
+- **Eigene Maßnahmen lernen**: Aus den Protokollen der Firma zählt die App, welche Maßnahmen je Frage genutzt wurden. Eigene Formulierungen, die mindestens zweimal vorkamen, erscheinen vorne als Vorschlag (höchstens 4); die vorgegebenen Vorschläge werden nach Häufigkeit sortiert. Übungen zählen nicht.

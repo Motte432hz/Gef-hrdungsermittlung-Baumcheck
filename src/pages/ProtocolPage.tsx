@@ -14,6 +14,7 @@ import { Card } from '../components/Card'
 import { Button } from '../components/Button'
 import { DocumentsCard } from './DocumentsCard'
 import { SendStatus } from './SendStatus'
+import { SaveTemplateCard } from './templates/SaveTemplateCard'
 
 const fmt = (iso?: string) =>
   iso
@@ -188,6 +189,8 @@ export function ProtocolPage() {
               Als Vorlage für neuen Einsatz
             </Button>
           </Card>
+
+          <SaveTemplateCard assessment={a} />
 
           <Card title="Korrektur">
             <p className="mb-3 text-stone-700 dark:text-stone-300">

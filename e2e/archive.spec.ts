@@ -106,7 +106,9 @@ test('next job at the same customer shows the last visit and takes over location
   await expect(card).toContainText('Letzter Einsatz hier:')
   await expect(card).toContainText('Damals keine Gefahren oder Abweichungen festgestellt.')
   await card.getByRole('button', { name: 'Standort und Rettungsweg übernehmen' }).click()
-  await expect(card.getByRole('button')).toHaveCount(0)
+  await expect(
+    card.getByRole('button', { name: 'Standort und Rettungsweg übernehmen' }),
+  ).toBeHidden()
   await page.getByRole('button', { name: 'Weiter ›' }).click()
   await expect(page.getByRole('textbox', { name: /Adresse/ })).toHaveValue(
     'Lindenstraße 4, 60311 Frankfurt',

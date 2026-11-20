@@ -52,6 +52,21 @@ export interface Organization extends BaseRecord {
   /** Where finished protocols are sent (phase 2). */
   reportEmails: string[]
   taxNumber?: string
+  /** Named job templates ("Kronenpflege SKT Standard"), master data of the company. */
+  jobTemplates?: JobTemplate[]
+}
+
+/** Starting point for a new job: job types, planned work, team and checked equipment. */
+export interface JobTemplate {
+  id: ID
+  name: string
+  /** Answers for "job.types" and "work.types" (incl. free text for "other"). */
+  answers: Answers
+  /** Equipment and emergency checkpoints, prefilled like the standard equipment. */
+  equipment: Record<string, string>
+  /** People from the profiles with their roles. */
+  team: { workerId: ID; roles: Role[] }[]
+  createdAt: ISODate
 }
 
 export const QUALIFICATIONS = ['as_baum_1', 'as_baum_2', 'skt_a', 'skt_b', 'skt_k'] as const

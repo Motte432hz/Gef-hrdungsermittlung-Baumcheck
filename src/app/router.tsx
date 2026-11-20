@@ -19,6 +19,7 @@ import { CustomerEditPage } from '../pages/profiles/CustomerEditPage'
 import { EquipmentPage } from '../pages/profiles/EquipmentPage'
 import { ProtocolPage } from '../pages/ProtocolPage'
 import { HelpPage } from '../pages/help/HelpPage'
+import { TemplatesPage } from '../pages/templates/TemplatesPage'
 import { GlossaryPage } from '../pages/help/GlossaryPage'
 import { GuidePage } from '../pages/help/GuidePage'
 import { TourPage } from '../pages/help/TourPage'
@@ -53,6 +54,7 @@ export const routes = [
           { path: 'profile/kunden', element: <CustomerListPage /> },
           { path: 'profile/kunden/:id', element: <CustomerEditPage /> },
           { path: 'profile/ausruestung', element: <EquipmentPage /> },
+          { path: 'profile/vorlagen', element: <TemplatesPage /> },
           { path: 'einstellungen', element: <SettingsPage /> },
           { path: 'hilfe', element: <HelpPage /> },
           { path: 'hilfe/begriffe', element: <GlossaryPage /> },

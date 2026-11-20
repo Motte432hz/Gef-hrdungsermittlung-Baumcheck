@@ -1,6 +1,7 @@
 import type { BaumCheckDB } from '../db/db'
-import { addTree, audit, getTrees, newId, updateAssessment } from '../db/repo'
-import type { Answers, Assessment, TeamMember } from '../domain/types'
+import { addTree, audit, getTrees, updateAssessment } from '../db/repo'
+import { copyTeam } from '../db/templates'
+import type { Answers, Assessment } from '../domain/types'
 import { startAssessment } from './start'
 
 /** Data that stays the same for a recurring job. Checkpoints and hazards are never copied. */
@@ -33,24 +34,12 @@ export async function createFromTemplate(db: BaumCheckDB, sourceId: string): Pro
     if (src.answers[id]) answers[id] = structuredClone(src.answers[id]!)
 
   // Team with fresh ids; qualifications refreshed from the current profiles.
-  const idMap = new Map<string, string>()
-  const team: TeamMember[] = []
-  for (const m of src.team) {
-    const worker = m.workerId ? await db.workers.get(m.workerId) : undefined
-    if (worker?.deletedAt) continue
-    const id = newId()
-    idMap.set(m.id, id)
-    team.push({
-      ...structuredClone(m),
-      id,
-      qualifications: worker ? structuredClone(worker.qualifications) : m.qualifications,
-    })
-  }
+  const { team, supervisorMemberId } = await copyTeam(db, src)
 
   await updateAssessment(db, draft.id, {
     answers,
     team,
-    supervisorMemberId: src.supervisorMemberId ? idMap.get(src.supervisorMemberId) : undefined,
+    supervisorMemberId,
     customerId: src.customerId,
     siteId: src.siteId,
     position: src.position,

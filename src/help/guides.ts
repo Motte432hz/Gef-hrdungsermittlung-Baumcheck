@@ -197,6 +197,22 @@ export const guides: Guide[] = [
     start: { label: 'Kunden öffnen', to: '/profile/kunden' },
   },
   {
+    id: 'vorlagen',
+    title: 'Einsatz-Vorlagen und „Wie beim letzten Mal“',
+    summary: 'Wiederkehrende Einsätze in wenigen Tipps vorbereiten.',
+    steps: [
+      'Im letzten Schritt eines Einsatzes oder bei einem abgeschlossenen Protokoll „Vorlage anlegen …“ antippen und einen Namen geben, z. B. „Kronenpflege SKT Standard“.',
+      'Gespeichert werden Einsatzart, geplante Arbeiten, Team mit Rollen und die geprüfte Ausrüstung – nie Prüfpunkte oder Gefahren.',
+      'Auf der Startseite unter „Mit Vorlage starten“ die Vorlage antippen: Der neue Einsatz ist damit vorbereitet.',
+      'Beim selben Kunden oder Objekt bietet die App im ersten Schritt „↻ Alles wie beim letzten Mal“ an: Einsatz, Standort, Rettungsweg, Team und Bäume vom letzten Mal.',
+    ],
+    tips: [
+      'Vorlagen umbenennen oder löschen: Profile → Einsatz-Vorlagen.',
+      'Maßnahmen, die ihr oft selbst schreibt, schlägt die App nach zweimaliger Verwendung zum Antippen vor.',
+    ],
+    start: { label: 'Einsatz-Vorlagen öffnen', to: '/profile/vorlagen' },
+  },
+  {
     id: 'backup',
     title: 'Daten sichern',
     summary: 'Ohne Cloud liegen die Daten nur auf diesem Gerät.',
@@ -226,7 +242,10 @@ export const guides: Guide[] = [
 export const guideGroups: GuideGroup[] = [
   { title: 'Im Einsatz', guides: ['einsatz', 'schneller', 'baeume', 'fotos', 'unterschriften'] },
   { title: 'Nach dem Einsatz', guides: ['abschliessen', 'korrektur', 'dokumente'] },
-  { title: 'Einrichten', guides: ['firma', 'team', 'ausruestung', 'kunden', 'einladen'] },
+  {
+    title: 'Einrichten',
+    guides: ['firma', 'team', 'ausruestung', 'kunden', 'vorlagen', 'einladen'],
+  },
   { title: 'Sicherheit der Daten', guides: ['backup', 'offline'] },
 ]
 
@@ -325,7 +344,7 @@ const pageHelpByPath: Record<string, PageHelp> = {
   '/profile': {
     title: 'Profile',
     text: 'Was du hier einmal einträgst, steht in jedem Einsatz zur Auswahl bereit.',
-    guides: ['firma', 'team', 'kunden', 'ausruestung'],
+    guides: ['firma', 'team', 'kunden', 'vorlagen', 'ausruestung'],
   },
   '/profile/firma': {
     title: 'Firma',

@@ -5,6 +5,8 @@ import { ItemLabel } from './InfoButton'
 import { ItemCard, PrefilledBadge } from './ItemCard'
 import { Notice } from './Notice'
 import { BufferedText } from './BufferedText'
+import { orderedMeasures } from './measures'
+import { useMeasureStatsContext } from '../WizardContext'
 
 type Props<I> = {
   item: I
@@ -17,6 +19,7 @@ const confirm = (a: Answer): Answer => ({ value: a.value, note: a.note })
 
 /** Kontrollpunkt: Ja / Nein / nicht relevant. "Nein" → warning + required measure. */
 export function CheckpointField({ item, answer, noteLabel, onChange }: Props<CheckpointItem>) {
+  const measureStats = useMeasureStatsContext()
   type V = 'yes' | 'no' | 'na'
   const value = answer?.value as V | undefined
   const options = [
@@ -52,7 +55,7 @@ export function CheckpointField({ item, answer, noteLabel, onChange }: Props<Che
             label={noteLabel}
             initial={answer?.note ?? ''}
             onSave={(note) => onChange({ value: 'no', note })}
-            suggestions={item.measures}
+            suggestions={orderedMeasures(item.measures, measureStats?.get(item.id))}
           />
         </>
       )}
@@ -62,6 +65,7 @@ export function CheckpointField({ item, answer, noteLabel, onChange }: Props<Che
 
 /** Gefahrenmerkmal: vorhanden / nicht vorhanden. "vorhanden" → required measure. */
 export function HazardField({ item, answer, noteLabel, onChange }: Props<HazardItem>) {
+  const measureStats = useMeasureStatsContext()
   type V = 'absent' | 'present'
   const value = answer?.value as V | undefined
   return (
@@ -94,7 +98,7 @@ export function HazardField({ item, answer, noteLabel, onChange }: Props<HazardI
           hint="Was wird getan, um die Gefahr zu beherrschen?"
           initial={answer?.note ?? ''}
           onSave={(note) => onChange({ value: 'present', note })}
-          suggestions={item.measures}
+          suggestions={orderedMeasures(item.measures, measureStats?.get(item.id))}
         />
       )}
     </ItemCard>

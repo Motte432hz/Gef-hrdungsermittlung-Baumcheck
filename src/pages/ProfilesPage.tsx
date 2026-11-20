@@ -55,6 +55,15 @@ export function ProfilesPage() {
           title="Kunden und Objekte"
           meta={count(stats?.customers, 'Kunde', 'Kunden')}
         />
+        <ListLink
+          to="/profile/vorlagen"
+          title="Einsatz-Vorlagen"
+          meta={
+            org?.jobTemplates?.length
+              ? org.jobTemplates.map((t) => t.name).join(' · ')
+              : 'Häufige Einsätze mit einem Tipp starten'
+          }
+        />
       </LinkList>
     </div>
   )

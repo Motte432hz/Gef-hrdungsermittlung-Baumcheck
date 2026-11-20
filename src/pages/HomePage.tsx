@@ -18,6 +18,8 @@ import { assessmentTitle, formatDateDe } from '../wizard/draftInfo'
 import { issuePath } from '../wizard/nextIssue'
 import { SUMMARY_STEP_ID, wizardSteps } from '../wizard/steps'
 import { SetupCards } from './home/SetupCards'
+import { templateSummary } from './templates/templateText'
+import type { JobTemplate } from '../domain/types'
 import { PracticeBadge, PracticeList } from './home/PracticeList'
 
 export function HomePage() {
@@ -60,10 +62,10 @@ export function HomePage() {
   const latest = drafts?.[0]
   const others = drafts?.slice(1) ?? []
 
-  const start = async () => {
+  const start = async (template?: JobTemplate) => {
     if (!org || starting) return
     setStarting(true)
-    const a = await startAssessment(db, org.id)
+    const a = await startAssessment(db, org.id, { template })
     navigate(`/einsatz/${a.id}/job`)
   }
 
@@ -98,6 +100,14 @@ export function HomePage() {
       >
         + Neue Gefährdungsermittlung
       </Button>
+
+      {org?.jobTemplates?.length ? (
+        <TemplateStart
+          templates={org.jobTemplates}
+          disabled={starting}
+          onStart={(t) => void start(t)}
+        />
+      ) : null}
 
       <DueNotice />
       <BackupReminder />
@@ -189,6 +199,38 @@ function ResumeCard({ draft, onRemove }: { draft: DraftInfo; onRemove?: () => vo
             🗑
           </button>
         )}
+      </div>
+    </section>
+  )
+}
+
+/** "Mit Vorlage starten": one tap starts a job with type, work, team and equipment. */
+function TemplateStart({
+  templates,
+  disabled,
+  onStart,
+}: {
+  templates: JobTemplate[]
+  disabled: boolean
+  onStart: (t: JobTemplate) => void
+}) {
+  const sorted = [...templates].sort((a, b) => a.name.localeCompare(b.name, 'de'))
+  return (
+    <section aria-label="Mit Vorlage starten" className="space-y-2">
+      <h2 className="font-semibold text-stone-700 dark:text-stone-300">Mit Vorlage starten</h2>
+      <div className="flex flex-wrap gap-2">
+        {sorted.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            disabled={disabled}
+            onClick={() => onStart(t)}
+            title={templateSummary(t)}
+            className="min-h-12 rounded-xl border-2 border-brand-700 bg-white px-4 font-semibold text-brand-700 dark:border-brand-300 dark:bg-stone-900 dark:text-brand-300"
+          >
+            ＋ {t.name}
+          </button>
+        ))}
       </div>
     </section>
   )

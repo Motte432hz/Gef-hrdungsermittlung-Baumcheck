@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { repeatPreviousVisit, REPEAT_ANSWER_IDS } from '../../db/templates'
 import { db } from '../../db/db'
 import { useWizard } from '../WizardContext'
 import { applyPreviousSite, findPreviousVisit, missingSiteAnswers } from '../previousVisit'
@@ -7,13 +9,31 @@ const formatDate = (iso: string) => iso.split('-').reverse().join('.')
 
 /** Hint on the last visit at the same customer/object: known hazards and one-tap location data. */
 export function PreviousVisitCard() {
-  const { assessment } = useWizard()
+  const { assessment, trees } = useWizard()
+  const [result, setResult] = useState<string>()
   const prev = useLiveQuery(
     () => findPreviousVisit(db, assessment),
     [assessment.id, assessment.customerId, assessment.siteId],
   )
   if (!prev) return null
   const p = prev.assessment
+  const canRepeat =
+    assessment.team.length === 0 ||
+    trees.length === 0 ||
+    REPEAT_ANSWER_IDS.some((id) => assessment.answers[id] === undefined && p.answers[id])
+  const repeat = async () => {
+    const r = await repeatPreviousVisit(db, assessment, p)
+    const parts = [
+      r.answers ? `${r.answers} Angaben` : '',
+      r.team ? `Team (${r.team})` : '',
+      r.trees ? `${r.trees} ${r.trees === 1 ? 'Baum' : 'Bäume'}` : '',
+    ].filter(Boolean)
+    setResult(
+      parts.length
+        ? `✓ Übernommen: ${parts.join(', ')}. Alle Prüfpunkte bitte vor Ort neu beurteilen.`
+        : 'Es war schon alles ausgefüllt.',
+    )
+  }
   const canApply =
     Object.keys(missingSiteAnswers(assessment, p)).length > 0 ||
     (!assessment.position && !!p.position)
@@ -44,7 +64,21 @@ export function PreviousVisitCard() {
       ) : (
         <p className="text-sm">Damals keine Gefahren oder Abweichungen festgestellt.</p>
       )}
-      {canApply && (
+      {canRepeat && !result && (
+        <button
+          type="button"
+          onClick={() => void repeat()}
+          className="min-h-12 w-full rounded-xl bg-sky-800 px-3 font-semibold text-white dark:bg-sky-300 dark:text-sky-950"
+        >
+          ↻ Alles wie beim letzten Mal
+        </button>
+      )}
+      {result && (
+        <p role="status" className="font-semibold">
+          {result}
+        </p>
+      )}
+      {canApply && !result && (
         <button
           type="button"
           onClick={() => void applyPreviousSite(db, assessment, p)}

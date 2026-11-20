@@ -24,6 +24,7 @@ import { SignCard } from './summary/SignCard'
 import { SignSequence } from './summary/SignSequence'
 import { Button } from '../components/Button'
 import { CompleteCard } from './summary/CompleteCard'
+import { SaveTemplateCard } from '../pages/templates/SaveTemplateCard'
 
 const levelOrder: IssueLevel[] = ['danger', 'blocking', 'warning', 'info']
 const levelTitle: Record<IssueLevel, string> = {
@@ -251,6 +252,8 @@ export function SummaryStep() {
 
       {/* 5. Completion */}
       <CompleteCard ready={ready && allSigned(req)} assessmentId={assessment.id} />
+
+      {!assessment.practice && <SaveTemplateCard assessment={assessment} />}
     </div>
   )
 }

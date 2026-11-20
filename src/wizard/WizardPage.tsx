@@ -24,6 +24,7 @@ import { EmergencyButton } from './EmergencyButton'
 import { SunToggle } from '../components/DevicePrefToggles'
 import { haptic } from '../lib/devicePrefs'
 import { useSwipe } from './useSwipe'
+import { useMeasureStats } from './useMeasureStats'
 import { stepHelp } from '../help/guides'
 import { useOrganization } from '../app/useOrganization'
 import { neighbour } from './navigation'
@@ -155,7 +156,10 @@ function Wizard({
     if (!window.location.hash) window.scrollTo(0, 0)
   }, [step.id])
 
+  const measureStats = useMeasureStats(assessment.organizationId, assessment.id)
+
   const ctx: WizardContextValue = {
+    measureStats,
     definition,
     assessment,
     trees,
