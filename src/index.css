@@ -41,3 +41,28 @@
 @utility pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+
+/*
+ * Sun mode (bright daylight): larger text and stronger contrast. Greys become near-black,
+ * thin light borders become clearly visible.
+ */
+@layer base {
+  html.sun {
+    font-size: 112.5%;
+  }
+  html.sun body {
+    background: #fff;
+    color: #000;
+  }
+}
+@layer utilities {
+  .sun :is(.text-stone-500, .text-stone-600, .text-stone-700, .text-stone-800) {
+    color: #111;
+  }
+  .sun :is(.border-stone-200, .border-stone-300) {
+    border-color: #57534e;
+  }
+  .sun :is(.bg-stone-50, .bg-stone-100) {
+    background-color: #fff;
+  }
+}

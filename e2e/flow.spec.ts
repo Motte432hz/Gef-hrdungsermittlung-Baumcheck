@@ -36,7 +36,7 @@ test('next open point leads across steps; the start page resumes there', async (
 test('one-time tips disappear and can be shown again', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: '+ Neue Gefährdungsermittlung' }).click()
-  const tip = page.getByRole('complementary', { name: 'Tipp' })
+  const tip = page.getByRole('note', { name: 'Tipp' })
   await expect(tip).toContainText('Fachbegriffe antippen')
   await tip.getByRole('button', { name: 'Verstanden' }).click()
   await expect(tip).toBeHidden()

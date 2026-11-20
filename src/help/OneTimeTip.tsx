@@ -8,7 +8,8 @@ export function OneTimeTip({ id, text }: { id: string; text: string }) {
   const seen = useLiveQuery(async () => !!(await db.meta.get(key)), [key])
   if (seen !== false) return null
   return (
-    <aside
+    <div
+      role="note"
       aria-label="Tipp"
       className="space-y-2 rounded-xl border-2 border-dashed border-sky-400 bg-sky-50 p-3 dark:border-sky-700 dark:bg-sky-950"
     >
@@ -26,6 +27,6 @@ export function OneTimeTip({ id, text }: { id: string; text: string }) {
           Verstanden
         </button>
       </div>
-    </aside>
+    </div>
   )
 }

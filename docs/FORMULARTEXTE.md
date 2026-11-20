@@ -856,3 +856,12 @@ Profile → Team & Partner → „Fristen“: abgelaufene oder in den nächsten 
 - **Startseite „Was ist jetzt dran?“**: Der zuletzt bearbeitete Entwurf steht oben als „Weitermachen“ – der Knopf führt direkt zum ersten offenen Pflichtpunkt („Weiter bei „Standort & Rettung““) bzw. zu „Prüfen & abschließen“. Darunter „+ Neue Gefährdungsermittlung“, dann Hinweise (Fristen, Backup), die Einrichtungs-Checkliste und weitere Entwürfe.
 - **„Noch x offen – Nächster offener ›“** unten im Assistenten: springt zum nächsten offenen Pflichtpunkt, erst im aktuellen Schritt, dann in den folgenden, danach wieder von vorn. Sind alle erledigt: „✓ Alles Nötige ausgefüllt – Zum Abschluss ›“.
 - **Einmalige Tipps** (je Schritt einer, Texte in `src/help/tips.ts`): verschwinden nach „Verstanden“; unter Hilfe → „Tipps wieder anzeigen“ kommen sie zurück.
+
+## Bedienung draußen
+
+- **SOS** oben im Assistenten (jeder Schritt): Notfallinfo groß, „112 anrufen“, „🔊 Vorlesen“ (Sprachausgabe, deutsch), „Notfallinfo teilen“.
+- **Alle nacheinander unterschreiben**: Vollbild; vor jeder Person „Gerät weitergeben an …“ mit „Ich bin … – weiter“; großes Unterschriftenfeld; hinterlegte Unterschrift wählbar (mit Bestätigung der Aufsicht); „Überspringen“ möglich.
+- **Rückgängig** (8 Sekunden) nach „Alle offenen mit Ja beantworten“, „Alle vorbelegten bestätigen“ und „+ Weiterer Baum wie …“.
+- **Wischen** nach links/rechts wechselt den Schritt (nicht auf Unterschriften-/Fotofeldern, Karten und Eingabefeldern).
+- **Sonnenmodus** (Schrittmenü und Einstellungen): größere Schrift, mehr Kontrast, immer hell. Gerätebezogen.
+- **Vibration** bei Antworten (länger bei „Nein“/„vorhanden“), abschaltbar in den Einstellungen. Nur Android; iPhones unterstützen das im Browser nicht.

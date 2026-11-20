@@ -1,14 +1,14 @@
 import { useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../db/db'
-import { addSignature, removeSignatures } from '../../db/repo'
+import { removeSignatures } from '../../db/repo'
+import { saveSignature } from './saveSignature'
 import type { GeoPosition, Signature } from '../../domain/types'
 import { signatureMethodText, type RequiredSignature } from '../../report/signatures'
 import { ROLE_LABELS } from '../../domain/roles'
 import { SignatureCanvas } from '../../components/SignatureField'
 import { Button } from '../../components/Button'
 import { Toggle } from '../../components/form/Field'
-import { toStoredFile } from '../../lib/storedFile'
 import { useObjectUrl } from '../../lib/useObjectUrl'
 import { quickPosition } from '../../lib/quickPosition'
 import { formatDecimal } from '../../domain/geo'
@@ -59,22 +59,14 @@ export function SignCard({
     setSaving(true)
     setError(undefined)
     try {
-      const file = image ? await toStoredFile(image, 'image/png') : stored!
-      const pos = await Promise.race([
-        position.current ?? Promise.resolve(undefined),
-        new Promise<undefined>((r) => setTimeout(() => r(undefined), 800)),
-      ])
-      await addSignature(db, assessmentId, {
-        memberId: member.id,
-        name: member.name,
-        roles: member.roles,
-        statement,
+      await saveSignature({
+        assessmentId,
+        req,
+        image: image ?? stored!,
         method,
         confirmedBy: method === 'stored' ? supervisorName : undefined,
-        image: file,
-        signedAt: new Date().toISOString(),
-        position: pos,
         contentHash,
+        position: position.current,
       })
       setMode('idle')
     } catch (e) {

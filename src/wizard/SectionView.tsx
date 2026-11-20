@@ -1,6 +1,7 @@
 import type { Answer, Answers } from '../domain/types'
 import type { FormItem, FormSection } from '../form/schema'
 import { GATE_NONE, GATE_SOME } from '../form/schema'
+import { useOfferUndo } from '../components/undo/undo'
 import { isItemVisible, makeLookup } from '../form/validation'
 import { Segmented } from '../components/form/Segmented'
 import { useWizard } from './WizardContext'
@@ -158,6 +159,7 @@ function AllYesButton({
   treeId?: string
 }) {
   const { setAnswers } = useWizard()
+  const offerUndo = useOfferUndo()
   const pending = items.filter(
     (i) =>
       i.type === 'checkpoint' &&
@@ -170,7 +172,14 @@ function AllYesButton({
       const note = answers[i.id]?.note
       changes[i.id] = { value: 'yes', ...(note ? { note } : {}) }
     }
-    void setAnswers(changes, treeId)
+    // The answers as they were, to bring them back.
+    const before = Object.fromEntries(pending.map((i) => [i.id, answers[i.id]]))
+    void setAnswers(changes, treeId).then(() =>
+      offerUndo({
+        message: `${pending.length} Punkte mit „Ja“ beantwortet.`,
+        undo: () => setAnswers(before, treeId),
+      }),
+    )
   }
   return (
     <button

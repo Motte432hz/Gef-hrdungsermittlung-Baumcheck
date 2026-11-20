@@ -3,7 +3,8 @@ import { useWizard } from '../WizardContext'
 import { formatDecimal } from '../../domain/geo'
 import { emergencyText } from '../../domain/emergency'
 
-export function EmergencyCard() {
+/** large: in the emergency sheet – bigger text, read aloud. */
+export function EmergencyCard({ large = false }: { large?: boolean }) {
   const { assessment } = useWizard()
   const [shared, setShared] = useState(false)
   const val = (id: string) => {
@@ -35,7 +36,11 @@ export function EmergencyCard() {
     >
       <h2 className="text-xl font-bold">Notfallinfo</h2>
       {text ? (
-        <pre className="font-sans text-base whitespace-pre-wrap">{text}</pre>
+        <pre
+          className={`font-sans whitespace-pre-wrap ${large ? 'text-xl leading-relaxed font-semibold' : 'text-base'}`}
+        >
+          {text}
+        </pre>
       ) : (
         <p>Noch keine Angaben. Adresse oder GPS-Position eintragen.</p>
       )}
@@ -46,6 +51,15 @@ export function EmergencyCard() {
         >
           📞 112 anrufen
         </a>
+        {text && large && canSpeak() && (
+          <button
+            type="button"
+            onClick={() => speak(text)}
+            className="min-h-14 rounded-xl border-2 border-red-700 px-5 font-semibold"
+          >
+            🔊 Vorlesen
+          </button>
+        )}
         {text && (
           <button
             type="button"
@@ -58,4 +72,19 @@ export function EmergencyCard() {
       </div>
     </section>
   )
+}
+
+const canSpeak = () => typeof window !== 'undefined' && 'speechSynthesis' in window
+
+/** Reads the emergency info aloud, e.g. next to the phone during the emergency call. */
+function speak(text: string) {
+  try {
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    u.lang = 'de-DE'
+    u.rate = 0.9
+    window.speechSynthesis.speak(u)
+  } catch {
+    // Not available.
+  }
 }

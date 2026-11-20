@@ -20,13 +20,16 @@
       // Apply the theme before first paint to avoid a light flash in dark mode.
       ;(function () {
         var pref = 'system'
+        var sun = false
         try {
           pref = localStorage.getItem('baumcheck.theme') || 'system'
+          sun = localStorage.getItem('baumcheck.sun') === '1'
         } catch (e) {}
         var dark =
           pref === 'dark' ||
           (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        if (dark) document.documentElement.classList.add('dark')
+        if (sun) document.documentElement.classList.add('sun')
+        else if (dark) document.documentElement.classList.add('dark')
       })()
     </script>
   </head>

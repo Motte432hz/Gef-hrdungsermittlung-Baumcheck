@@ -3,6 +3,7 @@ import { Outlet } from 'react-router'
 import { db } from '../db/db'
 import { startAutoSync } from '../cloud/syncManager'
 import { UpdatePrompt } from '../components/UpdatePrompt'
+import { UndoProvider } from '../components/undo/UndoProvider'
 import { useThemeSync } from '../lib/theme'
 import { useBranding } from './useBranding'
 
@@ -12,9 +13,9 @@ export function RootLayout() {
   useBranding()
   useEffect(() => startAutoSync(db), [])
   return (
-    <>
+    <UndoProvider>
       <UpdatePrompt />
       <Outlet />
-    </>
+    </UndoProvider>
   )
 }

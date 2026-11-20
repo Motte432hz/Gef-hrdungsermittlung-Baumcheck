@@ -67,7 +67,7 @@ export const tourSlides: TourSlide[] = [
   {
     icon: '🛟',
     title: 'Hilfe ist immer da',
-    text: 'Das „?“ oben rechts zeigt Hilfe zu genau der Seite, auf der du gerade bist – auch im Einsatz.',
+    text: 'Das „?“ oben rechts zeigt Hilfe zu genau der Seite, auf der du gerade bist – auch im Einsatz. Daneben bringt „SOS“ im Einsatz jederzeit die Notfallinfo mit 112-Knopf.',
     points: ['Im Hilfe-Center findest du Anleitungen, Begriffe A–Z und diesen Rundgang.'],
   },
 ]

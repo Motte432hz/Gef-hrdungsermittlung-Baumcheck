@@ -84,7 +84,8 @@ export const guides: Guide[] = [
       'Im letzten Schritt „Prüfen & Abschließen“ nach unten scrollen.',
       'Die Aufsicht bestätigt mit ihrer Unterschrift, dass die Arbeiten durchgeführt werden können.',
       'Jede Person im Team bestätigt, dass sie unterwiesen wurde und alles verstanden hat.',
-      'Bei jeder Person „✍ Jetzt unterschreiben“ antippen, mit dem Finger unterschreiben und bestätigen.',
+      '„✍ Alle nacheinander unterschreiben“ antippen: Die App zeigt jede Person groß an, das Gerät wird weitergereicht, jede Person unterschreibt im großen Feld.',
+      'Alternativ bei einer einzelnen Person „✍ Jetzt unterschreiben“ antippen.',
     ],
     tips: [
       'Erst unterschreiben, wenn alle Gefahren und Maßnahmen besprochen sind.',

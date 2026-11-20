@@ -15,6 +15,7 @@ import type { Answer } from '../../domain/types'
 import { Button } from '../../components/Button'
 import { Card } from '../../components/Card'
 import { StepIntro } from '../StepIntro'
+import { useOfferUndo } from '../../components/undo/undo'
 import { OneTimeTip } from '../../help/OneTimeTip'
 import { stepTips } from '../../help/tips'
 
@@ -22,6 +23,7 @@ import { stepTips } from '../../help/tips'
 export function TreeStepView({ step }: { step: FormStep }) {
   const { assessment, trees, definition, setAnswers } = useWizard()
   const navigate = useNavigate()
+  const offerUndo = useOfferUndo()
   const [params] = useSearchParams()
   const tree = trees.find((t) => t.id === params.get('baum')) ?? trees[0]
 
@@ -62,8 +64,16 @@ export function TreeStepView({ step }: { step: FormStep }) {
     void setAnswers(changes, tree.id)
   }
   const addLike = async () => {
-    const t = await addTreeLike(db, definition, tree)
+    const from = tree
+    const t = await addTreeLike(db, definition, from)
     navigate(`/einsatz/${assessment.id}/tree?baum=${t.id}`)
+    offerUndo({
+      message: `Neuer Baum wie ${treeLabel(from).split(' · ')[0]} angelegt.`,
+      undo: async () => {
+        await removeTree(db, t.id)
+        navigate(`/einsatz/${assessment.id}/tree?baum=${from.id}`, { replace: true })
+      },
+    })
   }
 
   const remove = async () => {

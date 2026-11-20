@@ -60,10 +60,13 @@ export function SignatureCanvas({
   label,
   onDone,
   onCancel,
+  tall = false,
 }: {
   label: string
   onDone: (blob: Blob) => void
   onCancel?: () => void
+  /** Larger field (full-screen signing). */
+  tall?: boolean
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const padRef = useRef<SignaturePad | null>(null)
@@ -122,7 +125,7 @@ export function SignatureCanvas({
         ref={canvasRef}
         aria-label={`${label}: Unterschriftenfeld`}
         role="img"
-        className="h-44 w-full touch-none rounded-xl border-2 border-dashed border-stone-400 bg-white md:h-56"
+        className={`w-full touch-none rounded-xl border-2 border-dashed border-stone-400 bg-white ${tall ? 'h-[40dvh] min-h-56' : 'h-44 md:h-56'}`}
       />
       <p className="text-sm text-stone-600 dark:text-stone-400">
         Mit dem Finger oder Stift im weißen Feld unterschreiben.

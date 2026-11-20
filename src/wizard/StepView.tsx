@@ -11,11 +11,13 @@ import { Card } from '../components/Card'
 import { EmergencyCard } from './special/EmergencyCard'
 import { TreeStepView } from './trees/TreeStepView'
 import { StepIntro } from './StepIntro'
+import { useOfferUndo } from '../components/undo/undo'
 import { OneTimeTip } from '../help/OneTimeTip'
 import { stepTips } from '../help/tips'
 
 export function StepView({ step }: { step: FormStep }) {
-  const { assessment } = useWizard()
+  const { assessment, setAnswers } = useWizard()
+  const offerUndo = useOfferUndo()
   const { hash } = useLocation()
 
   // Jump to an item (from the summary list).
@@ -52,7 +54,15 @@ export function StepView({ step }: { step: FormStep }) {
           </p>
           <Button
             variant="secondary"
-            onClick={() => void confirmPrefilled(db, assessment.id, prefilled)}
+            onClick={() => {
+              const before = Object.fromEntries(prefilled.map((id) => [id, assessment.answers[id]]))
+              void confirmPrefilled(db, assessment.id, prefilled).then(() =>
+                offerUndo({
+                  message: `${prefilled.length} vorbelegte Punkte bestätigt.`,
+                  undo: () => setAnswers(before),
+                }),
+              )
+            }}
           >
             Alle vorbelegten bestätigen
           </Button>

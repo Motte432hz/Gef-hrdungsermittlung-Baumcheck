@@ -1,4 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react'
+import { usePref } from './devicePrefs'
 
 export type ThemePreference = 'system' | 'light' | 'dark'
 
@@ -41,12 +42,16 @@ export function useThemePreference(): ThemePreference {
 /** Keeps the `dark` class on <html> in sync with preference and OS setting. */
 export function useThemeSync(): void {
   const pref = useThemePreference()
+  // Sun mode: always light, larger and with more contrast.
+  const sun = usePref('sun')
   useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const apply = () =>
-      document.documentElement.classList.toggle('dark', resolveDark(pref, mq.matches))
+    const apply = () => {
+      document.documentElement.classList.toggle('dark', !sun && resolveDark(pref, mq.matches))
+      document.documentElement.classList.toggle('sun', sun)
+    }
     apply()
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
-  }, [pref])
+  }, [pref, sun])
 }

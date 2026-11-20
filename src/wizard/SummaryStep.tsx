@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { canComplete, type Issue, type IssueLevel } from '../form/validation'
@@ -20,6 +21,8 @@ import {
 } from '../report/summary'
 import { formatDateDe } from './draftInfo'
 import { SignCard } from './summary/SignCard'
+import { SignSequence } from './summary/SignSequence'
+import { Button } from '../components/Button'
 import { CompleteCard } from './summary/CompleteCard'
 
 const levelOrder: IssueLevel[] = ['danger', 'blocking', 'warning', 'info']
@@ -58,6 +61,7 @@ function Rows({ rows }: { rows: SummaryRow[] }) {
 
 export function SummaryStep() {
   const { definition, assessment, trees, issues } = useWizard()
+  const [sequence, setSequence] = useState(false)
   const steps = wizardSteps(definition)
   const stepTitle = (id: string) => steps.find((s) => s.id === id)?.title ?? id
   const ready = canComplete(issues)
@@ -209,22 +213,39 @@ export function SummaryStep() {
         ) : req.length === 0 ? (
           <Notice level="blocking">Im Team ist noch niemand eingetragen.</Notice>
         ) : (
-          <ul className="space-y-3">
-            {req.map((r) => (
-              <SignCard
-                key={`${r.member.id}-${r.statement}`}
-                req={r}
-                statementText={
-                  r.statement === 'supervisor'
-                    ? definition.statements.supervisor
-                    : definition.statements.member
-                }
+          <>
+            {req.some((r) => !r.signature || r.outdated) && (
+              <Button className="min-h-16 w-full text-lg" onClick={() => setSequence(true)}>
+                ✍ Alle nacheinander unterschreiben
+              </Button>
+            )}
+            {sequence && (
+              <SignSequence
+                reqs={req}
+                statements={definition.statements}
                 assessmentId={assessment.id}
                 contentHash={data.hash}
                 supervisorName={supervisor?.name}
+                onClose={() => setSequence(false)}
               />
-            ))}
-          </ul>
+            )}
+            <ul className="space-y-3">
+              {req.map((r) => (
+                <SignCard
+                  key={`${r.member.id}-${r.statement}`}
+                  req={r}
+                  statementText={
+                    r.statement === 'supervisor'
+                      ? definition.statements.supervisor
+                      : definition.statements.member
+                  }
+                  assessmentId={assessment.id}
+                  contentHash={data.hash}
+                  supervisorName={supervisor?.name}
+                />
+              ))}
+            </ul>
+          </>
         )}
       </section>
 

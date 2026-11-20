@@ -16,6 +16,7 @@ import { normalizeCode } from '../domain/protocolNumber'
 import { BackupCard } from './BackupCard'
 import { ResetCard } from './ResetCard'
 import { ColorModeChooser } from './ColorModeChooser'
+import { SunToggle, VibrateToggle } from '../components/DevicePrefToggles'
 
 const themeOptions: { value: ThemePreference; label: string }[] = [
   { value: 'system', label: 'Wie Gerät' },
@@ -71,6 +72,10 @@ export function SettingsPage() {
           </div>
         </fieldset>
         <ColorModeChooser />
+        <div className="mt-3 space-y-1">
+          <SunToggle />
+          <VibrateToggle />
+        </div>
       </Card>
 
       <Card title="Speicher auf diesem Gerät">

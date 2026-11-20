@@ -20,6 +20,10 @@ import { StepView } from './StepView'
 import { SummaryStep } from './SummaryStep'
 import { OnlineBadge } from '../components/OnlineBadge'
 import { HelpButton } from '../help/HelpSheet'
+import { EmergencyButton } from './EmergencyButton'
+import { SunToggle } from '../components/DevicePrefToggles'
+import { haptic } from '../lib/devicePrefs'
+import { useSwipe } from './useSwipe'
 import { stepHelp } from '../help/guides'
 import { useOrganization } from '../app/useOrganization'
 import { neighbour } from './navigation'
@@ -156,18 +160,22 @@ function Wizard({
     assessment,
     trees,
     issues,
-    setAnswer: (itemId, answer, treeId) =>
-      guard(
+    setAnswer: (itemId, answer, treeId) => {
+      haptic(answer?.value === 'no' || answer?.value === 'present' ? 'warn' : 'tap')
+      return guard(
         treeId
           ? setTreeAnswer(db, treeId, itemId, answer)
           : setAnswer(db, assessment.id, itemId, answer),
-      ),
-    setAnswers: (changes, treeId) =>
-      guard(treeId ? setTreeAnswers(db, treeId, changes) : setAnswers(db, assessment.id, changes)),
+      )
+    },
+    setAnswers: (changes, treeId) => {
+      haptic('tap')
+      return guard(
+        treeId ? setTreeAnswers(db, treeId, changes) : setAnswers(db, assessment.id, changes),
+      )
+    },
     update: (changes) => guard(updateAssessment(db, assessment.id, changes)),
   }
-
-  if (stepId !== step.id) return <Navigate to={`/einsatz/${assessment.id}/${step.id}`} replace />
 
   const go = (direction: 1 | -1) => {
     const target = neighbour(
@@ -182,6 +190,14 @@ function Wizard({
       )
     }
   }
+  const swipe = useSwipe((dir) => {
+    // The last step has no "next".
+    if (dir === 1 && index === steps.length - 1) return
+    if (dir === -1 && index === 0) return
+    go(dir)
+  })
+
+  if (stepId !== step.id) return <Navigate to={`/einsatz/${assessment.id}/${step.id}`} replace />
 
   return (
     <WizardContext.Provider value={ctx}>
@@ -197,6 +213,9 @@ function Wizard({
               states={states}
               assessmentId={assessment.id}
             />
+            <div className="mt-4 border-t border-stone-200 px-2 pt-3 dark:border-stone-800">
+              <SunToggle />
+            </div>
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
@@ -207,20 +226,20 @@ function Wizard({
               <Link
                 to="/"
                 aria-label="Assistent schließen"
-                className={`flex size-12 items-center justify-center rounded-full text-2xl ${branded ? 'hover:bg-white/15' : 'hover:bg-stone-100 dark:hover:bg-stone-800'}`}
+                className={`flex size-12 shrink-0 items-center justify-center rounded-full text-2xl ${branded ? 'hover:bg-white/15' : 'hover:bg-stone-100 dark:hover:bg-stone-800'}`}
               >
                 ×
               </Link>
               <button
                 type="button"
-                className="flex min-h-12 flex-1 items-center gap-2 rounded-xl px-2 text-left md:pointer-events-none"
+                className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-xl px-1 text-left md:pointer-events-none"
                 aria-expanded={menuOpen}
                 aria-controls="step-menu"
                 onClick={() => setMenuOpen(!menuOpen)}
               >
                 <span className="min-w-0">
                   <span
-                    className={`block text-sm ${branded ? 'text-white/80' : 'text-stone-600 dark:text-stone-400'}`}
+                    className={`block truncate text-sm ${branded ? 'text-white/80' : 'text-stone-600 dark:text-stone-400'}`}
                   >
                     Schritt {index + 1} von {steps.length}
                   </span>
@@ -233,7 +252,8 @@ function Wizard({
                   {menuOpen ? '▴' : '▾'}
                 </span>
               </button>
-              <OnlineBadge />
+              <OnlineBadge compact />
+              <EmergencyButton />
               {stepHelp[step.id] && (
                 <HelpButton help={stepHelp[step.id]!} inWizard onColor={branded} />
               )}
@@ -256,11 +276,14 @@ function Wizard({
                   assessmentId={assessment.id}
                   onPick={() => setMenuOpen(false)}
                 />
+                <div className="mt-2 border-t border-stone-200 px-2 pt-2 dark:border-stone-800">
+                  <SunToggle />
+                </div>
               </div>
             )}
           </header>
 
-          <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-44">
+          <main className="mx-auto w-full max-w-3xl flex-1 px-4 pt-4 pb-44" {...swipe}>
             {saveError && (
               <div
                 role="alert"
